@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "80479463864",
+    "project_id": "soutenance-6fd64",
+    "storage_bucket": "soutenance-6fd64.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:80479463864:android:00e374172cd080031fc74d",
+        "android_client_info": {
+          "package_name": "com.sante.frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQUU4HnYXXpPW8sDMFffd5gOkcUaQejH8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
