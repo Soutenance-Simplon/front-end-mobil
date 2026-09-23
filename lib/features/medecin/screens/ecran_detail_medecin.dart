@@ -50,6 +50,12 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
     final specialite = widget.medecin['specialite'] ?? 'Médecine Générale';
     final etablissement = widget.medecin['adresse'] ?? widget.medecin['etablissement'] ?? 'Centre Hospitalier';
     final tarif = widget.medecin['tarifConsultation'] ?? widget.medecin['tarif_consultation'] ?? 15000;
+    final note = widget.medecin['note'] ?? 4.9;
+    final nombreAvis = widget.medecin['nombre_avis'] ?? widget.medecin['nombreAvis'] ?? 28;
+    final experience = widget.medecin['annees_experience'] ?? widget.medecin['anneesExperience'] ?? widget.medecin['experience'] ?? 8;
+    final biographie = widget.medecin['biographie'] ?? widget.medecin['bio'] ??
+        "$nom est un médecin spécialiste qualifié en $specialite, inscrit à l'Ordre National des Médecins du Sénégal (ONMS). "
+        "Consultations en cabinet et téléconsultations sécurisées au tarif de $tarif FCFA.";
 
     final dateChoisie = _dates[_indexDateSelectionnee];
 
@@ -158,34 +164,34 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                         ),
                         const SizedBox(height: 24),
 
-                        // STATISTIQUES MÉDECIN
+                        // STATISTIQUES MÉDECIN DYNAMIQUES
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
                           decoration: BoxDecoration(
                             color: const Color(0xFF00A884),
                             borderRadius: BorderRadius.circular(24),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.people_alt_outlined, color: Colors.white, size: 24),
-                                  SizedBox(width: 10),
+                                  const Icon(Icons.star_rounded, color: Colors.amber, size: 26),
+                                  const SizedBox(width: 10),
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "1 000+",
-                                        style: TextStyle(
+                                        "$note ★",
+                                        style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
                                         ),
                                       ),
                                       Text(
-                                        "Patients suivis",
-                                        style: TextStyle(fontSize: 11, color: Colors.white70),
+                                        "$nombreAvis Avis vérifiés",
+                                        style: const TextStyle(fontSize: 11, color: Colors.white70),
                                       ),
                                     ],
                                   ),
@@ -193,21 +199,21 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                               ),
                               Row(
                                 children: [
-                                  Icon(Icons.star_rounded, color: Colors.amber, size: 26),
-                                  SizedBox(width: 10),
+                                  const Icon(Icons.workspace_premium_outlined, color: Colors.white, size: 24),
+                                  const SizedBox(width: 10),
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "4.9",
-                                        style: TextStyle(
+                                        "$experience Ans",
+                                        style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
                                         ),
                                       ),
-                                      Text(
-                                        "Avis vérifiés",
+                                      const Text(
+                                        "D'expérience",
                                         style: TextStyle(fontSize: 11, color: Colors.white70),
                                       ),
                                     ],
@@ -230,8 +236,7 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Médecin spécialiste inscrit à l'Ordre National des Médecins du Sénégal (ONMS). "
-                          "Consultations en cabinet et téléconsultations sécurisées au tarif de $tarif FCFA.",
+                          biographie,
                           style: const TextStyle(
                             fontSize: 14,
                             color: Color(0xFF8E95A5),

@@ -16,6 +16,7 @@ class MedecinModel {
   final double tarifConsultation;
   final double note;
   final int nombreAvis;
+  final int anneesExperience;
   final bool isVerified;
   final bool teleconsultationActive;
   final int dureeConsultationMinutes;
@@ -37,6 +38,7 @@ class MedecinModel {
     this.tarifConsultation = 15000,
     this.note = 4.8,
     this.nombreAvis = 24,
+    this.anneesExperience = 8,
     this.isVerified = true,
     this.teleconsultationActive = true,
     this.dureeConsultationMinutes = 30,
@@ -79,6 +81,7 @@ class MedecinModel {
       tarifConsultation: (json['tarifConsultation'] ?? json['tarif_consultation'] ?? 15000).toDouble(),
       note: (json['note'] ?? 4.9).toDouble(),
       nombreAvis: json['nombre_avis'] ?? json['nombreAvis'] ?? 28,
+      anneesExperience: json['annees_experience'] ?? json['anneesExperience'] ?? json['experience'] ?? 8,
       isVerified: json['isVerified'] ?? json['is_verified'] ?? true,
       teleconsultationActive: json['teleconsultationActive'] ?? json['teleconsultation_active'] ?? true,
       dureeConsultationMinutes: json['dureeConsultationMinutes'] ?? json['duree_consultation_minutes'] ?? 30,
@@ -112,6 +115,9 @@ class MedecinModel {
       'note': note,
       'nombre_avis': nombreAvis,
       'nombreAvis': nombreAvis,
+      'annees_experience': anneesExperience,
+      'anneesExperience': anneesExperience,
+      'experience': anneesExperience,
       'is_verified': isVerified,
       'isVerified': isVerified,
       'teleconsultation_active': teleconsultationActive,

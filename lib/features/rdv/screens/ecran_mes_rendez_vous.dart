@@ -33,6 +33,104 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
     });
   }
 
+  void _ouvrirDialogueAvisPostRdv(BuildContext context, RendezVousModel rdv) {
+    double noteDonnee = 5.0;
+    final commentaireCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: const Color(0xFFE6F7F3), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.star_rounded, color: Color(0xFF00A884), size: 28),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text("Avis post-consultation", style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Comment s'est passée votre consultation avec ${rdv.medecinNom ?? 'le praticien'} ?",
+                  style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      final etoile = index + 1;
+                      return IconButton(
+                        icon: Icon(
+                          etoile <= noteDonnee ? Icons.star_rounded : Icons.star_outline_rounded,
+                          color: Colors.amber,
+                          size: 32,
+                        ),
+                        onPressed: () {
+                          setDialogState(() => noteDonnee = etoile.toDouble());
+                        },
+                      );
+                    }),
+                  ),
+                ),
+                Center(
+                  child: Text(
+                    "${noteDonnee.toInt()} / 5 étoiles",
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF1E293B)),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: commentaireCtrl,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: "Partagez votre retour (écoute, ponctualité, conseils reçus...)",
+                    hintStyle: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text("Plus tard", style: TextStyle(color: Color(0xFF64748B))),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Merci ! Votre avis a été enregistré pour aider les autres patients."),
+                    backgroundColor: Color(0xFF00A884),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00A884),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text("Envoyer mon avis", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
@@ -456,29 +554,53 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
             ],
           ),
 
-          // Bouton d'action Patient
-          if (estTeleconsultation && estConfirme) ...[
-            const SizedBox(height: 14),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  context.push('/teleconsultation-room', extra: rdv.toJson());
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00A884),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          // Boutons d'action Patient
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              if (estTeleconsultation && estConfirme)
+                Expanded(
+                  flex: 3,
+                  child: SizedBox(
+                    height: 46,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        context.push('/teleconsultation-room', extra: rdv.toJson());
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF00A884),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      icon: const Icon(Icons.videocam_rounded, color: Colors.white, size: 20),
+                      label: const Text(
+                        "Rejoindre Visio",
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                    ),
+                  ),
                 ),
-                icon: const Icon(Icons.videocam_rounded, color: Colors.white, size: 22),
-                label: const Text(
-                  "Rejoindre la téléconsultation",
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+              if (estTeleconsultation && estConfirme) const SizedBox(width: 8),
+              Expanded(
+                flex: 2,
+                child: SizedBox(
+                  height: 46,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _ouvrirDialogueAvisPostRdv(context, rdv),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF00A884)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    icon: const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
+                    label: const Text(
+                      "Donner avis",
+                      style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ],
       ),
     );

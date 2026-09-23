@@ -1,18 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../auth/providers/auth_provider.dart';
 
-class DoctorDetailScreen extends StatefulWidget {
+class DoctorDetailScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> doctor;
 
   const DoctorDetailScreen({super.key, required this.doctor});
 
   @override
-  State<DoctorDetailScreen> createState() => _DoctorDetailScreenState();
+  ConsumerState<DoctorDetailScreen> createState() => _DoctorDetailScreenState();
 }
 
-class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
+class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
   bool _isFavorite = false;
   int _selectedDateIndex = 0;
+
+  late Map<String, dynamic> _doctorData;
+  late String _biographie;
+  late int _experience;
+  late int _nombreAvis;
+  late double _note;
+  late String _name;
+  late String _spec;
+  late String _image;
+
+  final List<Map<String, dynamic>> _avisList = [
+    {
+      "auteur": "Awa Ndiaye",
+      "date": "Il y a 3 jours",
+      "note": 5.0,
+      "commentaire": "Médecin très à l'écoute, ponctuel et rassurant. La téléconsultation s'est parfaitement déroulée.",
+    },
+    {
+      "auteur": "Moussa Diop",
+      "date": "Il y a 1 semaine",
+      "note": 5.0,
+      "commentaire": "Excellent diagnostic et explications très claires. Je recommande vivement ce praticien.",
+    },
+    {
+      "auteur": "Fatou Bintou Sall",
+      "date": "Il y a 2 semaines",
+      "note": 4.8,
+      "commentaire": "Professionnel et disponible pour expliquer chaque étape de la prise en charge médicale.",
+    },
+  ];
 
   final List<Map<String, String>> _dates = [
     {"day": "LUN", "date": "10"},
@@ -24,10 +56,264 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _doctorData = Map<String, dynamic>.from(widget.doctor);
+
+    final nom = _doctorData['nom']?.toString() ?? '';
+    final prenom = _doctorData['prenom']?.toString() ?? '';
+    _name = _doctorData['name'] ?? _doctorData['nomComplet'] ?? (nom.isNotEmpty ? "Dr. $prenom $nom".trim() : "Dr. Praticien");
+    _spec = _doctorData['specialty'] ?? _doctorData['specialite'] ?? 'Médecine Générale';
+    _image = _doctorData['image'] ??
+        _doctorData['photo_url'] ??
+        _doctorData['photoUrl'] ??
+        _doctorData['photoProfessionnelle'] ??
+        "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=300&q=80";
+
+    final rawBio = _doctorData['biographie'] ?? _doctorData['bio'] ?? _doctorData['description'];
+    if (rawBio != null && rawBio.toString().trim().isNotEmpty && !rawBio.toString().contains("Mahmud Nik")) {
+      _biographie = rawBio.toString().trim();
+    } else {
+      _biographie = "$_name est un médecin qualifié en $_spec, certifié par l'Ordre National des Médecins du Sénégal (ONMS). "
+          "Dévoué à la santé de ses patients, il propose des consultations au cabinet et des téléconsultations sécurisées au sein du réseau Diam Yaraam.";
+    }
+
+    _experience = _doctorData['anneesExperience'] ?? _doctorData['annees_experience'] ?? _doctorData['experience'] ?? 8;
+    _nombreAvis = _doctorData['nombreAvis'] ?? _doctorData['nombre_avis'] ?? 36;
+    _note = (_doctorData['note'] is num) ? (_doctorData['note'] as num).toDouble() : 4.9;
+  }
+
+  /// Boîte de dialogue permettant au médecin de rédiger sa propre description et son expérience
+  void _ouvrirDialogueModificationMedecin() {
+    final bioController = TextEditingController(text: _biographie);
+    final expController = TextEditingController(text: _experience.toString());
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+          top: 24,
+          left: 20,
+          right: 20,
+        ),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              "Modifier ma présentation",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              "Renseignez votre propre description et vos années d'expérience pour vos patients.",
+              style: TextStyle(fontSize: 13, color: Color(0xFF8E95A5)),
+            ),
+            const SizedBox(height: 20),
+
+            // ANNÉES D'EXPÉRIENCE
+            const Text("Années d'expérience", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4A5568))),
+            const SizedBox(height: 6),
+            TextField(
+              controller: expController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: "Ex: 8",
+                suffixText: "ans",
+                prefixIcon: const Icon(Icons.workspace_premium_outlined, color: Color(0xFF00A884)),
+                filled: true,
+                fillColor: const Color(0xFFF8FAFC),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // DESCRIPTION / BIOGRAPHIE
+            const Text("À propos de moi (description)", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4A5568))),
+            const SizedBox(height: 6),
+            TextField(
+              controller: bioController,
+              maxLines: 4,
+              decoration: InputDecoration(
+                hintText: "Présentez votre parcours, vos spécialités et vos domaines d'expertise clinique...",
+                filled: true,
+                fillColor: const Color(0xFFF8FAFC),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // BOUTON ENREGISTRER
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  final newExp = int.tryParse(expController.text.trim()) ?? _experience;
+                  final newBio = bioController.text.trim();
+
+                  setState(() {
+                    _experience = newExp;
+                    if (newBio.isNotEmpty) _biographie = newBio;
+                    _doctorData['biographie'] = _biographie;
+                    _doctorData['anneesExperience'] = _experience;
+                  });
+
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Présentation et expérience enregistrées avec succès"),
+                      backgroundColor: Color(0xFF00A884),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00A884),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                child: const Text("Enregistrer les modifications", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Boîte de dialogue permettant au patient de donner son avis après un rendez-vous
+  void _ouvrirDialogueDonnerAvis() {
+    double noteDonnee = 5.0;
+    final commentaireController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: const Color(0xFFE6F7F3), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.star_rounded, color: Color(0xFF00A884)),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text("Donner votre avis", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Votre retour après votre consultation avec $_name :",
+                  style: const TextStyle(fontSize: 13, color: Color(0xFF6C7386)),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      final etoile = index + 1;
+                      return IconButton(
+                        icon: Icon(
+                          etoile <= noteDonnee ? Icons.star_rounded : Icons.star_outline_rounded,
+                          color: Colors.amber,
+                          size: 32,
+                        ),
+                        onPressed: () {
+                          setDialogState(() => noteDonnee = etoile.toDouble());
+                        },
+                      );
+                    }),
+                  ),
+                ),
+                Center(
+                  child: Text(
+                    "${noteDonnee.toStringAsFixed(0)} / 5",
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF2D3142)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: commentaireController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: "Partagez votre expérience (écoute, ponctualité, conseils reçus...)",
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text("Annuler", style: TextStyle(color: Color(0xFF8E95A5))),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final user = ref.read(authProvider).user;
+                final auteur = user != null ? "${user.firstName} ${user.lastName}".trim() : "Patient vérifié";
+                final commentaire = commentaireController.text.trim().isNotEmpty
+                    ? commentaireController.text.trim()
+                    : "Consultation très satisfaisante.";
+
+                setState(() {
+                  _nombreAvis++;
+                  _note = double.parse((((_note * (_nombreAvis - 1)) + noteDonnee) / _nombreAvis).toStringAsFixed(1));
+                  _avisList.insert(0, {
+                    "auteur": auteur.isNotEmpty ? auteur : "Patient vérifié",
+                    "date": "À l'instant",
+                    "note": noteDonnee,
+                    "commentaire": commentaire,
+                  });
+                });
+
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Merci pour votre avis ! Il a été publié avec succès."),
+                    backgroundColor: Color(0xFF00A884),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00A884),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text("Publier l'avis", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final name = widget.doctor['name'] ?? widget.doctor['nom'] ?? 'Dr. Mahmud Nik';
-    final spec = widget.doctor['specialty'] ?? widget.doctor['specialite'] ?? 'Cardiologue - Hôpital Fann';
-    final image = widget.doctor['image'] ?? "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=300&q=80";
+    final user = ref.watch(authProvider).user;
+    final isCurrentUserDoctor = user != null && user.role.toUpperCase() == 'MEDECIN';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -43,35 +329,49 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // BOUTON RETOUR
-                        InkWell(
-                          onTap: () => context.pop(),
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            width: 42,
-                            height: 42,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                        // BARRE DE NAVIGATION SUPÉRIEURE
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            InkWell(
+                              onTap: () => context.pop(),
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                width: 42,
+                                height: 42,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                                ),
+                                child: const Icon(
+                                  Icons.arrow_back_ios_new,
+                                  size: 18,
+                                  color: Color(0xFF5A607F),
+                                ),
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.arrow_back_ios_new,
-                              size: 18,
-                              color: Color(0xFF5A607F),
-                            ),
-                          ),
+                            if (isCurrentUserDoctor)
+                              TextButton.icon(
+                                onPressed: _ouvrirDialogueModificationMedecin,
+                                icon: const Icon(Icons.edit_note_rounded, color: Color(0xFF00A884), size: 20),
+                                label: const Text(
+                                  "Éditer profil",
+                                  style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 13),
+                                ),
+                              ),
+                          ],
                         ),
 
                         const SizedBox(height: 20),
 
-                        // EN-TETE MEDECIN
+                        // EN-TÊTE MÉDECIN (PHOTO, NOM RÉEL ET SPÉCIALITÉ)
                         Row(
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(20),
                               child: Image.network(
-                                image,
+                                _image,
                                 width: 90,
                                 height: 90,
                                 fit: BoxFit.cover,
@@ -89,7 +389,7 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    name,
+                                    _name,
                                     style: const TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
@@ -98,11 +398,24 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
-                                    spec,
+                                    _spec,
                                     style: const TextStyle(
-                                      fontSize: 13,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
                                       color: Color(0xFF8E95A5),
                                       height: 1.3,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFE6F7F3),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Text(
+                                      "ONMS Certifié",
+                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
                                     ),
                                   ),
                                 ],
@@ -113,84 +426,109 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
 
                         const SizedBox(height: 24),
 
-                        // BANNIERE VERTE DE STATISTIQUES EN FRANCAIS
+                        // BANNIÈRE VERTE DYNAMIQUE : 1. AVIS PATIENTS / NOTE  -- 2. ANNÉES D'EXPÉRIENCE
                         Container(
-                          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+                          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
                           decoration: BoxDecoration(
                             color: const Color(0xFF00A884),
                             borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF00A884).withOpacity(0.25),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.people_outline, color: Colors.white, size: 22),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  const Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                              // 1. AVIS & NOTE DES PATIENTS
+                              InkWell(
+                                onTap: _ouvrirDialogueDonnerAvis,
+                                borderRadius: BorderRadius.circular(16),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Row(
                                     children: [
-                                      Text(
-                                        "1000+",
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.2),
+                                          shape: BoxShape.circle,
                                         ),
+                                        child: const Icon(Icons.star_rounded, color: Colors.amberAccent, size: 24),
                                       ),
-                                      Text(
-                                        "Patients",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.white70,
-                                        ),
+                                      const SizedBox(width: 12),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "${_note.toStringAsFixed(1)} ★",
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          Text(
+                                            "$_nombreAvis Avis patients",
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.white70,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                ],
+                                ),
                               ),
 
                               Container(width: 1, height: 36, color: Colors.white24),
 
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.workspace_premium_outlined, color: Colors.white, size: 22),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  const Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                              // 2. ANNÉES D'EXPÉRIENCE RENSEIGNÉES PAR LE MÉDECIN
+                              InkWell(
+                                onTap: _ouvrirDialogueModificationMedecin,
+                                borderRadius: BorderRadius.circular(16),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Row(
                                     children: [
-                                      Text(
-                                        "5 Ans",
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.2),
+                                          shape: BoxShape.circle,
                                         ),
+                                        child: const Icon(Icons.workspace_premium_outlined, color: Colors.white, size: 22),
                                       ),
-                                      Text(
-                                        "D'expérience",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.white70,
-                                        ),
+                                      const SizedBox(width: 12),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "$_experience Ans",
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          const Text(
+                                            "D'expérience",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.white70,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                ],
+                                ),
                               ),
                             ],
                           ),
@@ -198,41 +536,52 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
 
                         const SizedBox(height: 28),
 
-                        // SECTION A PROPOS EN FRANCAIS
-                        const Text(
-                          "À propos du médecin",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF5A607F),
-                          ),
+                        // SECTION À PROPOS DU MÉDECIN (RÉDIGÉE PAR LE MÉDECIN)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "À propos du médecin",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2D3142),
+                              ),
+                            ),
+                            TextButton.icon(
+                              onPressed: _ouvrirDialogueModificationMedecin,
+                              icon: const Icon(Icons.edit_outlined, size: 16, color: Color(0xFF00A884)),
+                              label: const Text(
+                                "Modifier",
+                                style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          "Dr. Mahmud Nik est un médecin spécialiste renommé en Cardiologie. "
-                          "Il possède une solide expérience clinique et effectue des consultations en ligne "
-                          "et au cabinet au sein du réseau de santé Diam Yaraam.",
-                          style: TextStyle(
+                        Text(
+                          _biographie,
+                          style: const TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF8E95A5),
+                            color: Color(0xFF6C7386),
                             height: 1.5,
                           ),
                         ),
 
                         const SizedBox(height: 24),
 
-                        // HORAIRES DE TRAVAIL EN FRANCAIS
+                        // HORAIRES DE TRAVAIL
                         const Text(
                           "Horaires de travail",
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF5A607F),
+                            color: Color(0xFF2D3142),
                           ),
                         ),
                         const SizedBox(height: 6),
                         const Text(
-                          "Lun - Ven 09:00 - 20:00",
+                          "Lun - Ven 09:00 - 18:00 • Téléconsultations & Cabinet",
                           style: TextStyle(
                             fontSize: 14,
                             color: Color(0xFF8E95A5),
@@ -241,25 +590,37 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
 
                         const SizedBox(height: 24),
 
-                        // SELECTEUR DE DATE EN FRANCAIS
+                        // SELECTEUR DE DATE INTERACTIF
                         Row(
                           children: [
                             const Text(
-                              "Juin",
+                              "Créneaux disponibles",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF5A607F),
+                                color: Color(0xFF2D3142),
                               ),
                             ),
-                            const SizedBox(width: 4),
-                            const Icon(Icons.keyboard_arrow_down, color: Color(0xFF5A607F)),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Text("Octobre", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+                                  Icon(Icons.keyboard_arrow_down, size: 16, color: Color(0xFF64748B)),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
 
                         const SizedBox(height: 12),
 
-                        // LISTE DES DATES
+                        // LISTE HORIZONTALE DES DATES
                         SizedBox(
                           height: 70,
                           child: ListView.builder(
@@ -313,13 +674,119 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
                           ),
                         ),
 
+                        const SizedBox(height: 28),
+
+                        // SECTION AVIS DES PATIENTS (INVITATION POST-RDV)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  "Avis des patients",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2D3142),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE6F7F3),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    "$_nombreAvis",
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            TextButton.icon(
+                              onPressed: _ouvrirDialogueDonnerAvis,
+                              icon: const Icon(Icons.rate_review_outlined, size: 16, color: Color(0xFF00A884)),
+                              label: const Text(
+                                "Donner un avis",
+                                style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        // LISTE DES DERNIERS AVIS
+                        ..._avisList.map((avis) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFE5E9F2)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 16,
+                                          backgroundColor: const Color(0xFFE6F7F3),
+                                          child: Text(
+                                            avis['auteur'].toString().substring(0, 1),
+                                            style: const TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              avis['auteur'] as String,
+                                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF2D3142)),
+                                            ),
+                                            Text(
+                                              avis['date'] as String,
+                                              style: const TextStyle(fontSize: 11, color: Color(0xFFA0AEC0)),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.star_rounded, color: Colors.amber, size: 18),
+                                        const SizedBox(width: 3),
+                                        Text(
+                                          "${avis['note']}",
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF2D3142)),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  avis['commentaire'] as String,
+                                  style: const TextStyle(fontSize: 13, color: Color(0xFF6C7386), height: 1.4),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+
                         const SizedBox(height: 20),
                       ],
                     ),
                   ),
                 ),
 
-                // BARRE D'ACTION EN BAS EN FRANCAIS
+                // BARRE D'ACTION EN BAS (FAVORI & PRENDRE RENDEZ-VOUS)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   decoration: BoxDecoration(
@@ -358,7 +825,7 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
                           height: 52,
                           child: ElevatedButton(
                             onPressed: () {
-                              context.push('/book-appointment', extra: widget.doctor);
+                              context.push('/book-appointment', extra: _doctorData);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF00A884),

@@ -99,6 +99,11 @@ class _TeleconsultationRoomScreenState extends ConsumerState<TeleconsultationRoo
             _isConnecting = false;
             _isConferenceActive = false;
           });
+          final user = ref.read(authProvider).user;
+          final isDoctor = user?.isMedecin == true || user?.role == 'MEDECIN';
+          if (!isDoctor) {
+            _afficherDialogueAvis(rdv);
+          }
         }
       },
     );
@@ -108,6 +113,109 @@ class _TeleconsultationRoomScreenState extends ConsumerState<TeleconsultationRoo
         _isConnecting = false;
       });
     }
+  }
+
+  void _afficherDialogueAvis(RendezVousModel rdv) {
+    double noteDonnee = 5.0;
+    final commentaireCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: const Color(0xFFE6F7F3), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.star_rounded, color: Color(0xFF00A884), size: 28),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text("Votre avis compte !", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Votre téléconsultation avec ${rdv.medecinNom ?? 'votre médecin'} est terminée. Comment évaluez-vous cette consultation ?",
+                  style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), height: 1.4),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      final etoile = index + 1;
+                      return IconButton(
+                        icon: Icon(
+                          etoile <= noteDonnee ? Icons.star_rounded : Icons.star_outline_rounded,
+                          color: Colors.amber,
+                          size: 34,
+                        ),
+                        onPressed: () {
+                          setDialogState(() => noteDonnee = etoile.toDouble());
+                        },
+                      );
+                    }),
+                  ),
+                ),
+                Center(
+                  child: Text(
+                    "${noteDonnee.toInt()} / 5 étoiles",
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E293B)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: commentaireCtrl,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: "Partagez votre avis (qualité d'écoute, ponctualité, clarté des explications...)",
+                    hintStyle: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                if (mounted) Navigator.pop(context);
+              },
+              child: const Text("Passer", style: TextStyle(color: Color(0xFF64748B))),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Merci infiniment pour votre avis !"),
+                    backgroundColor: Color(0xFF00A884),
+                  ),
+                );
+                if (mounted) Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00A884),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text("Publier mon avis", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
