@@ -22,11 +22,25 @@ import '../features/rdv/screens/doctors_list_screen.dart';
 import '../features/rdv/screens/doctor_detail_screen.dart';
 import '../features/rdv/screens/book_appointment_screen.dart';
 import '../features/rdv/screens/teleconsultation_room_screen.dart';
+import '../features/medecin/models/medecin_model.dart';
 
 const String loginRoute = 'login';
 const String inscriptionRoute = 'inscription';
 const String profileRoute = 'profile';
 const String dashboardRoute = 'dashboard';
+
+Map<String, dynamic> _toMap(Object? extra) {
+  if (extra is Map<String, dynamic>) return extra;
+  if (extra is Map) return Map<String, dynamic>.from(extra);
+  return {};
+}
+
+Map<String, dynamic> _extractDoctorMap(Object? extra) {
+  if (extra is MedecinModel) {
+    return extra.toJson();
+  }
+  return _toMap(extra);
+}
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/login',
@@ -60,36 +74,24 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/verify-phone-otp',
       name: 'verify-phone-otp',
-      builder: (context, state) {
-        final extra = (state.extra as Map<String, dynamic>?) ?? {};
-        return VerifyPhoneOtpScreen(userInfo: extra);
-      },
+      builder: (context, state) => VerifyPhoneOtpScreen(userInfo: _toMap(state.extra)),
     ),
     GoRoute(
       path: '/verification-otp',
       name: 'verification-otp',
-      builder: (context, state) {
-        final extra = (state.extra as Map<String, dynamic>?) ?? {};
-        return VerifyPhoneOtpScreen(userInfo: extra);
-      },
+      builder: (context, state) => VerifyPhoneOtpScreen(userInfo: _toMap(state.extra)),
     ),
 
     // Configuration finale du profil (Avatar, Date naissance, Genre, Adresse)
     GoRoute(
       path: '/setup-profile',
       name: 'setup-profile',
-      builder: (context, state) {
-        final extra = (state.extra as Map<String, dynamic>?) ?? {};
-        return SetupProfileScreen(userInfo: extra);
-      },
+      builder: (context, state) => SetupProfileScreen(userInfo: _toMap(state.extra)),
     ),
     GoRoute(
       path: '/configuration-profil',
       name: 'configuration-profil',
-      builder: (context, state) {
-        final extra = (state.extra as Map<String, dynamic>?) ?? {};
-        return SetupProfileScreen(userInfo: extra);
-      },
+      builder: (context, state) => SetupProfileScreen(userInfo: _toMap(state.extra)),
     ),
 
     // ── TABLEAU DE BORD (Accueil unifié Patient & Médecin) ──
@@ -143,7 +145,7 @@ final GoRouter appRouter = GoRouter(
       path: '/qr-scanner',
       name: 'qr-scanner',
       builder: (context, state) {
-        final extra = (state.extra as Map<String, dynamic>?) ?? {};
+        final extra = _toMap(state.extra);
         return QrScannerScreen(
           initialTabIndex: (extra['tab'] as int?) ?? 0,
           isMedecinScan: extra['isMedecin'] as bool?,
@@ -166,7 +168,7 @@ final GoRouter appRouter = GoRouter(
       path: '/smart-prescription',
       name: 'smart-prescription',
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
+        final extra = state.extra != null ? _extractDoctorMap(state.extra) : null;
         return SmartPrescriptionScreen(patientInfo: extra);
       },
     ),
@@ -174,7 +176,7 @@ final GoRouter appRouter = GoRouter(
       path: '/new-consultation',
       name: 'new-consultation',
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
+        final extra = state.extra != null ? _extractDoctorMap(state.extra) : null;
         return NewConsultationScreen(patientInfo: extra);
       },
     ),
@@ -225,34 +227,22 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/doctor-detail',
       name: 'doctor-detail',
-      builder: (context, state) {
-        final extra = (state.extra as Map<String, dynamic>?) ?? {};
-        return DoctorDetailScreen(doctor: extra);
-      },
+      builder: (context, state) => DoctorDetailScreen(doctor: _extractDoctorMap(state.extra)),
     ),
     GoRoute(
       path: '/detail-medecin',
       name: 'detail-medecin',
-      builder: (context, state) {
-        final extra = (state.extra as Map<String, dynamic>?) ?? {};
-        return DoctorDetailScreen(doctor: extra);
-      },
+      builder: (context, state) => DoctorDetailScreen(doctor: _extractDoctorMap(state.extra)),
     ),
     GoRoute(
       path: '/book-appointment',
       name: 'book-appointment',
-      builder: (context, state) {
-        final extra = (state.extra as Map<String, dynamic>?) ?? {};
-        return BookAppointmentScreen(doctor: extra);
-      },
+      builder: (context, state) => BookAppointmentScreen(doctor: _extractDoctorMap(state.extra)),
     ),
     GoRoute(
       path: '/prise-rendez-vous',
       name: 'prise-rendez-vous',
-      builder: (context, state) {
-        final extra = (state.extra as Map<String, dynamic>?) ?? {};
-        return BookAppointmentScreen(doctor: extra);
-      },
+      builder: (context, state) => BookAppointmentScreen(doctor: _extractDoctorMap(state.extra)),
     ),
     GoRoute(
       path: '/teleconsultation-room',
