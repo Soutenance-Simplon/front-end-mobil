@@ -97,7 +97,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
   ];
 
   /// Vérifie si un créneau horaire sur une date donnée est strictement dans le passé
-  bool _estCreneauPasse(DateTime date, String slot) {
+  bool _estCreneauPasseStrict(DateTime date, String slot) {
     final now = DateTime.now();
     final dateJour = DateTime(date.year, date.month, date.day);
     final dateAujourdhui = DateTime(now.year, now.month, now.day);
@@ -111,6 +111,41 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
     final slotDateTime = DateTime(date.year, date.month, date.day, h, m);
     return slotDateTime.isBefore(now);
   }
+
+  /// Vérifie si un créneau est à moins de 30 minutes de l'instant présent
+  bool _estCreneauTropProche(DateTime date, String slot) {
+    final now = DateTime.now();
+    final dateJour = DateTime(date.year, date.month, date.day);
+    final dateAujourdhui = DateTime(now.year, now.month, now.day);
+    if (dateJour.isBefore(dateAujourdhui)) return false;
+    if (dateJour.isAfter(dateAujourdhui)) return false;
+
+    final parts = slot.split(':');
+    final h = int.tryParse(parts[0]) ?? 0;
+    final m = int.tryParse(parts[1]) ?? 0;
+    final slotDateTime = DateTime(date.year, date.month, date.day, h, m);
+    return !slotDateTime.isBefore(now) &&
+        slotDateTime.isBefore(now.add(const Duration(minutes: 30)));
+  }
+
+  /// Règle métier : un rendez-vous doit être pris au moins 30 minutes à l'avance.
+  /// Tout créneau passé ou débutant dans moins de 30 minutes est inaccessible à la réservation.
+  bool _estCreneauInaccessibleTemps(DateTime date, String slot) {
+    final now = DateTime.now();
+    final dateJour = DateTime(date.year, date.month, date.day);
+    final dateAujourdhui = DateTime(now.year, now.month, now.day);
+    if (dateJour.isBefore(dateAujourdhui)) return true;
+    if (dateJour.isAfter(dateAujourdhui)) return false;
+
+    final parts = slot.split(':');
+    final h = int.tryParse(parts[0]) ?? 0;
+    final m = int.tryParse(parts[1]) ?? 0;
+    final slotDateTime = DateTime(date.year, date.month, date.day, h, m);
+    return slotDateTime.isBefore(now.add(const Duration(minutes: 30)));
+  }
+
+  /// Alias de rétrocompatibilité : vérifie si le créneau ne respecte pas le délai minimal de 30 minutes ou est passé
+  bool _estCreneauPasse(DateTime date, String slot) => _estCreneauInaccessibleTemps(date, slot);
 
   /// Trouve le premier créneau disponible et futur pour une date donnée
   String? _trouverPremierCreneauValide(DateTime date) {
@@ -2201,7 +2236,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                   SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
-                                      "Tous les créneaux de cette journée sont déjà passés. Veuillez sélectionner une date ultérieure dans le calendrier ci-dessus.",
+                                      "Tous les créneaux pour cette date sont passés ou débutent dans moins de 30 minutes. Veuillez sélectionner une date ultérieure dans le calendrier ci-dessus.",
                                       style: TextStyle(fontSize: 12, color: Color(0xFF92400E), fontWeight: FontWeight.w600),
                                     ),
                                   ),
@@ -2411,15 +2446,15 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 )
                               : ElevatedButton(
                                   onPressed: () {
-                                    // CONTRÔLE STRICT DE DATE ET HEURE : Impossible de réserver une date ou heure passée
-                                    if (_selectedSlot == null || _estCreneauPasse(_selectedDate, _selectedSlot!)) {
+                                    // CONTRÔLE STRICT DE DÉLAI : Au moins 30 minutes à l'avance
+                                    if (_selectedSlot == null || _estCreneauInaccessibleTemps(_selectedDate, _selectedSlot!)) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
                                           content: Row(
                                             children: [
                                               Icon(Icons.error_outline, color: Colors.white, size: 20),
                                               SizedBox(width: 8),
-                                              Expanded(child: Text("Impossible de prendre un rendez-vous pour une date ou une heure passée.")),
+                                              Expanded(child: Text("Un rendez-vous doit être pris au moins 30 minutes à l'avance.")),
                                             ],
                                           ),
                                           backgroundColor: Color(0xFFEF4444),
@@ -2447,7 +2482,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                     context.push('/book-appointment', extra: bookingData);
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: (_selectedSlot != null && !_estCreneauPasse(_selectedDate, _selectedSlot!))
+                                    backgroundColor: (_selectedSlot != null && !_estCreneauInaccessibleTemps(_selectedDate, _selectedSlot!))
                                         ? const Color(0xFF00A884)
                                         : const Color(0xFF94A3B8),
                                     elevation: 0,
@@ -2456,9 +2491,9 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                     ),
                                   ),
                                   child: Text(
-                                    _selectedSlot != null && !_estCreneauPasse(_selectedDate, _selectedSlot!)
+                                    _selectedSlot != null && !_estCreneauInaccessibleTemps(_selectedDate, _selectedSlot!)
                                         ? "Prendre RDV (1h) • ${_formaterDateCourte(_selectedDate)} à $_selectedSlot"
-                                        : "Sélectionner un créneau futur disponible",
+                                        : "Sélectionner un créneau (au moins 30 min avant)",
                                     style: const TextStyle(
                                       fontSize: 14.5,
                                       fontWeight: FontWeight.bold,
@@ -2518,8 +2553,9 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
   Widget _buildCreneauBouton(String slot) {
     final isSelected = _selectedSlot == slot;
     final isComplet = slot == "10:00" || slot == "15:00" || slot == "21:00"; // Simulation de créneau déjà réservé
-    final isPasse = _estCreneauPasse(_selectedDate, slot); // Contrôle strict : créneau passé dans le temps
-    final bool estInaccessible = isComplet || isPasse;
+    final isPasse = _estCreneauPasseStrict(_selectedDate, slot);
+    final isTropProche = !isPasse && _estCreneauTropProche(_selectedDate, slot);
+    final bool estInaccessible = isComplet || isPasse || isTropProche;
 
     return InkWell(
       onTap: estInaccessible
@@ -2581,6 +2617,19 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                 child: const Text(
                   "Passé",
                   style: TextStyle(fontSize: 9.5, color: Color(0xFF64748B), fontWeight: FontWeight.bold),
+                ),
+              ),
+            ] else if (isTropProche) ...[
+              const SizedBox(width: 5),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  "< 30 min",
+                  style: TextStyle(fontSize: 9.5, color: Color(0xFFD97706), fontWeight: FontWeight.bold),
                 ),
               ),
             ] else if (isComplet) ...[

@@ -250,15 +250,15 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
       return;
     }
 
-    // CONTRÔLE DE DATE ET HEURE : Impossible de réserver un créneau passé
-    if (_creneauSelectionne!.dateHeureDebut.isBefore(DateTime.now())) {
+    // CONTRÔLE DE DÉLAI : Un rendez-vous doit être pris au moins 30 minutes à l'avance
+    if (_creneauSelectionne!.dateHeureDebut.isBefore(DateTime.now().add(const Duration(minutes: 30)))) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Row(
             children: [
               Icon(Icons.error_outline, color: Colors.white, size: 20),
               SizedBox(width: 8),
-              Expanded(child: Text("Impossible de prendre un rendez-vous pour une date ou une heure passée.")),
+              Expanded(child: Text("Un rendez-vous doit être pris au moins 30 minutes à l'avance.")),
             ],
           ),
           backgroundColor: Color(0xFFEF4444),

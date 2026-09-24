@@ -73,8 +73,8 @@ class PlanningNotifier extends StateNotifier<PlanningState> {
 
       if (!matchDate || !estDisponible) return false;
 
-      // EXCLURE FORMELLEMENT LES CRÉNEAUX DÉJÀ PASSÉS
-      if (c.dateHeureDebut.isBefore(now)) return false;
+      // EXCLURE FORMELLEMENT LES CRÉNEAUX DÉJÀ PASSÉS OU À MOINS DE 30 MINUTES
+      if (c.dateHeureDebut.isBefore(now.add(const Duration(minutes: 30)))) return false;
 
       if (periode == 'Matin') {
         return c.dateHeureDebut.hour < 13;

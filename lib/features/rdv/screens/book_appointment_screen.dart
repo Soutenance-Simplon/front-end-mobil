@@ -36,8 +36,8 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
     return DateTime.now();
   }
 
-  /// Vérifie si le créneau sur la date choisie est déjà passé
-  bool _estCreneauPasse(String slot) {
+  /// Vérifie si le créneau sur la date choisie est strictement dans le passé
+  bool _estCreneauPasseStrict(String slot) {
     final now = DateTime.now();
     final d = _appointmentDate;
     final dateJour = DateTime(d.year, d.month, d.day);
@@ -52,6 +52,42 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
     final slotDateTime = DateTime(d.year, d.month, d.day, h, m);
     return slotDateTime.isBefore(now);
   }
+
+  /// Vérifie si le créneau est à moins de 30 minutes du moment actuel
+  bool _estCreneauTropProche(String slot) {
+    final now = DateTime.now();
+    final d = _appointmentDate;
+    final dateJour = DateTime(d.year, d.month, d.day);
+    final dateAujourdhui = DateTime(now.year, now.month, now.day);
+    if (dateJour.isBefore(dateAujourdhui)) return false;
+    if (dateJour.isAfter(dateAujourdhui)) return false;
+
+    final parts = slot.split(':');
+    final h = int.tryParse(parts[0]) ?? 0;
+    final m = int.tryParse(parts[1]) ?? 0;
+    final slotDateTime = DateTime(d.year, d.month, d.day, h, m);
+    return !slotDateTime.isBefore(now) &&
+        slotDateTime.isBefore(now.add(const Duration(minutes: 30)));
+  }
+
+  /// Règle : un rendez-vous doit être pris au moins 30 minutes à l'avance
+  bool _estCreneauInaccessibleTemps(String slot) {
+    final now = DateTime.now();
+    final d = _appointmentDate;
+    final dateJour = DateTime(d.year, d.month, d.day);
+    final dateAujourdhui = DateTime(now.year, now.month, now.day);
+    if (dateJour.isBefore(dateAujourdhui)) return true;
+    if (dateJour.isAfter(dateAujourdhui)) return false;
+
+    final parts = slot.split(':');
+    final h = int.tryParse(parts[0]) ?? 0;
+    final m = int.tryParse(parts[1]) ?? 0;
+    final slotDateTime = DateTime(d.year, d.month, d.day, h, m);
+    return slotDateTime.isBefore(now.add(const Duration(minutes: 30)));
+  }
+
+  /// Alias vérifiant l'inaccessibilité temporelle (< 30 min ou passé)
+  bool _estCreneauPasse(String slot) => _estCreneauInaccessibleTemps(slot);
 
   @override
   void initState() {
@@ -251,15 +287,15 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
       return;
     }
 
-    // CONTRÔLE DE DATE ET HEURE : Impossible de réserver une date ou heure passée
-    if (_estCreneauPasse(_selectedTimeSlot)) {
+    // CONTRÔLE DE DÉLAI : Un rendez-vous doit être pris au moins 30 minutes à l'avance
+    if (_estCreneauInaccessibleTemps(_selectedTimeSlot)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Row(
             children: [
               Icon(Icons.error_outline, color: Colors.white, size: 20),
               SizedBox(width: 8),
-              Expanded(child: Text("Impossible de prendre un rendez-vous pour une date ou une heure passée.")),
+              Expanded(child: Text("Un rendez-vous doit être pris au moins 30 minutes à l'avance.")),
             ],
           ),
           backgroundColor: Color(0xFFEF4444),
@@ -775,24 +811,26 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                           runSpacing: 10,
                           children: activeSlots.map((slot) {
                             final isSelected = _selectedTimeSlot == slot;
-                            final isPasse = _estCreneauPasse(slot);
+                            final isPasse = _estCreneauPasseStrict(slot);
+                            final isTropProche = !isPasse && _estCreneauTropProche(slot);
+                            final bool estInaccessible = isPasse || isTropProche;
 
                             return InkWell(
-                              onTap: isPasse ? null : () => setState(() => _selectedTimeSlot = slot),
+                              onTap: estInaccessible ? null : () => setState(() => _selectedTimeSlot = slot),
                               borderRadius: BorderRadius.circular(14),
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 180),
-                                width: 95,
+                                width: (isPasse || isTropProche) ? 108 : 95,
                                 height: 44,
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? const Color(0xFF00A884)
-                                      : (isPasse ? const Color(0xFFF1F5F9) : Colors.white),
+                                      : (estInaccessible ? const Color(0xFFF1F5F9) : Colors.white),
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(
                                     color: isSelected
                                         ? const Color(0xFF00A884)
-                                        : (isPasse ? const Color(0xFFE2E8F0) : const Color(0xFFE5E9F2)),
+                                        : (estInaccessible ? const Color(0xFFE2E8F0) : const Color(0xFFE5E9F2)),
                                   ),
                                   boxShadow: [
                                     if (isSelected)
@@ -812,10 +850,10 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w600,
-                                          decoration: isPasse ? TextDecoration.lineThrough : null,
+                                          decoration: estInaccessible ? TextDecoration.lineThrough : null,
                                           color: isSelected
                                               ? Colors.white
-                                              : (isPasse ? const Color(0xFF94A3B8) : const Color(0xFF5A607F)),
+                                              : (estInaccessible ? const Color(0xFF94A3B8) : const Color(0xFF5A607F)),
                                         ),
                                       ),
                                       if (isPasse) ...[
@@ -829,6 +867,19 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                           child: const Text(
                                             "Passé",
                                             style: TextStyle(fontSize: 8.5, color: Color(0xFF64748B), fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ] else if (isTropProche) ...[
+                                        const SizedBox(width: 4),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFEF3C7),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: const Text(
+                                            "< 30m",
+                                            style: TextStyle(fontSize: 8.5, color: Color(0xFFD97706), fontWeight: FontWeight.bold),
                                           ),
                                         ),
                                       ],

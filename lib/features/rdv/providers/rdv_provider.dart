@@ -127,9 +127,9 @@ class RdvNotifier extends StateNotifier<RdvState> {
     String? medecinNom,
     String? medecinSpecialite,
   }) async {
-    // CONTRÔLE STRICT : IMPOSSIBLE DE RÉSERVER UN RENDEZ-VOUS DANS LE PASSÉ
-    if (dateHeure.isBefore(DateTime.now().subtract(const Duration(minutes: 1)))) {
-      state = state.copyWith(isLoading: false, error: "Impossible de prendre un rendez-vous pour une date ou une heure passée.");
+    // CONTRÔLE STRICT : UN RENDEZ-VOUS DOIT ÊTRE PRIS AU MOINS 30 MINUTES À L'AVANCE
+    if (dateHeure.isBefore(DateTime.now().add(const Duration(minutes: 30)))) {
+      state = state.copyWith(isLoading: false, error: "Un rendez-vous doit être pris au moins 30 minutes à l'avance.");
       return false;
     }
 
