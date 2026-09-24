@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../wallet/providers/wallet_provider.dart';
+import '../../auth/providers/auth_provider.dart';
 
-class BookAppointmentScreen extends StatefulWidget {
+class BookAppointmentScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> doctor;
 
   const BookAppointmentScreen({super.key, required this.doctor});
 
   @override
-  State<BookAppointmentScreen> createState() => _BookAppointmentScreenState();
+  ConsumerState<BookAppointmentScreen> createState() => _BookAppointmentScreenState();
 }
 
-class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
+class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
   String _selectedPeriod = "Matin";
   String _selectedTimeSlot = "09:00";
-  String _selectedConsultationType = "CABINET"; // CABINET, TELECONSULTATION ou DOMICILE
+  String _selectedConsultationType = "TELECONSULTATION"; // TELECONSULTATION ou DOMICILE (CABINET non géré pour cette version)
 
   final TextEditingController _locationController = TextEditingController();
 
@@ -32,12 +35,37 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       final h = int.tryParse(_selectedTimeSlot.split(':')[0]) ?? 9;
       _selectedPeriod = (h >= 14 || h < 5) ? "Soir" : "Matin";
     }
+
+    if (widget.doctor['selectedConsultationType'] != null && widget.doctor['selectedConsultationType'] != "CABINET") {
+      _selectedConsultationType = widget.doctor['selectedConsultationType'].toString();
+    } else {
+      _selectedConsultationType = "TELECONSULTATION";
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = ref.read(authProvider).user;
+      if (user != null && user.id.isNotEmpty) {
+        ref.read(walletProvider.notifier).loadUserWallet(user.id);
+      }
+    });
   }
 
   @override
   void dispose() {
     _locationController.dispose();
     super.dispose();
+  }
+
+  String _formaterPrix(int montant) {
+    final str = montant.toString();
+    final buffer = StringBuffer();
+    for (int i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) {
+        buffer.write(' ');
+      }
+      buffer.write(str[i]);
+    }
+    return buffer.toString();
   }
 
   void _onGetCurrentLocation() {
@@ -49,6 +77,126 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         content: Text("Position GPS actuelle ajoutée avec succès"),
         backgroundColor: Color(0xFF00A884),
         duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  /// Dialogue d'alerte lorsque le solde du portefeuille est insuffisant pour réserver
+  void _afficherDialogueSoldeInsuffisant(double soldeActuel, int montantRequis) {
+    final manque = (montantRequis - soldeActuel).clamp(0.0, double.infinity).toInt();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF2F2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.wallet_rounded, color: Color(0xFFDC2626), size: 26),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                "Solde Insuffisant",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Votre solde Diam Yaraam est insuffisant pour valider ce rendez-vous. Le montant de la consultation doit être directement débité de votre portefeuille santé.",
+              style: TextStyle(fontSize: 13.5, color: Color(0xFF5A607F), height: 1.4),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("Montant de la consultation :", style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                      Text("${_formaterPrix(montantRequis)} FCFA", style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF2D3142))),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("Votre solde actuel :", style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                      Text("${_formaterPrix(soldeActuel.toInt())} FCFA", style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFFDC2626))),
+                    ],
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Divider(height: 1, color: Color(0xFFE2E8F0)),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("Montant manquant :", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFFDC2626))),
+                      Text("${_formaterPrix(manque)} FCFA", style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: Color(0xFFDC2626))),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              "💡 Rechargez facilement votre portefeuille par Wave, Orange Money ou Free Money pour débloquer votre réservation.",
+              style: TextStyle(fontSize: 11.5, color: Color(0xFF00A884), fontStyle: FontStyle.italic),
+            ),
+          ],
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    side: const BorderSide(color: Color(0xFFCBD5E1)),
+                  ),
+                  child: const Text("Annuler", style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    context.push('/wallet');
+                  },
+                  icon: const Icon(Icons.add_card_rounded, color: Colors.white, size: 18),
+                  label: const Text("Recharger", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00A884),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -71,22 +219,43 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         ? "Dr. ${widget.doctor['prenom'] ?? ''} ${widget.doctor['nom']}".trim()
         : "Dr. Praticien";
 
-    final tarifCab = (widget.doctor['tarifConsultation'] ?? 15000).toInt();
     final tarifTele = (widget.doctor['tarifTeleconsultation'] ?? 10000).toInt();
     final tarifDom = (widget.doctor['tarifDomicile'] ?? 20000).toInt();
+    final int montantConsultation = isHome ? tarifDom : tarifTele;
+
+    // CONTRÔLE STRICT DU SOLDE PORTEFEUILLE SANTÉ DU PATIENT :
+    final walletState = ref.read(walletProvider);
+    final double soldeActuel = walletState.portefeuille?.solde ?? 
+        (widget.doctor['soldePortefeuille'] as num?)?.toDouble() ?? 0.0;
+
+    if (soldeActuel < montantConsultation) {
+      _afficherDialogueSoldeInsuffisant(soldeActuel, montantConsultation);
+      return;
+    }
 
     final String price;
     final String typeText;
     if (_selectedConsultationType == "DOMICILE") {
-      price = "$tarifDom FCFA / heure";
+      price = "${_formaterPrix(tarifDom)} FCFA / heure";
       typeText = "Consultation à Domicile (1h)";
-    } else if (_selectedConsultationType == "CABINET") {
-      price = "$tarifCab FCFA / heure";
-      typeText = "Consultation au Cabinet Médical (1h)";
     } else {
-      price = "$tarifTele FCFA / heure";
+      price = "${_formaterPrix(tarifTele)} FCFA / heure";
       typeText = "Téléconsultation Vidéo (1h)";
     }
+
+    // Débit du portefeuille santé de l'utilisateur
+    final user = ref.read(authProvider).user;
+    if (user != null && user.id.isNotEmpty) {
+      ref.read(walletProvider.notifier).payerConsultation(
+        userId: user.id,
+        montant: montantConsultation.toDouble(),
+        rdvId: "rdv-${DateTime.now().millisecondsSinceEpoch}",
+        medecinId: widget.doctor['id']?.toString(),
+        description: "Règlement $typeText avec $doctorName",
+      );
+    }
+
+    final nouveauSolde = (soldeActuel - montantConsultation).toInt();
 
     showDialog(
       context: context,
@@ -96,7 +265,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           children: [
             Icon(Icons.check_circle, color: Color(0xFF00A884), size: 28),
             SizedBox(width: 10),
-            Text("RDV Transmis !", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text("RDV Confirmé !", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ],
         ),
         content: Column(
@@ -104,7 +273,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Votre demande a été transmise à $doctorName.",
+              "Votre rendez-vous a été confirmé et transmis à $doctorName.",
               style: const TextStyle(fontSize: 14, color: Color(0xFF2D3142)),
             ),
             const SizedBox(height: 14),
@@ -136,6 +305,27 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0FDF4),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFF86EFAC)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF16A34A), size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      "Paiement effectué : ${_formaterPrix(montantConsultation)} FCFA débités de votre Portefeuille Santé.\nNouveau solde : ${_formaterPrix(nouveauSolde)} FCFA.",
+                      style: const TextStyle(fontSize: 11.5, color: Color(0xFF166534), fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
         actions: [
@@ -158,6 +348,14 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final walletState = ref.watch(walletProvider);
+    final double soldeActuel = walletState.portefeuille?.solde ?? 
+        (widget.doctor['soldePortefeuille'] as num?)?.toDouble() ?? 0.0;
+    final int currentTarif = _selectedConsultationType == "DOMICILE"
+        ? (widget.doctor['tarifDomicile'] ?? 20000).toInt()
+        : (widget.doctor['tarifTeleconsultation'] ?? 10000).toInt();
+    final bool aSoldeSuffisant = soldeActuel >= currentTarif;
+
     final activeSlots = _selectedPeriod == "Matin" ? _morningSlots : _eveningSlots;
     final doctorName = widget.doctor['nom'] != null 
         ? "Dr. ${widget.doctor['prenom'] ?? ''} ${widget.doctor['nom']}".trim()
@@ -261,7 +459,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                   children: [
                                     Icon(Icons.verified, color: Color(0xFF00A884), size: 12),
                                     SizedBox(width: 4),
-                                    Text("Agréé ONMS", style: TextStyle(fontSize: 10, color: Color(0xFF00A884), fontWeight: FontWeight.bold)),
+                                    Text("Médecin Vérifié", style: TextStyle(fontSize: 10, color: Color(0xFF00A884), fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                               ),
@@ -281,6 +479,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         ),
                         const SizedBox(height: 12),
 
+                        /*
+                        // Consultation au Cabinet : reportée pour une prochaine version
                         _buildConsultationOption(
                           id: "CABINET",
                           title: "Consultation au Cabinet",
@@ -288,14 +488,14 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                           price: "${(widget.doctor['tarifConsultation'] ?? 15000).toInt()} FCFA / h",
                           icon: Icons.local_hospital_rounded,
                         ),
-
                         const SizedBox(height: 12),
+                        */
 
                         _buildConsultationOption(
                           id: "TELECONSULTATION",
                           title: "Téléconsultation Vidéo",
                           subtitle: "Consultation à distance par appel vidéo (durée 1h)",
-                          price: "${(widget.doctor['tarifTeleconsultation'] ?? 10000).toInt()} FCFA / h",
+                          price: "${_formaterPrix((widget.doctor['tarifTeleconsultation'] ?? 10000).toInt())} FCFA / h",
                           icon: Icons.videocam_rounded,
                         ),
 
@@ -305,8 +505,103 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                           id: "DOMICILE",
                           title: "Consultation à Domicile",
                           subtitle: "Déplacement et visite médicale (durée 1h)",
-                          price: "${(widget.doctor['tarifDomicile'] ?? 20000).toInt()} FCFA / h",
+                          price: "${_formaterPrix((widget.doctor['tarifDomicile'] ?? 20000).toInt())} FCFA / h",
                           icon: Icons.home_work_rounded,
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // SECTION PORTEFEUILLE SANTÉ (RÈGLEMENT & CONTRÔLE DE SOLDE)
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: aSoldeSuffisant ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: aSoldeSuffisant ? const Color(0xFF86EFAC) : const Color(0xFFFECACA),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.account_balance_wallet_rounded,
+                                    size: 20,
+                                    color: aSoldeSuffisant ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      "Paiement par Portefeuille Santé",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                        color: aSoldeSuffisant ? const Color(0xFF166534) : const Color(0xFF991B1B),
+                                      ),
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: () => context.push('/wallet'),
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: aSoldeSuffisant ? const Color(0xFF86EFAC) : const Color(0xFFFECACA),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        "Recharger",
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: aSoldeSuffisant ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                "Le tarif de la consultation (${_formaterPrix(currentTarif)} FCFA) sera automatiquement débité de votre portefeuille santé lors de la réservation.",
+                                style: const TextStyle(fontSize: 11.5, color: Color(0xFF475569)),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Votre solde : ${_formaterPrix(soldeActuel.toInt())} FCFA",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: aSoldeSuffisant ? const Color(0xFF166534) : const Color(0xFFDC2626),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: aSoldeSuffisant ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      aSoldeSuffisant ? "Solde suffisant" : "Solde insuffisant",
+                                      style: TextStyle(
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.bold,
+                                        color: aSoldeSuffisant ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
 
                         if (_selectedConsultationType == "DOMICILE") ...[
@@ -484,18 +779,11 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     ),
                     child: Builder(
                       builder: (context) {
-                        final currentTarif = _selectedConsultationType == "DOMICILE"
-                            ? (widget.doctor['tarifDomicile'] ?? 20000).toInt()
-                            : _selectedConsultationType == "CABINET"
-                                ? (widget.doctor['tarifConsultation'] ?? 15000).toInt()
-                                : (widget.doctor['tarifTeleconsultation'] ?? 10000).toInt();
-                        final currentType = _selectedConsultationType == "DOMICILE"
+                        final typeLabel = _selectedConsultationType == "DOMICILE"
                             ? "la Visite à Domicile"
-                            : _selectedConsultationType == "CABINET"
-                                ? "la Consultation en Cabinet"
-                                : "la Téléconsultation";
+                            : "la Téléconsultation";
                         return Text(
-                          "Confirmer $currentType ($currentTarif FCFA / h)",
+                          "Confirmer $typeLabel (${_formaterPrix(currentTarif)} FCFA / h)",
                           style: const TextStyle(
                             fontSize: 14.5,
                             fontWeight: FontWeight.bold,

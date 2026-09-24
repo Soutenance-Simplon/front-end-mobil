@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../wallet/providers/wallet_provider.dart';
 import '../providers/rdv_provider.dart';
 
 class DoctorDetailScreen extends ConsumerStatefulWidget {
@@ -248,8 +249,128 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
       final user = ref.read(authProvider).user;
       if (user != null && user.id.isNotEmpty) {
         ref.read(rdvProvider.notifier).loadMesRendezVous(patientId: user.id);
+        ref.read(walletProvider.notifier).loadUserWallet(user.id);
       }
     });
+  }
+
+  /// Boîte de dialogue alertant le patient si son portefeuille santé a un solde insuffisant
+  void _afficherDialogueSoldeInsuffisant(double soldeActuel, int montantRequis) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+        actionsPadding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF2F2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.account_balance_wallet_outlined, color: Color(0xFFEF4444), size: 26),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                "Solde insuffisant",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Le montant de la consultation doit être débité de votre Portefeuille Santé, mais votre solde actuel est insuffisant.",
+              style: TextStyle(fontSize: 13.5, color: Color(0xFF5A607F), height: 1.4),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("Votre solde actuel :", style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                      Text(
+                        "${_formaterPrix(soldeActuel.toInt())} FCFA",
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
+                      ),
+                    ],
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Divider(height: 1, color: Color(0xFFE2E8F0)),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("Montant requis (1h) :", style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                      Text(
+                        "${_formaterPrix(montantRequis)} FCFA",
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              "Veuillez recharger votre portefeuille via Wave, Orange Money ou Free Money pour débloquer la prise de rendez-vous.",
+              style: TextStyle(fontSize: 12, color: Color(0xFF8E95A5)),
+            ),
+          ],
+        ),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: const Text("Annuler", style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.bold)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    context.push('/wallet');
+                  },
+                  icon: const Icon(Icons.add_card_rounded, color: Colors.white, size: 18),
+                  label: const Text("Recharger", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00A884),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   /// Permet au patient de choisir une date libre dans le calendrier
@@ -409,7 +530,8 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // TARIF CABINET (HORAIRE)
+                // TARIF CABINET (HORAIRE) - Non géré pour cette version
+                /*
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -441,6 +563,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                */
 
                 // TARIF TÉLÉCONSULTATION (HORAIRE)
                 Row(
@@ -542,7 +665,8 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                 ],
                 const SizedBox(height: 16),
 
-                // CONVENTION MUTUELLES & ASSURANCES
+                // CONVENTION MUTUELLES & ASSURANCES (Non géré pour cette version)
+                /*
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   value: tempAssur,
@@ -552,8 +676,31 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                   onChanged: (val) => setSheetState(() => tempAssur = val),
                 ),
                 const SizedBox(height: 12),
+                */
 
-                // MOYENS DE PAIEMENT ACCEPTÉS (WAVE, ORANGE MONEY, FREE MONEY AVEC PHOTOS)
+                // RÈGLEMENT PAR PORTEFEUILLE SANTÉ DIAM YARAAM (Mobile money retiré, gestion automatique par portefeuille)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFF86EFAC)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF16A34A), size: 22),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          "Paiement automatique via Portefeuille Santé : Le tarif fixé sera directement et automatiquement débité du portefeuille du patient lors de la prise de rendez-vous.",
+                          style: TextStyle(fontSize: 12, color: Color(0xFF166534), height: 1.3),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                /*
+                // MOYENS DE PAIEMENT ACCEPTÉS (Désactivés pour cette version - tout passe par le portefeuille santé)
                 const Text("Moyens de paiement acceptés", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4A5568))),
                 const SizedBox(height: 8),
                 Row(
@@ -719,6 +866,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                     ),
                   ),
                 ),
+                */
                 const SizedBox(height: 24),
 
                 // BOUTON ENREGISTRER
@@ -1098,6 +1246,11 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
     // Un médecin ne peut JAMAIS modifier le profil d'un autre médecin.
     final bool isOwnDoctorProfile = _isCurrentUserProfile();
 
+    final walletState = ref.watch(walletProvider);
+    final double soldePortefeuille = walletState.portefeuille?.solde ?? 0.0;
+    final int tarifMinimumRequis = _accepteTeleconsultation ? _tarifTeleconsultation : _tarifDomicile;
+    final bool aSoldeSuffisant = soldePortefeuille >= tarifMinimumRequis;
+
     final rdvState = ref.watch(rdvProvider);
     final mesRdv = rdvState.mesRendezVous;
 
@@ -1208,7 +1361,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                         Icon(Icons.verified, color: Color(0xFF00A884), size: 12),
                                         SizedBox(width: 4),
                                         Text(
-                                          "ONMS Certifié",
+                                          "Médecin Vérifié",
                                           style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
                                         ),
                                       ],
@@ -1459,7 +1612,8 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                           ),
                           child: Column(
                             children: [
-                              // 1. Consultation au Cabinet
+                              // 1. Consultation au Cabinet (Non disponible pour cette version - Sera disponible ultérieurement)
+                              /*
                               Row(
                                 children: [
                                   Container(
@@ -1492,13 +1646,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                   ),
                                 ],
                               ),
+                              */
 
                               if (_accepteTeleconsultation) ...[
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 10),
-                                  child: Divider(color: Color(0xFFF1F5F9)),
-                                ),
-                                // 2. Téléconsultation Vidéo
+                                // 1. Téléconsultation Vidéo
                                 Row(
                                   children: [
                                     Container(
@@ -1534,11 +1685,12 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                               ],
 
                               if (_accepteDomicile) ...[
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 10),
-                                  child: Divider(color: Color(0xFFF1F5F9)),
-                                ),
-                                // 3. Visite à Domicile
+                                if (_accepteTeleconsultation)
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Divider(color: Color(0xFFF1F5F9)),
+                                  ),
+                                // 2. Visite à Domicile
                                 Row(
                                   children: [
                                     Container(
@@ -1573,141 +1725,98 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 ),
                               ],
 
-                              const SizedBox(height: 12),
-                              // PRISE EN CHARGE / TIERS-PAYANT
+                              const SizedBox(height: 14),
+
+                              // PAIEMENT PAR DÉBIT DU PORTEFEUILLE SANTÉ & CONTRÔLE DE SOLDE
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF8FAFC),
-                                  borderRadius: BorderRadius.circular(10),
+                                  color: aSoldeSuffisant ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: aSoldeSuffisant ? const Color(0xFF86EFAC) : const Color(0xFFFECACA),
+                                  ),
                                 ),
-                                child: Row(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Icon(Icons.shield_outlined, size: 16, color: Color(0xFF00A884)),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        _conventionneAssurance
-                                            ? "Conventionné ONMS • Tiers-payant IPM & Mutuelles acceptés"
-                                            : "Praticien non conventionné tiers-payant",
-                                        style: const TextStyle(fontSize: 11, color: Color(0xFF5A607F), fontWeight: FontWeight.w500),
-                                      ),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.account_balance_wallet_rounded,
+                                          size: 18,
+                                          color: aSoldeSuffisant ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            "Paiement par Portefeuille Santé",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                              color: aSoldeSuffisant ? const Color(0xFF166534) : const Color(0xFF991B1B),
+                                            ),
+                                          ),
+                                        ),
+                                        InkWell(
+                                          onTap: () => context.push('/wallet'),
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color: aSoldeSuffisant ? const Color(0xFF86EFAC) : const Color(0xFFFECACA),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              "Recharger",
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color: aSoldeSuffisant ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    const Text(
+                                      "Le prix de la consultation sera automatiquement débité de votre portefeuille santé Diam Yaraam.",
+                                      style: TextStyle(fontSize: 11.5, color: Color(0xFF475569)),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Votre solde : ${_formaterPrix(soldePortefeuille.toInt())} FCFA",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: aSoldeSuffisant ? const Color(0xFF166534) : const Color(0xFFDC2626),
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: aSoldeSuffisant ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            aSoldeSuffisant ? "Solde suffisant" : "Solde insuffisant",
+                                            style: TextStyle(
+                                              fontSize: 10.5,
+                                              fontWeight: FontWeight.bold,
+                                              color: aSoldeSuffisant ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                ),
-                              ),
-
-                              const SizedBox(height: 10),
-
-                              // MOYENS DE PAIEMENT ACCEPTÉS (WAVE, ORANGE MONEY & FREE MONEY AVEC PHOTOS)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF8FAFC),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                                ),
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  physics: const BouncingScrollPhysics(),
-                                  child: Row(
-                                    children: [
-                                      const Text(
-                                        "Paiements :",
-                                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      if (_moyensPaiement.contains("Wave"))
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          margin: const EdgeInsets.only(right: 8),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(color: const Color(0xFF1DC4E9).withValues(alpha: 0.4)),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius: BorderRadius.circular(4),
-                                                child: Image.asset(
-                                                  'assets/images/wave.png',
-                                                  width: 18,
-                                                  height: 18,
-                                                  fit: BoxFit.contain,
-                                                  errorBuilder: (_, __, ___) => const Icon(Icons.payment, size: 16, color: Color(0xFF1DC4E9)),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 6),
-                                              const Text(
-                                                "Wave",
-                                                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      if (_moyensPaiement.contains("Orange Money"))
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          margin: const EdgeInsets.only(right: 8),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(color: const Color(0xFFFF7900).withValues(alpha: 0.4)),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius: BorderRadius.circular(4),
-                                                child: Image.asset(
-                                                  'assets/images/orange.png',
-                                                  width: 18,
-                                                  height: 18,
-                                                  fit: BoxFit.contain,
-                                                  errorBuilder: (_, __, ___) => const Icon(Icons.payment, size: 16, color: Color(0xFFFF7900)),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 6),
-                                              const Text(
-                                                "Orange Money",
-                                                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      if (_moyensPaiement.contains("Free Money"))
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(color: const Color(0xFFE21836).withValues(alpha: 0.4)),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius: BorderRadius.circular(4),
-                                                child: Image.asset(
-                                                  'assets/images/free_money.png',
-                                                  width: 18,
-                                                  height: 18,
-                                                  fit: BoxFit.contain,
-                                                  errorBuilder: (_, __, ___) => const Icon(Icons.payment, size: 16, color: Color(0xFFE21836)),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 6),
-                                              const Text(
-                                                "Free Money",
-                                                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                    ],
-                                  ),
                                 ),
                               ),
                             ],
@@ -2243,6 +2352,12 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 )
                               : ElevatedButton(
                                   onPressed: () {
+                                    // CONTRÔLE STRICT DU SOLDE DU PORTEFEUILLE SANTÉ DU PATIENT :
+                                    if (soldePortefeuille < tarifMinimumRequis) {
+                                      _afficherDialogueSoldeInsuffisant(soldePortefeuille, tarifMinimumRequis);
+                                      return;
+                                    }
+
                                     final bookingData = {
                                       ..._doctorData,
                                       'selectedDate': _selectedDate.toIso8601String(),
@@ -2250,6 +2365,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                       'tarifConsultation': _tarifCabinet,
                                       'tarifTeleconsultation': _tarifTeleconsultation,
                                       'tarifDomicile': _tarifDomicile,
+                                      'soldePortefeuille': soldePortefeuille,
                                     };
                                     context.push('/book-appointment', extra: bookingData);
                                   },
