@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../ia/models/interaction_medicamenteuse_model.dart';
 import '../../ia/providers/ia_provider.dart';
+import '../../ia/services/ia_api_service.dart';
 import '../models/prescription_model.dart';
 import '../providers/dossier_provider.dart';
 
@@ -23,9 +24,8 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
 
   bool _isSigned = true;
   bool _isCheckingIA = false;
-  InteractionMedicamenteuseModel? _alerteIA;
+  List<InteractionMedicamenteuseModel> _alertesActives = [];
   List<InteractionMedicamenteuseModel> _rapportAuditIA = [];
-  bool _auditEffectue = false;
 
   // Répertoire rapide de médicaments standards pour l'autocomplétion
   final List<Map<String, String>> _medicamentsStandards = [
@@ -49,6 +49,13 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
       "posologie": "1 comprimé x 3 / jour",
       "duree": "5 jours",
       "instructions": "Toujours au milieu des repas avec un grand verre d'eau",
+    },
+    {
+      "nom": "ASPIRINE",
+      "dosage": "500mg",
+      "posologie": "1 comprimé x 3 / jour",
+      "duree": "5 jours",
+      "instructions": "Pendant les repas avec un grand verre d'eau",
     },
     {
       "nom": "ARTÉMÉTHER + LUMÉFANTRINE (COARTEM)",
@@ -120,19 +127,107 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
       "duree": "3 jours",
       "instructions": "Boire par petites gorgées régulières tout au long de la journée",
     },
-    {
-      "nom": "RACÉCADOTRIL",
-      "dosage": "100mg",
-      "posologie": "1 gélule x 3 / jour",
-      "duree": "4 jours",
-      "instructions": "Avant les repas jusqu'à arrêt des selles liquides",
-    },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _evaluerAlertesEnTempsReel();
+    });
+  }
 
   @override
   void dispose() {
     _searchDrugController.dispose();
     super.dispose();
+  }
+
+  List<String> _recupererAllergiesPatiente() {
+    final dossierState = ref.read(dossierProvider);
+    final allergiesFromState = (dossierState.dossier?.allergies ?? []).map((a) => a.nomAllergene).toList();
+    final allergiesFromWidget = widget.patientInfo?['allergies'] is List
+        ? (widget.patientInfo!['allergies'] as List).map((e) => e.toString()).toList()
+        : <String>[];
+    final Set<String> all = {...allergiesFromState, ...allergiesFromWidget};
+    return all.toList();
+  }
+
+  /// Réévalue en temps réel toutes les interactions et contre-indications de l'ordonnance
+  Future<void> _evaluerAlertesEnTempsReel() async {
+    final allergies = _recupererAllergiesPatiente();
+    if (_lignes.isEmpty) {
+      if (mounted) setState(() => _alertesActives = []);
+      return;
+    }
+
+    try {
+      final iaApi = ref.read(iaApiServiceProvider);
+      final listMeds = _lignes.map((l) => l.medicament).toList();
+      final alertes = await iaApi.verifierInteractions(
+        medicaments: listMeds,
+        allergies: allergies,
+      );
+
+      if (mounted) {
+        setState(() {
+          _alertesActives = alertes;
+        });
+      }
+    } catch (e) {
+      // Ignorer
+    }
+  }
+
+  /// Vérifie si une ligne de prescription est concernée par une alerte active
+  bool _ligneAUnConflit(LignePrescriptionModel ligne) {
+    final normLigne = IaApiService.normalize(ligne.medicament);
+    return _alertesActives.any((alerte) {
+      final m1 = IaApiService.normalize(alerte.medicament1);
+      final m2 = IaApiService.normalize(alerte.medicament2);
+      return m1.contains(normLigne) || normLigne.contains(m1) || m2.contains(normLigne) || normLigne.contains(m2);
+    });
+  }
+
+  /// Correction automatique de l'ordonnance en retirant les doublons et en conservant un seul AINS
+  void _corrigerAutomatiquementOrdonnance() {
+    final List<LignePrescriptionModel> cleanList = [];
+    final Set<String> seenNormalized = {};
+    bool hasAins = false;
+    final ainsKeywords = ["IBUPROFEN", "ADVIL", "NUROFEN", "KETOPROFEN", "PROFENID", "DICLOFENAC", "VOLTAREN", "NAPROXEN", "ASPIRIN", "ASPEGIC", "AINS"];
+
+    for (final ligne in _lignes) {
+      final norm = IaApiService.normalize(ligne.medicament);
+      final isAins = ainsKeywords.any((kw) => norm.contains(kw));
+
+      // Éviter les doublons
+      if (seenNormalized.contains(norm)) continue;
+
+      // Éviter le multi-AINS
+      if (isAins) {
+        if (hasAins) {
+          continue; // On ne garde que le premier AINS
+        }
+        hasAins = true;
+      }
+
+      seenNormalized.add(norm);
+      cleanList.add(ligne);
+    }
+
+    setState(() {
+      _lignes.clear();
+      _lignes.addAll(cleanList);
+    });
+
+    _evaluerAlertesEnTempsReel();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("✅ Ordonnance assainie : doublons et associations AINS multiples supprimés."),
+        backgroundColor: Color(0xFF0D7C66),
+      ),
+    );
   }
 
   /// Lancer l'audit de sécurité global de l'ordonnance complète
@@ -150,7 +245,6 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
     setState(() {
       _isCheckingIA = true;
       _rapportAuditIA = [];
-      _auditEffectue = false;
     });
 
     try {
@@ -164,7 +258,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
       setState(() {
         _isCheckingIA = false;
         _rapportAuditIA = alertes;
-        _auditEffectue = true;
+        _alertesActives = alertes;
       });
 
       if (mounted) {
@@ -173,7 +267,6 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
     } catch (e) {
       setState(() {
         _isCheckingIA = false;
-        _auditEffectue = true;
       });
     }
   }
@@ -260,7 +353,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                           ),
                           SizedBox(height: 4),
                           Text(
-                            "Aucun conflit d'allergie ou interaction médicamenteuse nocive détecté pour ce patient.",
+                            "Aucun conflit d'allergie, doublon ou interaction médicamenteuse nocive détecté pour ce patient.",
                             style: TextStyle(fontSize: 12, color: Color(0xFF2D3142)),
                           ),
                         ],
@@ -283,7 +376,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        "${_rapportAuditIA.length} alerte(s) de sécurité détectée(s) sur cette ordonnance.",
+                        "${_rapportAuditIA.length} anomalie(s) ou contre-indication(s) détectée(s) !",
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFFE53935)),
                       ),
                     ),
@@ -376,47 +469,40 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                       ),
                     );
                   }),
-                  // Verification patient allergies summary
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8F9FA),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE5E9F2)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text("Profil Allergique Patient :", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF475569))),
-                        const SizedBox(height: 4),
-                        Text(
-                          allergiesPatiente.isNotEmpty
-                              ? allergiesPatiente.join(", ").toUpperCase()
-                              : "Aucune allergie connue répertoriée dans le dossier",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: allergiesPatiente.isNotEmpty ? const Color(0xFFE53935) : const Color(0xFF64748B),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              height: 46,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0D7C66),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            Row(
+              children: [
+                if (_rapportAuditIA.isNotEmpty) ...[
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _corrigerAutomatiquementOrdonnance();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFE53935),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      icon: const Icon(Icons.auto_fix_high, size: 16, color: Colors.white),
+                      label: const Text("Corriger l'ordonnance", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF0D7C66)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text("Fermer", style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold)),
+                  ),
                 ),
-                child: const Text("Fermer l'audit", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
+              ],
             ),
           ],
         ),
@@ -566,13 +652,6 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                         instructions: "Boire par petites gorgées régulières après chaque selle liquide.",
                       ),
                       LignePrescriptionModel(
-                        medicament: "RACÉCADOTRIL",
-                        dosage: "100mg",
-                        posologie: "1 gélule x 3 / jour",
-                        duree: "4 jours",
-                        instructions: "À prendre avant les repas jusqu'à retour des selles moulées.",
-                      ),
-                      LignePrescriptionModel(
                         medicament: "PARACÉTAMOL",
                         dosage: "1g",
                         posologie: "1 comprimé si douleur ou fièvre",
@@ -592,41 +671,6 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                         posologie: "1 comprimé le matin",
                         duree: "30 jours",
                         instructions: "Prise quotidienne à heure fixe. Contrôle tensionnel dans 1 mois.",
-                      ),
-                    ],
-                    allergiesPatiente: allergiesPatiente,
-                  ),
-                  _buildProtocolCard(
-                    titre: "Infection Urinaire basse non compliquée (Cystite)",
-                    tag: "Monodose minute",
-                    lignes: [
-                      LignePrescriptionModel(
-                        medicament: "FOSFOMYCINE-TROMÉTAMOL",
-                        dosage: "3g",
-                        posologie: "1 sachet en prise unique le soir au coucher",
-                        duree: "1 jour",
-                        instructions: "Vider la vessie avant la prise. Boire 1,5L d'eau le lendemain.",
-                      ),
-                      LignePrescriptionModel(
-                        medicament: "PARACÉTAMOL",
-                        dosage: "1g",
-                        posologie: "1 comprimé x 3 / jour si brûlures",
-                        duree: "3 jours",
-                        instructions: "Pendant les repas.",
-                      ),
-                    ],
-                    allergiesPatiente: allergiesPatiente,
-                  ),
-                  _buildProtocolCard(
-                    titre: "Diabète de Type 2 (Première intention)",
-                    tag: "Endocrinologie",
-                    lignes: [
-                      LignePrescriptionModel(
-                        medicament: "METFORMINE",
-                        dosage: "850mg",
-                        posologie: "1 comprimé matin et soir",
-                        duree: "30 jours",
-                        instructions: "À prendre au milieu des repas pour réduire les effets digestifs.",
                       ),
                     ],
                     allergiesPatiente: allergiesPatiente,
@@ -654,13 +698,6 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: const Color(0xFFE5E9F2)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -732,8 +769,8 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                 Navigator.pop(context);
                 setState(() {
                   _lignes.addAll(lignes);
-                  _alerteIA = null;
                 });
+                _evaluerAlertesEnTempsReel();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text("Protocole \"$titre\" chargé dans l'ordonnance."),
@@ -755,7 +792,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
     );
   }
 
-  /// Dialogue d'alerte critique avec action de substitution automatique
+  /// Dialogue d'alerte critique lors de l'ajout
   void _afficherAlerteInteractionDialog(
     InteractionMedicamenteuseModel alerte,
     LignePrescriptionModel nouveauMed,
@@ -825,7 +862,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
             if (alerte.alternativeRecommandee != null && alerte.alternativeRecommandee!.isNotEmpty) ...[
               const SizedBox(height: 12),
               const Text(
-                "Alternative thérapeutique recommandée :",
+                "Alternative recommandée :",
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
               ),
               const SizedBox(height: 4),
@@ -838,57 +875,34 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() => _alerteIA = null);
-            },
+            onPressed: () => Navigator.pop(context),
             child: const Text("Annuler l'ajout", style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.bold)),
           ),
           if (alerte.alternativeRecommandee != null && alerte.alternativeRecommandee!.isNotEmpty)
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                // Extraire le nom de l'alternative si possible ou ouvrir le modal avec l'alternative
-                final altName = alerte.alternativeRecommandee!.split(" ")[0].toUpperCase();
+                final altName = alerte.alternativeRecommandee!.contains("Paracétamol") || alerte.alternativeRecommandee!.contains("PARACETAMOL")
+                    ? "PARACÉTAMOL"
+                    : alerte.alternativeRecommandee!.split(" ")[0].toUpperCase();
                 setState(() {
                   _lignes.add(
                     LignePrescriptionModel(
-                      medicament: altName.isNotEmpty ? altName : "ALTERNATIVE CONSEILLÉE",
-                      dosage: "Dosage standard",
-                      posologie: "1 prise x 2 / jour",
+                      medicament: altName,
+                      dosage: altName == "PARACÉTAMOL" ? "1g" : "Dosage standard",
+                      posologie: altName == "PARACÉTAMOL" ? "1 comprimé x 3 / jour" : "1 prise x 2 / jour",
                       duree: "5 jours",
-                      instructions: "Substitut sécurisé sans risque d'interaction",
+                      instructions: "Substitut sécurisé recommandé par l'IA",
                     ),
                   );
-                  _alerteIA = null;
                 });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Alternative $altName ajoutée à l'ordonnance."),
-                    backgroundColor: const Color(0xFF0D7C66),
-                  ),
-                );
+                _evaluerAlertesEnTempsReel();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0D7C66),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text("Remplacer par l'alternative", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-            )
-          else
-            OutlinedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                setState(() {
-                  _lignes.add(nouveauMed);
-                  _alerteIA = null;
-                });
-              },
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFFE53935)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text("Forcer l'ajout", style: TextStyle(color: Color(0xFFE53935), fontWeight: FontWeight.bold)),
+              child: const Text("Appliquer l'alternative", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
             ),
         ],
       ),
@@ -951,7 +965,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: _medicamentsStandards.take(7).map((m) {
+                  children: _medicamentsStandards.take(8).map((m) {
                     return Padding(
                       padding: const EdgeInsets.only(right: 6),
                       child: ActionChip(
@@ -1038,72 +1052,55 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                 height: 48,
                 child: ElevatedButton.icon(
                   onPressed: () async {
-                    if (medController.text.trim().isNotEmpty) {
-                      final newMedName = medController.text.trim().toUpperCase();
-                      final nouvelleLigne = LignePrescriptionModel(
-                        medicament: newMedName,
-                        dosage: dosageController.text.trim(),
-                        posologie: posologieController.text.trim(),
-                        duree: dureeController.text.trim(),
-                        instructions: instructionsController.text.trim(),
-                      );
+                    final rawMedName = medController.text.trim();
+                    if (rawMedName.isEmpty) return;
 
-                      Navigator.pop(context); // Close input modal
+                    final newMedName = rawMedName.toUpperCase();
+                    final nouvelleLigne = LignePrescriptionModel(
+                      medicament: newMedName,
+                      dosage: dosageController.text.trim(),
+                      posologie: posologieController.text.trim(),
+                      duree: dureeController.text.trim(),
+                      instructions: instructionsController.text.trim(),
+                    );
 
+                    Navigator.pop(context); // Fermer le formulaire
+
+                    // Vérification immédiate IA
+                    final iaApi = ref.read(iaApiServiceProvider);
+                    final tousLesMeds = [..._lignes.map((l) => l.medicament), newMedName];
+                    final interactions = await iaApi.verifierInteractions(
+                      medicaments: tousLesMeds,
+                      allergies: allergiesPatiente,
+                    );
+
+                    // Filtrer les alertes qui concernent la nouvelle molécule
+                    final normNew = IaApiService.normalize(newMedName);
+                    final alertePourCeMed = interactions.where((inter) {
+                      final m1 = IaApiService.normalize(inter.medicament1);
+                      final m2 = IaApiService.normalize(inter.medicament2);
+                      return m1.contains(normNew) || normNew.contains(m1) || m2.contains(normNew) || normNew.contains(m2);
+                    }).toList();
+
+                    if (alertePourCeMed.isNotEmpty) {
+                      // Alerte détectée : on affiche le dialogue bloquant/alerte
+                      if (mounted) {
+                        _afficherAlerteInteractionDialog(alertePourCeMed.first, nouvelleLigne, allergiesPatiente);
+                      }
+                    } else {
+                      // Ajout sain
                       setState(() {
-                        _isCheckingIA = true;
-                        _alerteIA = null;
+                        _lignes.add(nouvelleLigne);
                       });
-
-                      try {
-                        final iaApi = ref.read(iaApiServiceProvider);
-                        // Passer tous les médicaments actuels + le nouveau médicament
-                        final tousLesMeds = [..._lignes.map((l) => l.medicament), newMedName];
-                        final interactions = await iaApi.verifierInteractions(
-                          medicaments: tousLesMeds,
-                          allergies: allergiesPatiente,
+                      _evaluerAlertesEnTempsReel();
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("✅ $newMedName vérifié par l'IA : Compatible avec le dossier patient."),
+                            backgroundColor: const Color(0xFF0D7C66),
+                            duration: const Duration(seconds: 2),
+                          ),
                         );
-
-                        // Filtrer les interactions qui concernent le nouveau médicament
-                        final alertePourCeMed = interactions.where((inter) {
-                          final m1 = inter.medicament1.toUpperCase();
-                          final m2 = inter.medicament2.toUpperCase();
-                          return m1.contains(newMedName) ||
-                              newMedName.contains(m1) ||
-                              m2.contains(newMedName) ||
-                              newMedName.contains(m2) ||
-                              inter.estCritique;
-                        }).toList();
-
-                        if (alertePourCeMed.isNotEmpty) {
-                          setState(() {
-                            _alerteIA = alertePourCeMed.first;
-                            _isCheckingIA = false;
-                          });
-                          if (mounted) {
-                            _afficherAlerteInteractionDialog(alertePourCeMed.first, nouvelleLigne, allergiesPatiente);
-                          }
-                        } else {
-                          setState(() {
-                            _isCheckingIA = false;
-                            _alerteIA = null;
-                            _lignes.add(nouvelleLigne);
-                          });
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("✅ $newMedName vérifié par l'IA : Compatible avec le dossier patient."),
-                                backgroundColor: const Color(0xFF0D7C66),
-                                duration: const Duration(seconds: 2),
-                              ),
-                            );
-                          }
-                        }
-                      } catch (e) {
-                        setState(() {
-                          _isCheckingIA = false;
-                          _lignes.add(nouvelleLigne);
-                        });
                       }
                     }
                   },
@@ -1132,6 +1129,72 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
         const SnackBar(
           content: Text("Veuillez ajouter au moins un médicament avant d'envoyer l'ordonnance."),
           backgroundColor: Color(0xFFEF4444),
+        ),
+      );
+      return;
+    }
+
+    // VÉRIFICATION DE SÉCURITÉ IA AVANT TRANSMISSION
+    if (_alertesActives.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Row(
+            children: [
+              Icon(Icons.gpp_bad_rounded, color: Color(0xFFE53935), size: 28),
+              SizedBox(width: 10),
+              Text("Transmission Bloquée"),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "L'IA de sécurité médicale Diam Yaraam a identifié des anomalies critiques sur cette ordonnance :",
+                style: TextStyle(fontSize: 13, color: Color(0xFF2D3142)),
+              ),
+              const SizedBox(height: 10),
+              ..._alertesActives.map((a) => Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("• ", style: TextStyle(color: Color(0xFFE53935), fontWeight: FontWeight.bold)),
+                        Expanded(
+                          child: Text(
+                            "${a.medicament1} ↔ ${a.medicament2} : ${a.explication}",
+                            style: const TextStyle(fontSize: 12, color: Color(0xFFE53935), fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+              const SizedBox(height: 12),
+              const Text(
+                "Veuillez corriger ou supprimer les médicaments en conflit avant de transmettre l'ordonnance.",
+                style: TextStyle(fontSize: 12, color: Color(0xFF64748B), fontStyle: FontStyle.italic),
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _corrigerAutomatiquementOrdonnance();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFE53935),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: const Text("Corriger automatiquement", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Fermer", style: TextStyle(color: Color(0xFF64748B))),
+            ),
+          ],
         ),
       );
       return;
@@ -1260,10 +1323,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
     final patientAge = widget.patientInfo?['age'] ?? (dossierState.dossier != null ? "Dossier médical actif" : "");
     final patientGroupe = widget.patientInfo?['groupe'] ?? (dossierState.dossier?.groupeSanguin ?? "");
 
-    final allergiesList = (dossierState.dossier?.allergies ?? [])
-        .map((a) => a.nomAllergene)
-        .toList();
-
+    final allergiesList = _recupererAllergiesPatiente();
     final dateAujourdhui = DateFormat('d MMM. yyyy', 'fr_FR').format(DateTime.now()).toUpperCase();
 
     return Scaffold(
@@ -1296,7 +1356,21 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.shield_outlined, color: Color(0xFF0D7C66)),
+            icon: Stack(
+              children: [
+                const Icon(Icons.shield_outlined, color: Color(0xFF0D7C66)),
+                if (_alertesActives.isNotEmpty)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
+                      constraints: const BoxConstraints(minWidth: 12, minHeight: 12),
+                    ),
+                  ),
+              ],
+            ),
             tooltip: "Audit IA de l'ordonnance",
             onPressed: () => _lancerAuditSecurite(allergiesList),
           ),
@@ -1426,18 +1500,28 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: _alertesActives.isNotEmpty ? const Color(0xFFFDE8E8) : Colors.white,
                               borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: const Color(0xFFE5E9F2)),
+                              border: Border.all(
+                                color: _alertesActives.isNotEmpty ? const Color(0xFFE53935) : const Color(0xFFE5E9F2),
+                              ),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.shield_outlined, color: Color(0xFF2D3142), size: 18),
-                                SizedBox(width: 8),
+                                Icon(
+                                  _alertesActives.isNotEmpty ? Icons.warning_amber_rounded : Icons.shield_outlined,
+                                  color: _alertesActives.isNotEmpty ? const Color(0xFFE53935) : const Color(0xFF2D3142),
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
                                 Text(
-                                  "Audit Sécurité IA",
-                                  style: TextStyle(color: Color(0xFF2D3142), fontWeight: FontWeight.bold, fontSize: 12),
+                                  _alertesActives.isNotEmpty ? "${_alertesActives.length} alerte(s)" : "Audit Sécurité IA",
+                                  style: TextStyle(
+                                    color: _alertesActives.isNotEmpty ? const Color(0xFFE53935) : const Color(0xFF2D3142),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ],
                             ),
@@ -1449,31 +1533,10 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
 
                   const SizedBox(height: 14),
 
-                  // STATUS IA / ALERTE
-                  if (_isCheckingIA)
+                  // BANDEAU D'ALERTE TEMPS RÉEL SI ANOMALIE
+                  if (_alertesActives.isNotEmpty) ...[
                     Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFE5E9F2)),
-                      ),
-                      child: const Row(
-                        children: [
-                          SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D7C66))),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: Text(
-                              "L'IA analyse les interactions médicamenteuses et contre-indications...",
-                              style: TextStyle(color: Color(0xFF2D3142), fontWeight: FontWeight.bold, fontSize: 12),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  else if (_alerteIA != null)
-                    Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: const Color(0xFFE53935),
                         borderRadius: BorderRadius.circular(16),
@@ -1484,70 +1547,56 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                           Row(
                             children: [
                               const Icon(Icons.warning_rounded, color: Colors.white, size: 22),
-                              const SizedBox(width: 10),
+                              const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  "ALERTE IA — ${_alerteIA!.niveauDanger.replaceAll('_', ' ')}",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                  ),
+                                  "🚨 ${_alertesActives.length} ALERTE(S) SÉCURITÉ DÉTECTÉE(S)",
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 6),
-                          Text(
-                            _alerteIA!.explication,
-                            style: const TextStyle(color: Colors.white, fontSize: 12),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            "Recommandation : ${_alerteIA!.recommandation}",
-                            style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    setState(() => _alerteIA = null);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  ),
-                                  child: const Text(
-                                    "Fermer l'alerte",
-                                    style: TextStyle(
-                                      color: Color(0xFFE53935),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                  ),
+                          ..._alertesActives.take(2).map((a) => Padding(
+                                padding: const EdgeInsets.only(bottom: 4),
+                                child: Text(
+                                  "• ${a.medicament1} ↔ ${a.medicament2} : ${a.explication}",
+                                  style: const TextStyle(color: Colors.white, fontSize: 11),
                                 ),
+                              )),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: _corrigerAutomatiquementOrdonnance,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                               ),
-                            ],
+                              icon: const Icon(Icons.auto_fix_high, color: Color(0xFFE53935), size: 16),
+                              label: const Text(
+                                "Corriger automatiquement l'ordonnance",
+                                style: TextStyle(color: Color(0xFFE53935), fontWeight: FontWeight.bold, fontSize: 12),
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                    )
-                  else
-                    // AI SUCCESS BANNER (GREEN)
+                    ),
+                    const SizedBox(height: 14),
+                  ] else ...[
                     Container(
-                      padding: const EdgeInsets.all(14),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: const Color(0xFFE7F2F0),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.3)),
                       ),
                       child: const Row(
                         children: [
-                          Icon(Icons.check_circle, color: Color(0xFF0D7C66), size: 20),
-                          SizedBox(width: 10),
+                          Icon(Icons.check_circle, color: Color(0xFF0D7C66), size: 18),
+                          SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               "Contrôle IA Kaay Fadjou actif — Référentiel OMS / MSF",
@@ -1561,8 +1610,8 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                         ],
                       ),
                     ),
-
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 14),
+                  ],
 
                   // DYNAMIC PRESCRIPTION ITEMS LIST
                   Row(
@@ -1610,6 +1659,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                     ..._lignes.asMap().entries.map((entry) {
                       final index = entry.key;
                       final item = entry.value;
+                      final enConflit = _ligneAUnConflit(item);
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 12),
@@ -1617,7 +1667,10 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE5E9F2)),
+                          border: Border.all(
+                            color: enConflit ? const Color(0xFFE53935) : const Color(0xFFE5E9F2),
+                            width: enConflit ? 1.5 : 1.0,
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1627,26 +1680,41 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                                 Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFE7F2F0),
+                                    color: enConflit ? const Color(0xFFFDE8E8) : const Color(0xFFE7F2F0),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Icon(Icons.medication_outlined, color: Color(0xFF0D7C66), size: 20),
+                                  child: Icon(
+                                    enConflit ? Icons.warning_amber_rounded : Icons.medication_outlined,
+                                    color: enConflit ? const Color(0xFFE53935) : const Color(0xFF0D7C66),
+                                    size: 20,
+                                  ),
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
-                                  child: Text(
-                                    "${item.medicament} ${item.dosage}".trim(),
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF2D3142),
-                                    ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "${item.medicament} ${item.dosage}".trim(),
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: enConflit ? const Color(0xFFE53935) : const Color(0xFF2D3142),
+                                        ),
+                                      ),
+                                      if (enConflit)
+                                        const Text(
+                                          "⚠️ Conflit ou doublon détecté par l'IA",
+                                          style: TextStyle(fontSize: 10, color: Color(0xFFE53935), fontWeight: FontWeight.bold),
+                                        ),
+                                    ],
                                   ),
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.delete_outline, color: Color(0xFFE53935), size: 20),
                                   onPressed: () {
                                     setState(() => _lignes.removeAt(index));
+                                    _evaluerAlertesEnTempsReel();
                                   },
                                 ),
                               ],
@@ -1720,6 +1788,10 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: _alertesActives.isNotEmpty ? const Color(0xFFE53935).withValues(alpha: 0.6) : Colors.transparent,
+                        width: _alertesActives.isNotEmpty ? 1.5 : 0,
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.04),
@@ -1758,12 +1830,32 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                           ..._lignes.asMap().entries.map((entry) {
                             final i = entry.key + 1;
                             final item = entry.value;
+                            final enConflit = _ligneAUnConflit(item);
+
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 8),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("$i. ${item.medicament} ${item.dosage}".trim(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          "$i. ${item.medicament} ${item.dosage}".trim(),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                            color: enConflit ? const Color(0xFFE53935) : const Color(0xFF2D3142),
+                                          ),
+                                        ),
+                                      ),
+                                      if (enConflit)
+                                        const Text(
+                                          " [⚠️ CONFLIT IA]",
+                                          style: TextStyle(color: Color(0xFFE53935), fontSize: 10, fontWeight: FontWeight.bold),
+                                        ),
+                                    ],
+                                  ),
                                   Padding(
                                     padding: const EdgeInsets.only(left: 12, top: 2),
                                     child: Text("- ${item.posologie} pendant ${item.duree}", style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
@@ -1826,7 +1918,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                           icon: const Icon(Icons.send, color: Colors.white, size: 18),
                           label: const Text("Transmettre", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0D7C66),
+                            backgroundColor: _alertesActives.isNotEmpty ? const Color(0xFFE53935) : const Color(0xFF0D7C66),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           ),

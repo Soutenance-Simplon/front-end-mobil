@@ -8,6 +8,21 @@ class IaApiService {
   final ApiClient _client = ApiClient();
   Dio get dio => _client.dio;
 
+  /// Normalisation de chaîne pour éliminer les accents, la casse et la ponctuation
+  static String normalize(String s) {
+    return s
+        .toUpperCase()
+        .replaceAll(RegExp(r'[ÉÈÊË]'), 'E')
+        .replaceAll(RegExp(r'[ÀÂÄ]'), 'A')
+        .replaceAll(RegExp(r'[ÎÏ]'), 'I')
+        .replaceAll(RegExp(r'[ÔÖ]'), 'O')
+        .replaceAll(RegExp(r'[ÛÜÙ]'), 'U')
+        .replaceAll(RegExp(r'[Ç]'), 'C')
+        .replaceAll(RegExp(r'[^A-Z0-9 ]'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
   /// Évaluation intelligente des symptômes (Triage IA)
   Future<TriSymptomeModel> evaluerSymptomes(String description) async {
     try {
@@ -88,29 +103,68 @@ class IaApiService {
     );
   }
 
-  /// Moteur pharmacologique clinique certifié MSF / OMS / Dorosz pour offline et fallback immédiat
+  /// Moteur pharmacologique clinique certifié MSF / OMS / Dorosz
   List<InteractionMedicamenteuseModel> _getDemoInteractions(
       List<String> meds, List<String> allergies) {
     final List<InteractionMedicamenteuseModel> results = [];
-    final cleanMeds = meds.map((m) => m.trim().toUpperCase()).where((m) => m.isNotEmpty).toList();
-    final cleanAllergies = allergies.map((a) => a.trim().toUpperCase()).where((a) => a.isNotEmpty).toList();
+    final cleanMeds = meds.map((m) => m.trim()).where((m) => m.isNotEmpty).toList();
+    final normMeds = cleanMeds.map((m) => normalize(m)).toList();
+    final cleanAllergies = allergies.map((a) => a.trim()).where((a) => a.isNotEmpty).toList();
+    final normAllergies = cleanAllergies.map((a) => normalize(a)).toList();
 
     if (cleanMeds.isEmpty) return results;
 
-    final String allMedsStr = cleanMeds.join(" ");
-    final String allAllergiesStr = cleanAllergies.join(" ");
+    final String allNormAllergiesStr = normAllergies.join(" ");
 
     // ─────────────────────────────────────────────────────────────
-    // 1. RÈGLES CONTRE-INDICATIONS ALLERGIES (MSF / OMS)
+    // 1. DÉTECTION DES DOUBLONS STRICTS (MÊME MÉDICAMENT PRESCIS 2+ FOIS)
+    // ─────────────────────────────────────────────────────────────
+    final Set<int> indicesDoublons = {};
+    for (int i = 0; i < normMeds.length; i++) {
+      for (int j = i + 1; j < normMeds.length; j++) {
+        final n1 = normMeds[i];
+        final n2 = normMeds[j];
+        
+        // Match exact ou racine principale commune
+        bool isDuplicate = n1 == n2;
+        if (!isDuplicate && n1.length >= 5 && n2.length >= 5) {
+          final prefix1 = n1.split(" ")[0];
+          final prefix2 = n2.split(" ")[0];
+          if (prefix1 == prefix2 && prefix1.length >= 4) {
+            isDuplicate = true;
+          }
+        }
+
+        if (isDuplicate && !indicesDoublons.contains(j)) {
+          indicesDoublons.add(j);
+          results.add(
+            InteractionMedicamenteuseModel(
+              medicament1: cleanMeds[i],
+              medicament2: "${cleanMeds[j]} (DOUBLON)",
+              niveauDanger: "CONTRE_INDICATION_ABSOLUE",
+              bloquant: true,
+              sourceMedicale: "Guide Médicaments Essentiels MSF/OMS, Règle de Non-Duplication",
+              explication: "Prescription identique ou doublon de spécialité détecté. Risque immédiat de surdosage toxique grave.",
+              recommandation: "Supprimer la ligne en double pour sécuriser la posologie journalière.",
+              alternativeRecommandee: "Supprimer la deuxième ligne de ${cleanMeds[i]}.",
+            ),
+          );
+        }
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 2. RÈGLES CONTRE-INDICATIONS ALLERGIES (MSF / OMS)
     // ─────────────────────────────────────────────────────────────
 
     // Allergie Pénicilline / Bêta-lactamines
-    if (allAllergiesStr.contains("PENICIL") || allAllergiesStr.contains("AMOXICIL") || allAllergiesStr.contains("BETA-LACTAM") || allAllergiesStr.contains("BETALACTAM")) {
-      for (final med in cleanMeds) {
-        if (med.contains("AMOX") || med.contains("AUGMENTIN") || med.contains("CLAMOXYL") || med.contains("PENICIL") || med.contains("AMPICIL") || med.contains("ORACILLINE")) {
+    if (allNormAllergiesStr.contains("PENICIL") || allNormAllergiesStr.contains("AMOXICIL") || allNormAllergiesStr.contains("BETA LACTAM") || allNormAllergiesStr.contains("BETALACTAM")) {
+      for (int i = 0; i < normMeds.length; i++) {
+        final n = normMeds[i];
+        if (n.contains("AMOX") || n.contains("AUGMENTIN") || n.contains("CLAMOXYL") || n.contains("PENICIL") || n.contains("AMPICIL") || n.contains("ORACILLINE")) {
           results.add(
             InteractionMedicamenteuseModel(
-              medicament1: med,
+              medicament1: cleanMeds[i],
               medicament2: "ALLERGIE AUX PÉNICILLINES",
               niveauDanger: "CONTRE_INDICATION_ABSOLUE",
               bloquant: true,
@@ -126,12 +180,13 @@ class IaApiService {
     }
 
     // Allergie Sulfamides
-    if (allAllergiesStr.contains("SULFAMID") || allAllergiesStr.contains("BACTRIM") || allAllergiesStr.contains("COTRIMOXAZOLE")) {
-      for (final med in cleanMeds) {
-        if (med.contains("BACTRIM") || med.contains("COTRIMOXAZOLE") || med.contains("SULFA")) {
+    if (allNormAllergiesStr.contains("SULFAMID") || allNormAllergiesStr.contains("BACTRIM") || allNormAllergiesStr.contains("COTRIMOXAZOLE")) {
+      for (int i = 0; i < normMeds.length; i++) {
+        final n = normMeds[i];
+        if (n.contains("BACTRIM") || n.contains("COTRIMOXAZOLE") || n.contains("SULFA")) {
           results.add(
             InteractionMedicamenteuseModel(
-              medicament1: med,
+              medicament1: cleanMeds[i],
               medicament2: "ALLERGIE AUX SULFAMIDES",
               niveauDanger: "CONTRE_INDICATION_ABSOLUE",
               bloquant: true,
@@ -147,12 +202,18 @@ class IaApiService {
     }
 
     // Allergie AINS / Aspirine
-    if (allAllergiesStr.contains("AINS") || allAllergiesStr.contains("ASPIRIN") || allAllergiesStr.contains("IBUPROFEN") || allAllergiesStr.contains("ANTI-INFLAMMATOIRE")) {
-      for (final med in cleanMeds) {
-        if (med.contains("IBUPROFEN") || med.contains("ADVIL") || med.contains("NUROFEN") || med.contains("KETOPROFEN") || med.contains("PROFENID") || med.contains("DICLOFENAC") || med.contains("VOLTAREN") || med.contains("ASPIRIN") || med.contains("ASPEGIC") || med.contains("NAPROXEN")) {
+    final ainsKeywords = [
+      "IBUPROFEN", "ADVIL", "NUROFEN", "KETOPROFEN", "PROFENID", "DICLOFENAC",
+      "VOLTAREN", "NAPROXEN", "ASPIRIN", "ASPEGIC", "AINS", "ACIDE ACETYLSALICYLIQUE"
+    ];
+
+    if (allNormAllergiesStr.contains("AINS") || allNormAllergiesStr.contains("ASPIRIN") || allNormAllergiesStr.contains("IBUPROFEN") || allNormAllergiesStr.contains("ANTI INFLAMMATOIRE")) {
+      for (int i = 0; i < normMeds.length; i++) {
+        final n = normMeds[i];
+        if (ainsKeywords.any((kw) => n.contains(kw))) {
           results.add(
             InteractionMedicamenteuseModel(
-              medicament1: med,
+              medicament1: cleanMeds[i],
               medicament2: "ALLERGIE AUX AINS / ASPIRINE",
               niveauDanger: "CONTRE_INDICATION_ABSOLUE",
               bloquant: true,
@@ -168,12 +229,13 @@ class IaApiService {
     }
 
     // Allergie Macrolides
-    if (allAllergiesStr.contains("MACROLIDE") || allAllergiesStr.contains("AZITHROMYCIN") || allAllergiesStr.contains("ERYTHROMYCIN") || allAllergiesStr.contains("CLARITHROMYCIN")) {
-      for (final med in cleanMeds) {
-        if (med.contains("AZITHRO") || med.contains("ZITHROMAX") || med.contains("CLARITHRO") || med.contains("ERYTHRO") || med.contains("JOSACINE") || med.contains("ROVAMYCINE")) {
+    if (allNormAllergiesStr.contains("MACROLIDE") || allNormAllergiesStr.contains("AZITHROMYCIN") || allNormAllergiesStr.contains("ERYTHROMYCIN") || allNormAllergiesStr.contains("CLARITHROMYCIN")) {
+      for (int i = 0; i < normMeds.length; i++) {
+        final n = normMeds[i];
+        if (n.contains("AZITHRO") || n.contains("ZITHROMAX") || n.contains("CLARITHRO") || n.contains("ERYTHRO") || n.contains("JOSACINE") || n.contains("ROVAMYCINE")) {
           results.add(
             InteractionMedicamenteuseModel(
-              medicament1: med,
+              medicament1: cleanMeds[i],
               medicament2: "ALLERGIE AUX MACROLIDES",
               niveauDanger: "CONTRE_INDICATION_ABSOLUE",
               bloquant: true,
@@ -189,20 +251,23 @@ class IaApiService {
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 2. RÈGLES D'INTERACTIONS MÉDICAMENT-MÉDICAMENT (PAIRES)
+    // 3. RÈGLES D'INTERACTIONS MÉDICAMENT-MÉDICAMENT (PAIRES)
     // ─────────────────────────────────────────────────────────────
 
-    for (int i = 0; i < cleanMeds.length; i++) {
-      for (int j = i + 1; j < cleanMeds.length; j++) {
-        final m1 = cleanMeds[i];
-        final m2 = cleanMeds[j];
-        final pair = "$m1 $m2";
+    for (int i = 0; i < normMeds.length; i++) {
+      for (int j = i + 1; j < normMeds.length; j++) {
+        final n1 = normMeds[i];
+        final n2 = normMeds[j];
+        final pair = "$n1 $n2";
 
         // Amiodarone + Fluoroquinolones (Ciprofloxacine / Lévofloxacine) -> Allongement QT
         final isAmiodarone = pair.contains("AMIODARONE") || pair.contains("CORDARONE");
         final isFluoroquinolone = pair.contains("CIPRO") || pair.contains("LEVOFLOX") || pair.contains("OFLOX") || pair.contains("MOXIFLOX") || pair.contains("CIFLOX");
         final isHaloperidol = pair.contains("HALOPERIDOL") || pair.contains("HALDOL");
-        final isAins = pair.contains("IBUPROFEN") || pair.contains("ADVIL") || pair.contains("NUROFEN") || pair.contains("KETOPROFEN") || pair.contains("PROFENID") || pair.contains("DICLOFENAC") || pair.contains("VOLTAREN") || pair.contains("NAPROXEN") || pair.contains("ASPIRIN") || pair.contains("ASPEGIC");
+        
+        final isM1Ains = ainsKeywords.any((kw) => n1.contains(kw));
+        final isM2Ains = ainsKeywords.any((kw) => n2.contains(kw));
+        
         final isAnticoagulant = pair.contains("WARFARIN") || pair.contains("COUMADIN") || pair.contains("SINTROM") || pair.contains("XARELTO") || pair.contains("RIVAROXABAN") || pair.contains("ELIQUIS") || pair.contains("APIXABAN") || pair.contains("HEPARIN") || pair.contains("LOVENOX");
         final isTramadol = pair.contains("TRAMADOL") || pair.contains("TOPALGIC") || pair.contains("CONTRAMAL") || pair.contains("IXPRIM") || pair.contains("ZALDIAR");
         final isIsrs = pair.contains("FLUOXETIN") || pair.contains("PROZAC") || pair.contains("SERTRALIN") || pair.contains("ZOLOFT") || pair.contains("PAROXETIN") || pair.contains("DEROXAT") || pair.contains("ESCITALOPRAM") || pair.contains("SEROPLEX") || pair.contains("CITALOPRAM");
@@ -215,8 +280,8 @@ class IaApiService {
         if (isAmiodarone && isFluoroquinolone) {
           results.add(
             InteractionMedicamenteuseModel(
-              medicament1: m1,
-              medicament2: m2,
+              medicament1: cleanMeds[i],
+              medicament2: cleanMeds[j],
               niveauDanger: "CONTRE_INDICATION_ABSOLUE",
               bloquant: true,
               sourceMedicale: "Guide Médicaments Essentiels MSF/OMS, Monographie Ciprofloxacine, p. 51",
@@ -232,8 +297,8 @@ class IaApiService {
         if (isAmiodarone && isHaloperidol) {
           results.add(
             InteractionMedicamenteuseModel(
-              medicament1: m1,
-              medicament2: m2,
+              medicament1: cleanMeds[i],
+              medicament2: cleanMeds[j],
               niveauDanger: "CONTRE_INDICATION_ABSOLUE",
               bloquant: true,
               sourceMedicale: "Guide Médicaments Essentiels MSF/OMS, Monographie Halopéridol, p. 51",
@@ -246,11 +311,11 @@ class IaApiService {
         }
 
         // AINS + Anticoagulant oral
-        if (isAins && isAnticoagulant) {
+        if ((isM1Ains || isM2Ains) && isAnticoagulant) {
           results.add(
             InteractionMedicamenteuseModel(
-              medicament1: m1,
-              medicament2: m2,
+              medicament1: cleanMeds[i],
+              medicament2: cleanMeds[j],
               niveauDanger: "CONTRE_INDICATION_ABSOLUE",
               bloquant: true,
               sourceMedicale: "Guide Médicaments Essentiels MSF/OMS, Section AINS et anticoagulants, p. 10",
@@ -262,21 +327,19 @@ class IaApiService {
           );
         }
 
-        // AINS + AINS / Aspirine (Double AINS)
-        final isM1Ains = m1.contains("IBUPROFEN") || m1.contains("ADVIL") || m1.contains("KETOPROFEN") || m1.contains("PROFENID") || m1.contains("DICLOFENAC") || m1.contains("VOLTAREN") || m1.contains("NAPROXEN") || m1.contains("ASPIRIN");
-        final isM2Ains = m2.contains("IBUPROFEN") || m2.contains("ADVIL") || m2.contains("KETOPROFEN") || m2.contains("PROFENID") || m2.contains("DICLOFENAC") || m2.contains("VOLTAREN") || m2.contains("NAPROXEN") || m2.contains("ASPIRIN");
-        if (isM1Ains && isM2Ains && m1 != m2) {
+        // AINS + AINS / Aspirine (Double AINS : ex: Ibuprofène + Aspirine)
+        if (isM1Ains && isM2Ains && n1 != n2) {
           results.add(
             InteractionMedicamenteuseModel(
-              medicament1: m1,
-              medicament2: m2,
-              niveauDanger: "MAJEURE",
-              bloquant: false,
+              medicament1: cleanMeds[i],
+              medicament2: cleanMeds[j],
+              niveauDanger: "CONTRE_INDICATION_ABSOLUE",
+              bloquant: true,
               sourceMedicale: "Guide Médicaments Essentiels MSF/OMS, Précautions AINS, p. 10",
               pageNumero: 10,
-              explication: "Cumul de toxicité gastro-intestinale et rénale sans bénéfice antalgique supplémentaire. Risque élevé d'ulcère gastroduodénal.",
-              recommandation: "Ne jamais prescrire deux AINS simultanément. En supprimer un.",
-              alternativeRecommandee: "Conserver un seul AINS à dose efficace et adjoindre Paracétamol si besoin.",
+              explication: "ASSOCIATION DE DEUX AINS FORMELLEMENT CONTRE-INDIQUÉE (${cleanMeds[i]} + ${cleanMeds[j]}). Cumul majeur de toxicité gastrique avec risque élevé d'ulcère perforé et d'hémorragie digestive, sans aucun bénéfice antalgique supplémentaire.",
+              recommandation: "Ne jamais associer deux anti-inflammatoires (AINS / Aspirine). En supprimer un immédiatement.",
+              alternativeRecommandee: "Conserver un seul AINS et utiliser le Paracétamol 1g pour compléter l'antalgie.",
             ),
           );
         }
@@ -285,8 +348,8 @@ class IaApiService {
         if (isTramadol && isIsrs) {
           results.add(
             InteractionMedicamenteuseModel(
-              medicament1: m1,
-              medicament2: m2,
+              medicament1: cleanMeds[i],
+              medicament2: cleanMeds[j],
               niveauDanger: "CONTRE_INDICATION_ABSOLUE",
               bloquant: true,
               sourceMedicale: "Guide Médicaments Essentiels MSF/OMS, Antalgiques opioïdes et ISRS, p. 101",
@@ -302,8 +365,8 @@ class IaApiService {
         if (isIecAra2 && isSpironolactone) {
           results.add(
             InteractionMedicamenteuseModel(
-              medicament1: m1,
-              medicament2: m2,
+              medicament1: cleanMeds[i],
+              medicament2: cleanMeds[j],
               niveauDanger: "MAJEURE",
               bloquant: false,
               sourceMedicale: "Guide Médicaments Essentiels MSF/OMS, Diurétiques et IEC, p. 77",
@@ -319,8 +382,8 @@ class IaApiService {
         if (isStatine && isMacrolide) {
           results.add(
             InteractionMedicamenteuseModel(
-              medicament1: m1,
-              medicament2: m2,
+              medicament1: cleanMeds[i],
+              medicament2: cleanMeds[j],
               niveauDanger: "MAJEURE",
               bloquant: false,
               sourceMedicale: "Guide Médicaments Essentiels MSF/OMS, Hypolipémiants et Macrolides, p. 83",
@@ -332,31 +395,6 @@ class IaApiService {
           );
         }
       }
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // 3. VÉRIFICATION DES DOUBLONS DE PARACÉTAMOL
-    // ─────────────────────────────────────────────────────────────
-    int paracount = 0;
-    for (final m in cleanMeds) {
-      if (m.contains("PARACETAMOL") || m.contains("DOLIPRANE") || m.contains("EFFERALGAN") || m.contains("DAFALGAN")) {
-        paracount++;
-      }
-    }
-    if (paracount >= 2) {
-      results.add(
-        InteractionMedicamenteuseModel(
-          medicament1: "PARACÉTAMOL (DOUBLON DÉTECTÉ)",
-          medicament2: "SURDOSAGE HÉPATIQUE",
-          niveauDanger: "MAJEURE",
-          bloquant: false,
-          sourceMedicale: "Guide Médicaments Essentiels MSF/OMS, Fiche Paracétamol, p. 8",
-          pageNumero: 8,
-          explication: "Présence de plusieurs spécialités contenant du paracétamol. Risque élevé de surdosage (>4g/jour) et de cytolyse hépatique aiguë toxique.",
-          recommandation: "Conserver une seule spécialité de paracétamol et respecter la dose maximale de 3g/jour (1g toutes les 6 à 8h).",
-          alternativeRecommandee: "Supprimer le doublon pour sécuriser la posologie journalière.",
-        ),
-      );
     }
 
     return results;
