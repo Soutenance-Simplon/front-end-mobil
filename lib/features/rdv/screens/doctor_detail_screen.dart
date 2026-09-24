@@ -24,6 +24,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
   late String _name;
   late String _spec;
   late String _image;
+  bool _estDescriptionPersonnalisee = false;
 
   final List<Map<String, dynamic>> _avisList = [
     {
@@ -41,7 +42,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
     {
       "auteur": "Fatou Bintou Sall",
       "date": "Il y a 2 semaines",
-      "note": 4.8,
+      "note": 4,
       "commentaire": "Professionnel et disponible pour expliquer chaque étape de la prise en charge médicale.",
     },
   ];
@@ -55,6 +56,63 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
     {"day": "SAM", "date": "15"},
   ];
 
+  /// Génère une description clinique riche et réaliste selon la spécialité médicale
+  static String _genererDescriptionParSpecialite(String specialite, String nomMedecin) {
+    final spec = specialite.toLowerCase().trim();
+
+    if (spec.contains('cardio')) {
+      return "Médecin spécialiste en Cardiologie et affections cardiovasculaires, inscrit à l'Ordre National des Médecins du Sénégal (ONMS). "
+          "Dédié à la prévention, au dépistage et au traitement de l'hypertension artérielle, des troubles du rythme et des cardiopathies. "
+          "Propose des bilans cardiaques complets au cabinet et des téléconsultations sécurisées au sein du réseau Diam Yaraam.";
+    } else if (spec.contains('pédiat') || spec.contains('pediat')) {
+      return "Médecin spécialiste en Pédiatrie, inscrit à l'ONMS. "
+          "Assure le suivi attentif de la croissance, du développement psychomoteur et du calendrier vaccinal des nourrissons, enfants et adolescents. "
+          "Prend en charge les pathologies pédiatriques aiguës et chroniques avec écoute et bienveillance envers les parents.";
+    } else if (spec.contains('gynéco') || spec.contains('gyneco') || spec.contains('obstét') || spec.contains('obstet')) {
+      return "Médecin spécialiste en Gynécologie-Obstétrique, agréé par l'ONMS. "
+          "Assure le suivi gynécologique préventif, le suivi de grossesse, la santé reproductive et le dépistage précoce des pathologies féminines au cabinet et à distance.";
+    } else if (spec.contains('derma')) {
+      return "Médecin spécialiste en Dermatologie et Vénérologie, certifié par l'ONMS. "
+          "Expert dans le diagnostic et le traitement des maladies de la peau, du cuir chevelu, des muqueuses et des ongles (eczéma, acné, psoriasis, allergies cutanées et télé-expertise).";
+    } else if (spec.contains('ophtalmo') || spec.contains('yeux') || spec.contains('vision')) {
+      return "Médecin spécialiste en Ophtalmologie, inscrit à l'ONMS. "
+          "Spécialisé dans les bilans de réfraction visuelle, la santé oculaire, le dépistage du glaucome et de la cataracte, et le suivi visuel des adultes et des enfants.";
+    } else if (spec.contains('dent') || spec.contains('odonto')) {
+      return "Chirurgien-dentiste diplômé, inscrit à l'Ordre des Chirurgiens-Dentistes du Sénégal. "
+          "Dédié aux soins bucco-dentaires préventifs, détartrages, traitements conservateurs et réhabilitations au sein du réseau Diam Yaraam.";
+    } else if (spec.contains('neuro')) {
+      return "Médecin spécialiste en Neurologie, agréé par l'ONMS. "
+          "Prend en charge les pathologies du système nerveux : migraines chroniques, céphalées, épilepsies, neuropathies et troubles de la motricité.";
+    } else if (spec.contains('pneumo')) {
+      return "Médecin spécialiste en Pneumologie, inscrit à l'ONMS. "
+          "Dédié au diagnostic et à la prise en charge de l'asthme, des bronchopneumopathies, des allergies respiratoires et des infections pulmonaires.";
+    } else if (spec.contains('orl') || spec.contains('oto')) {
+      return "Médecin spécialiste en Oto-Rhino-Laryngologie (ORL), certifié par l'ONMS. "
+          "Prend en charge les affections de l'oreille, du nez, des sinus, de la gorge et des voies respiratoires supérieures.";
+    } else if (spec.contains('psy')) {
+      return "Médecin psychiatre agréé par l'Ordre National des Médecins du Sénégal. "
+          "Propose un cadre d'écoute confidentiel pour l'accompagnement et le traitement des troubles anxieux, dépressifs et du sommeil.";
+    } else {
+      return "Médecin généraliste qualifié et conventionné, inscrit à l'Ordre National des Médecins du Sénégal (ONMS). "
+          "Assure le suivi médical global, le dépistage préventif, l'orientation diagnostique et la prise en charge des affections courantes au cabinet et en téléconsultation.";
+    }
+  }
+
+  /// Extrait des initiales professionnelles pour l'avatar médical
+  static String _obtenirInitiales(String nomComplet) {
+    final clean = nomComplet
+        .replaceAll("Dr.", "")
+        .replaceAll("Dr", "")
+        .replaceAll("Docteur", "")
+        .trim();
+    final parts = clean.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return "DR";
+    if (parts.length == 1) {
+      return parts[0].length >= 2 ? parts[0].substring(0, 2).toUpperCase() : parts[0].toUpperCase();
+    }
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -64,18 +122,35 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
     final prenom = _doctorData['prenom']?.toString() ?? '';
     _name = _doctorData['name'] ?? _doctorData['nomComplet'] ?? (nom.isNotEmpty ? "Dr. $prenom $nom".trim() : "Dr. Praticien");
     _spec = _doctorData['specialty'] ?? _doctorData['specialite'] ?? 'Médecine Générale';
-    _image = _doctorData['image'] ??
+
+    // SUPPRESSION DE LA PHOTO STATIQUE UNSPLASH : On n'affiche que les photos réelles, sinon l'avatar monogramme
+    final rawImg = _doctorData['image'] ??
         _doctorData['photo_url'] ??
         _doctorData['photoUrl'] ??
-        _doctorData['photoProfessionnelle'] ??
-        "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=300&q=80";
-
-    final rawBio = _doctorData['biographie'] ?? _doctorData['bio'] ?? _doctorData['description'];
-    if (rawBio != null && rawBio.toString().trim().isNotEmpty && !rawBio.toString().contains("Mahmud Nik")) {
-      _biographie = rawBio.toString().trim();
+        _doctorData['photoProfessionnelle'];
+    if (rawImg != null &&
+        rawImg.toString().isNotEmpty &&
+        !rawImg.toString().contains("images.unsplash.com") &&
+        !rawImg.toString().contains("placeholder")) {
+      _image = rawImg.toString();
     } else {
-      _biographie = "$_name est un médecin qualifié en $_spec, certifié par l'Ordre National des Médecins du Sénégal (ONMS). "
-          "Dévoué à la santé de ses patients, il propose des consultations au cabinet et des téléconsultations sécurisées au sein du réseau Diam Yaraam.";
+      _image = "";
+    }
+
+    // DESCRIPTION : Si le médecin a écrit sa propre biographie personnalisée, on l'affiche, sinon description générique selon la spécialité
+    final rawBio = _doctorData['biographie'] ?? _doctorData['bio'] ?? _doctorData['description'];
+    final bool aBioPersoValide = rawBio != null &&
+        rawBio.toString().trim().isNotEmpty &&
+        !rawBio.toString().contains("Mahmud Nik") &&
+        !rawBio.toString().startsWith("Spécialiste agréé") &&
+        rawBio.toString().trim() != "Médecin praticien agréé par l'Ordre National des Médecins du Sénégal (ONMS).";
+
+    if (aBioPersoValide) {
+      _biographie = rawBio.toString().trim();
+      _estDescriptionPersonnalisee = true;
+    } else {
+      _biographie = _genererDescriptionParSpecialite(_spec, _name);
+      _estDescriptionPersonnalisee = false;
     }
 
     _experience = _doctorData['anneesExperience'] ?? _doctorData['annees_experience'] ?? _doctorData['experience'] ?? 8;
@@ -144,7 +219,32 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
             const SizedBox(height: 16),
 
             // DESCRIPTION / BIOGRAPHIE
-            const Text("À propos de moi (description)", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4A5568))),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("À propos de moi (description)", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4A5568))),
+                InkWell(
+                  onTap: () {
+                    bioController.text = _genererDescriptionParSpecialite(_spec, _name);
+                  },
+                  borderRadius: BorderRadius.circular(6),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.auto_awesome, size: 14, color: Color(0xFF00A884)),
+                        SizedBox(width: 4),
+                        Text(
+                          "Modèle spécialité",
+                          style: TextStyle(fontSize: 11.5, color: Color(0xFF00A884), fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 6),
             TextField(
               controller: bioController,
@@ -169,7 +269,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
 
                   setState(() {
                     _experience = newExp;
-                    if (newBio.isNotEmpty) _biographie = newBio;
+                    if (newBio.isNotEmpty) {
+                      _biographie = newBio;
+                      _estDescriptionPersonnalisee = true;
+                    }
                     _doctorData['biographie'] = _biographie;
                     _doctorData['anneesExperience'] = _experience;
                   });
@@ -177,7 +280,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                   Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text("Présentation et expérience enregistrées avec succès"),
+                      content: Text("Présentation personnalisée et enregistrée avec succès"),
                       backgroundColor: Color(0xFF00A884),
                     ),
                   );
@@ -365,24 +468,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
 
                         const SizedBox(height: 20),
 
-                        // EN-TÊTE MÉDECIN (PHOTO, NOM RÉEL ET SPÉCIALITÉ)
+                        // EN-TÊTE MÉDECIN (AVATAR DYNAMIQUE AUX INITIALES, NOM RÉEL ET SPÉCIALITÉ)
                         Row(
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: Image.network(
-                                _image,
-                                width: 90,
-                                height: 90,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Container(
-                                  width: 90,
-                                  height: 90,
-                                  color: const Color(0xFFEAEAEA),
-                                  child: const Icon(Icons.person, size: 40, color: Color(0xFF8E95A5)),
-                                ),
-                              ),
-                            ),
+                            _buildMonogrammeAvatar(),
                             const SizedBox(width: 16),
                             Expanded(
                               child: Column(
@@ -413,9 +502,16 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                       color: const Color(0xFFE6F7F3),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
-                                    child: const Text(
-                                      "ONMS Certifié",
-                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.verified, color: Color(0xFF00A884), size: 12),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          "ONMS Certifié",
+                                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -488,9 +584,9 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
 
                               Container(width: 1, height: 36, color: Colors.white24),
 
-                              // 2. ANNÉES D'EXPÉRIENCE RENSEIGNÉES PAR LE MÉDECIN
+                              // 2. ANNÉES D'EXPÉRIENCE RENSEIGNÉES PAR LE MÉDECIN (MODIFIABLE SEULEMENT PAR LE MÉDECIN)
                               InkWell(
-                                onTap: _ouvrirDialogueModificationMedecin,
+                                onTap: isCurrentUserDoctor ? _ouvrirDialogueModificationMedecin : null,
                                 borderRadius: BorderRadius.circular(16),
                                 child: Padding(
                                   padding: const EdgeInsets.all(4),
@@ -508,13 +604,21 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                       Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            "$_experience Ans",
-                                            style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "$_experience Ans",
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              if (isCurrentUserDoctor) ...[
+                                                const SizedBox(width: 4),
+                                                const Icon(Icons.edit, size: 12, color: Colors.white70),
+                                              ],
+                                            ],
                                           ),
                                           const Text(
                                             "D'expérience",
@@ -536,26 +640,47 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
 
                         const SizedBox(height: 28),
 
-                        // SECTION À PROPOS DU MÉDECIN (RÉDIGÉE PAR LE MÉDECIN)
+                        // SECTION À PROPOS DU MÉDECIN (RÉDIGÉE PAR LE MÉDECIN OU GÉNÉRIQUE SELON SPÉCIALITÉ)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              "À propos du médecin",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF2D3142),
-                              ),
+                            Row(
+                              children: [
+                                const Text(
+                                  "À propos du médecin",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2D3142),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: _estDescriptionPersonnalisee ? const Color(0xFFE6F7F3) : const Color(0xFFF1F5F9),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    _estDescriptionPersonnalisee ? "Personnalisée" : "Selon spécialité",
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: _estDescriptionPersonnalisee ? const Color(0xFF00A884) : const Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            TextButton.icon(
-                              onPressed: _ouvrirDialogueModificationMedecin,
-                              icon: const Icon(Icons.edit_outlined, size: 16, color: Color(0xFF00A884)),
-                              label: const Text(
-                                "Modifier",
-                                style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 13),
+                            if (isCurrentUserDoctor)
+                              TextButton.icon(
+                                onPressed: _ouvrirDialogueModificationMedecin,
+                                icon: const Icon(Icons.edit_outlined, size: 16, color: Color(0xFF00A884)),
+                                label: const Text(
+                                  "Personnaliser",
+                                  style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 13),
+                                ),
                               ),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -852,6 +977,75 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildMonogrammeAvatar() {
+    if (_image.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: Image.network(
+          _image,
+          width: 88,
+          height: 88,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => _buildInitialsContainer(),
+        ),
+      );
+    }
+    return _buildInitialsContainer();
+  }
+
+  Widget _buildInitialsContainer() {
+    return Container(
+      width: 88,
+      height: 88,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFE6F7F3), Color(0xFFC7EFE6)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: const Color(0xFF00A884).withValues(alpha: 0.35),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF00A884).withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Text(
+            _obtenirInitiales(_name),
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF00A884),
+              letterSpacing: 1.2,
+            ),
+          ),
+          Positioned(
+            bottom: 4,
+            right: 4,
+            child: Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00A884),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1.5),
+              ),
+              child: const Icon(Icons.verified, color: Colors.white, size: 12),
+            ),
+          ),
+        ],
       ),
     );
   }
