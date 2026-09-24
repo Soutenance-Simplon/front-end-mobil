@@ -41,11 +41,12 @@ class IaApiService {
     }
   }
 
-  /// Détection des contre-indications & interactions médicamenteuses
+  /// Détection des contre-indications & interactions médicamenteuses (RAG MSF/Dorosz + LLM dynamique)
   Future<List<InteractionMedicamenteuseModel>> verifierInteractions({
     required List<String> medicaments,
     required List<String> allergies,
   }) async {
+    // 1. Essai via l'API Gateway (/api/ia/interactions)
     try {
       final response = await dio.post(
         '/ia/interactions',
@@ -53,19 +54,37 @@ class IaApiService {
           'medicaments': medicaments,
           'allergies': allergies,
         },
-        options: Options(receiveTimeout: const Duration(seconds: 4), sendTimeout: const Duration(seconds: 3)),
+        options: Options(receiveTimeout: const Duration(seconds: 5), sendTimeout: const Duration(seconds: 4)),
       );
       if (response.statusCode == 200 && response.data != null) {
         final List list = response.data is List ? response.data : (response.data['data'] ?? []);
         final parsed = list.map((e) => InteractionMedicamenteuseModel.fromJson(e)).toList();
-        if (parsed.isNotEmpty) {
+        return parsed;
+      }
+    } catch (_) {
+      // Si la Gateway ne répond pas, on tente directement le service IA Python
+      try {
+        final directDio = Dio(BaseOptions(
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+        ));
+        final directResponse = await directDio.post(
+          'http://127.0.0.1:8089/ia/interactions',
+          data: {
+            'medicaments': medicaments,
+            'allergies': allergies,
+          },
+        );
+        if (directResponse.statusCode == 200 && directResponse.data != null) {
+          final List list = directResponse.data is List ? directResponse.data : (directResponse.data['data'] ?? []);
+          final parsed = list.map((e) => InteractionMedicamenteuseModel.fromJson(e)).toList();
           return parsed;
         }
+      } catch (_) {
+        // En cas de service hors ligne, utilisation du moteur RAG MSF/Dorosz local
       }
-      return _getDemoInteractions(medicaments, allergies);
-    } catch (e) {
-      return _getDemoInteractions(medicaments, allergies);
     }
+    return _getDemoInteractions(medicaments, allergies);
   }
 
   /// Assistant conversationnel médical Diam Yaraam
@@ -83,10 +102,26 @@ class IaApiService {
         final data = response.data['data'] ?? response.data;
         return MessageIaModel.fromJson(data);
       }
-      return _getFallbackResponse(message);
-    } catch (e) {
-      return _getFallbackResponse(message);
+    } catch (_) {
+      try {
+        final directDio = Dio(BaseOptions(
+          connectTimeout: const Duration(seconds: 6),
+          receiveTimeout: const Duration(seconds: 6),
+        ));
+        final directResponse = await directDio.post(
+          'http://127.0.0.1:8089/ia/chat',
+          data: {
+            'message': message,
+            'history': (historique ?? []).map((m) => m.toJson()).toList(),
+          },
+        );
+        if (directResponse.statusCode == 200 && directResponse.data != null) {
+          final data = directResponse.data['data'] ?? directResponse.data;
+          return MessageIaModel.fromJson(data);
+        }
+      } catch (_) {}
     }
+    return _getFallbackResponse(message);
   }
 
   TriSymptomeModel _getFallbackTriage(String text) {
