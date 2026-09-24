@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../ia/models/interaction_medicamenteuse_model.dart';
 import '../../ia/providers/ia_provider.dart';
@@ -153,6 +154,61 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
     return all.toList();
   }
 
+  /// Ouvre le lien web ou document PDF officiel de la source avec redirection
+  Future<void> _ouvrirLienSource(InteractionMedicamenteuseModel alerte) async {
+    final page = alerte.pageNumero ?? 1;
+    final docNom = alerte.documentNom ?? "guideline-339-fr.pdf";
+    final urlViewer = "http://127.0.0.1:8089/ia/documents/view/$docNom?page=$page";
+    final urlDirect = "http://127.0.0.1:8089/documents/$docNom#page=$page";
+    final urlTarget = alerte.documentUrl ?? urlViewer;
+
+    try {
+      final uri = Uri.parse(urlTarget);
+      bool launched = false;
+      if (await canLaunchUrl(uri)) {
+        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+      if (!launched) {
+        final fallbackUri = Uri.parse(urlDirect);
+        if (await canLaunchUrl(fallbackUri)) {
+          launched = await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
+        }
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.menu_book, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    "📖 Redirection source : ${alerte.sourceMedicale} (Page $page)",
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFF0D7C66),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("📖 Source officielle : ${alerte.sourceMedicale} (Page $page)"),
+            backgroundColor: const Color(0xFF0D7C66),
+          ),
+        );
+      }
+    }
+  }
+
   /// Réévalue en temps réel toutes les interactions et contre-indications de l'ordonnance
   Future<void> _evaluerAlertesEnTempsReel() async {
     final allergies = _recupererAllergiesPatiente();
@@ -187,6 +243,19 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
       final m2 = IaApiService.normalize(alerte.medicament2);
       return m1.contains(normLigne) || normLigne.contains(m1) || m2.contains(normLigne) || normLigne.contains(m2);
     });
+  }
+
+  /// Récupère l'alerte active correspondante à une ligne
+  InteractionMedicamenteuseModel? _trouverAlertePourLigne(LignePrescriptionModel ligne) {
+    final normLigne = IaApiService.normalize(ligne.medicament);
+    for (final alerte in _alertesActives) {
+      final m1 = IaApiService.normalize(alerte.medicament1);
+      final m2 = IaApiService.normalize(alerte.medicament2);
+      if (m1.contains(normLigne) || normLigne.contains(m1) || m2.contains(normLigne) || normLigne.contains(m2)) {
+        return alerte;
+      }
+    }
+    return null;
   }
 
   /// Correction automatique de l'ordonnance en retirant les doublons et en conservant un seul AINS
@@ -271,15 +340,15 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
     }
   }
 
-  /// Afficher la feuille de rapport d'audit IA
+  /// Afficher la feuille de rapport d'audit IA ultra-visuelle
   void _afficherModalRapportAudit(List<String> allergiesPatiente) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
-        padding: const EdgeInsets.all(24),
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.85),
+        padding: const EdgeInsets.all(22),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -289,11 +358,11 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
           children: [
             Center(
               child: Container(
-                width: 40,
-                height: 4,
+                width: 44,
+                height: 5,
                 decoration: BoxDecoration(
                   color: const Color(0xFFE2E8F0),
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(3),
                 ),
               ),
             ),
@@ -301,7 +370,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: const Color(0xFF0D7C66).withValues(alpha: 0.12),
                     shape: BoxShape.circle,
@@ -364,7 +433,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
               )
             else
               Container(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFDE8E8),
                   borderRadius: BorderRadius.circular(16),
@@ -372,20 +441,20 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.warning_amber_rounded, color: Color(0xFFE53935), size: 26),
+                    const Icon(Icons.warning_amber_rounded, color: Color(0xFFE53935), size: 24),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        "${_rapportAuditIA.length} anomalie(s) ou contre-indication(s) détectée(s) !",
+                        "${_rapportAuditIA.length} anomalie(s) ou contre-indication(s) détectée(s)",
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFFE53935)),
                       ),
                     ),
                   ],
                 ),
               ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             const Text(
-              "Détail des vérifications cliniques :",
+              "Détail des alertes & preuves cliniques :",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF2D3142)),
             ),
             const SizedBox(height: 10),
@@ -393,67 +462,195 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
               child: ListView(
                 children: [
                   ..._rapportAuditIA.map((item) {
+                    final estAllergie = item.medicament2.toUpperCase().contains("ALLERGIE");
                     return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(14),
+                      margin: const EdgeInsets.only(bottom: 14),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFE53935).withValues(alpha: 0.3)),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFE53935).withValues(alpha: 0.35)),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.03),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // SCHÉMA DU CONFLIT
                           Row(
                             children: [
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFE53935),
-                                  borderRadius: BorderRadius.circular(6),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Text(
-                                  item.niveauDanger.replaceAll("_", " "),
-                                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      estAllergie ? Icons.shield_rounded : Icons.warning_rounded,
+                                      color: Colors.white,
+                                      size: 13,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      estAllergie
+                                          ? "ALLERGIE PATIENT"
+                                          : (item.bloquant ? "CONTRE-INDICATION ABSOLUE" : "INTERACTION MAJEURE"),
+                                      style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const Spacer(),
+                              Text(
+                                "Page ${item.pageNumero ?? 1}",
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+
+                          // DUAL PILL COLLISION
+                          Row(
+                            children: [
                               Expanded(
-                                child: Text(
-                                  "${item.medicament1} ↔ ${item.medicament2}",
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF2D3142)),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF8FAFC),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                                  ),
+                                  child: Text(
+                                    item.medicament1,
+                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 6),
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(color: Color(0xFFFDE8E8), shape: BoxShape.circle),
+                                  child: const Icon(Icons.close, color: Color(0xFFE53935), size: 14),
+                                ),
+                              ),
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFDE8E8),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: const Color(0xFFE53935).withValues(alpha: 0.5)),
+                                  ),
+                                  child: Text(
+                                    item.medicament2,
+                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFE53935)),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            item.explication,
-                            style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                          const SizedBox(height: 10),
+
+                          // RISQUE CLINIQUE
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFEF2F2),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.bolt, color: Color(0xFFE53935), size: 16),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    item.explication,
+                                    style: const TextStyle(fontSize: 12, color: Color(0xFF1E293B), fontWeight: FontWeight.w500, height: 1.3),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(height: 6),
-                          Text(
-                            "Source : ${item.sourceMedicale}${item.pageNumero != null ? ' (p. ${item.pageNumero})' : ''}",
-                            style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: Color(0xFF0D7C66), fontWeight: FontWeight.w600),
+                          const SizedBox(height: 10),
+
+                          // SOURCE OFFICIELLE CLIQUABLE
+                          InkWell(
+                            onTap: () => _ouvrirLienSource(item),
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE7F2F0),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.4)),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.menu_book, color: Color(0xFF0D7C66), size: 16),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          "Preuve scientifique officielle (Cliquez pour ouvrir)",
+                                          style: TextStyle(fontSize: 9, color: Color(0xFF0D7C66), fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          "${item.sourceMedicale}${item.pageNumero != null ? ' (p. ${item.pageNumero})' : ''}",
+                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF0D7C66),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Row(
+                                      children: [
+                                        Text("Ouvrir ↗", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
+
                           if (item.alternativeRecommandee != null && item.alternativeRecommandee!.isNotEmpty) ...[
                             const SizedBox(height: 8),
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE7F2F0),
+                                color: const Color(0xFFF0FDF4),
                                 borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: const Color(0xFF86EFAC)),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.lightbulb_outline, color: Color(0xFF0D7C66), size: 18),
+                                  const Icon(Icons.lightbulb, color: Color(0xFF0D7C66), size: 16),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
@@ -472,7 +669,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             Row(
               children: [
                 if (_rapportAuditIA.isNotEmpty) ...[
@@ -484,7 +681,8 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFE53935),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       icon: const Icon(Icons.auto_fix_high, size: 16, color: Colors.white),
                       label: const Text("Corriger l'ordonnance", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
@@ -496,8 +694,9 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       side: const BorderSide(color: Color(0xFF0D7C66)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                     child: const Text("Fermer", style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold)),
                   ),
@@ -652,6 +851,13 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                         instructions: "Boire par petites gorgées régulières après chaque selle liquide.",
                       ),
                       LignePrescriptionModel(
+                        medicament: "RACÉCADOTRIL",
+                        dosage: "100mg",
+                        posologie: "1 gélule x 3 / jour",
+                        duree: "4 jours",
+                        instructions: "À prendre avant les repas jusqu'à retour des selles moulées.",
+                      ),
+                      LignePrescriptionModel(
                         medicament: "PARACÉTAMOL",
                         dosage: "1g",
                         posologie: "1 comprimé si douleur ou fièvre",
@@ -792,119 +998,427 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
     );
   }
 
-  /// Dialogue d'alerte critique lors de l'ajout
+  /// DIALOGUE D'ALERTE PHARMACOLOGIQUE ULTRA-CLAIRE, ORIGINALE ET VISUELLE
   void _afficherAlerteInteractionDialog(
     InteractionMedicamenteuseModel alerte,
     LignePrescriptionModel nouveauMed,
-    List<String> allergiesPatiente,
-  ) {
+    List<String> allergiesPatiente, {
+    bool isFromExistingLine = false,
+    int? lineIndex,
+  }) {
+    final estAllergie = alerte.medicament2.toUpperCase().contains("ALLERGIE");
+    final estDoublon = alerte.medicament2.toUpperCase().contains("DOUBLON");
+
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE53935).withValues(alpha: 0.15),
-                shape: BoxShape.circle,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 1. BADGE DYNAMIQUE DE NIVEAU DE RISQUE
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE53935).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFE53935).withValues(alpha: 0.35)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      estAllergie ? Icons.shield_rounded : (estDoublon ? Icons.copy_rounded : Icons.warning_rounded),
+                      color: const Color(0xFFE53935),
+                      size: 17,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      estAllergie
+                          ? "CONTRE-INDICATION ALLERGIQUE"
+                          : (estDoublon
+                              ? "DOUBLON THÉRAPEUTIQUE"
+                              : (alerte.bloquant ? "CONTRE-INDICATION ABSOLUE" : "INTERACTION MAJEURE")),
+                      style: const TextStyle(
+                        color: Color(0xFFE53935),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10.5,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: const Icon(Icons.warning_rounded, color: Color(0xFFE53935), size: 28),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 14),
+
+              // 2. SCHÉMA VISUEL ORIGINAL DU CONFLIT (DUAL PILL COLLISION)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Row(
+                  children: [
+                    // Pilule Médicament Prescrit (Gauche)
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.6), width: 1.2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF0D7C66).withValues(alpha: 0.06),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.medication_rounded, color: Color(0xFF0D7C66), size: 20),
+                            const SizedBox(height: 4),
+                            Text(
+                              alerte.medicament1,
+                              style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE7F2F0),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Text(
+                                "Prescrit",
+                                style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Centre : Éclair de Clash & Incompatibilité
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFDE8E8),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: const Color(0xFFE53935).withValues(alpha: 0.4)),
+                            ),
+                            child: const Icon(Icons.bolt_rounded, color: Color(0xFFE53935), size: 18),
+                          ),
+                          const SizedBox(height: 2),
+                          const Text(
+                            "CLASH",
+                            style: TextStyle(fontSize: 8.5, fontWeight: FontWeight.bold, color: Color(0xFFE53935), letterSpacing: 0.5),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Pilule Conflit / Terrain Patient (Droite)
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF2F2),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFE53935).withValues(alpha: 0.6), width: 1.2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFE53935).withValues(alpha: 0.06),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(
+                              estAllergie ? Icons.shield_rounded : (estDoublon ? Icons.copy_rounded : Icons.medication_rounded),
+                              color: const Color(0xFFE53935),
+                              size: 20,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              alerte.medicament2,
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFE53935)),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE53935),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                estAllergie ? "Allergie" : (estDoublon ? "Doublon" : "Incompatible"),
+                                style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // 3. CONSÉQUENCE CLINIQUE DIRECTE (1 SEULE PHRASE ULTRA-CLAIRE)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF2F2),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFFCA5A5).withValues(alpha: 0.5)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.warning_amber_rounded, color: Color(0xFFE53935), size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        alerte.explication,
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF1E293B), fontWeight: FontWeight.w600, height: 1.3),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // 4. SOLUTION / ALTERNATIVE RECOMMANDÉE EN 1 CLIC
+              if (alerte.alternativeRecommandee != null && alerte.alternativeRecommandee!.isNotEmpty) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE7F2F0),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.lightbulb_rounded, color: Color(0xFF0D7C66), size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Substitut sécurisé recommandé :",
+                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              alerte.alternativeRecommandee!,
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+
+              // 5. SOURCE SCIENTIFIQUE OFFICIELLE CLIQUABLE AVEC REDIRECTION IMMÉDIATE
+              InkWell(
+                onTap: () => _ouvrirLienSource(alerte),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.4), width: 1.3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE7F2F0),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.menu_book_rounded, color: Color(0xFF0D7C66), size: 16),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  "SOURCE OFFICIELLE",
+                                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFF8E95A5), letterSpacing: 0.5),
+                                ),
+                                if (alerte.pageNumero != null) ...[
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF0D7C66),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      "p. ${alerte.pageNumero}",
+                                      style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 1),
+                            Text(
+                              alerte.sourceMedicale,
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE7F2F0),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Row(
+                          children: [
+                            Text("Consulter ↗", style: TextStyle(color: Color(0xFF0D7C66), fontSize: 10.5, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+
+              // 6. BOUTONS D'ACTIONS (REMPLACER OU ANNULER)
+              Row(
                 children: [
-                  Text(
-                    alerte.bloquant ? "CONTRE-INDICATION ABSOLUE" : "ALERTE PHARMACOLOGIQUE",
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFE53935),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        if (isFromExistingLine && lineIndex != null) {
+                          setState(() => _lignes.removeAt(lineIndex));
+                          _evaluerAlertesEnTempsReel();
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        side: const BorderSide(color: Color(0xFFCBD5E1)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: Text(
+                        isFromExistingLine ? "Supprimer la ligne" : "Annuler l'ajout",
+                        style: const TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
                     ),
                   ),
-                  Text(
-                    "${alerte.medicament1} ↔ ${alerte.medicament2}",
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF2D3142), fontWeight: FontWeight.w600),
-                  ),
+                  if (alerte.alternativeRecommandee != null && alerte.alternativeRecommandee!.isNotEmpty) ...[
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          final altUpper = alerte.alternativeRecommandee!.toUpperCase();
+                          final altName = altUpper.contains("PARACETAMOL")
+                              ? "PARACÉTAMOL"
+                              : (altUpper.contains("AZITHROMYCINE")
+                                  ? "AZITHROMYCINE"
+                                  : (altUpper.contains("CEFTRIAXONE")
+                                      ? "CEFTRIAXONE"
+                                      : (altUpper.contains("CIPROFLOXACINE")
+                                          ? "CIPROFLOXACINE"
+                                          : alerte.alternativeRecommandee!.split(" ")[0].toUpperCase())));
+
+                          final altDosage = altName == "PARACÉTAMOL"
+                              ? "1g"
+                              : (altName == "AZITHROMYCINE" ? "500mg" : "1g");
+                          final altPosologie = altName == "PARACÉTAMOL"
+                              ? "1 comprimé x 3 / jour"
+                              : (altName == "AZITHROMYCINE" ? "1 comprimé / jour" : "1 prise / jour");
+
+                          final nouvelleLigneSubstitut = LignePrescriptionModel(
+                            medicament: altName,
+                            dosage: altDosage,
+                            posologie: altPosologie,
+                            duree: "5 jours",
+                            instructions: "Substitut sécurisé sans risque de toxicité ou d'allergie",
+                          );
+
+                          setState(() {
+                            if (isFromExistingLine && lineIndex != null && lineIndex < _lignes.length) {
+                              _lignes[lineIndex] = nouvelleLigneSubstitut;
+                            } else {
+                              _lignes.add(nouvelleLigneSubstitut);
+                            }
+                          });
+                          _evaluerAlertesEnTempsReel();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("✅ Substitué avec succès par $altName"),
+                              backgroundColor: const Color(0xFF0D7C66),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0D7C66),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          elevation: 0,
+                        ),
+                        icon: const Icon(Icons.auto_fix_high, color: Colors.white, size: 16),
+                        label: const Text("Remplacer", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                      ),
+                    ),
+                  ],
                 ],
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFDE8E8),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    alerte.explication,
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF2D3142), height: 1.4),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    "Source : ${alerte.sourceMedicale}${alerte.pageNumero != null ? ' (p. ${alerte.pageNumero})' : ''}",
-                    style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: Color(0xFFE53935), fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-            if (alerte.alternativeRecommandee != null && alerte.alternativeRecommandee!.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              const Text(
-                "Alternative recommandée :",
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                alerte.alternativeRecommandee!,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
               ),
             ],
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Annuler l'ajout", style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.bold)),
           ),
-          if (alerte.alternativeRecommandee != null && alerte.alternativeRecommandee!.isNotEmpty)
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                final altName = alerte.alternativeRecommandee!.contains("Paracétamol") || alerte.alternativeRecommandee!.contains("PARACETAMOL")
-                    ? "PARACÉTAMOL"
-                    : alerte.alternativeRecommandee!.split(" ")[0].toUpperCase();
-                setState(() {
-                  _lignes.add(
-                    LignePrescriptionModel(
-                      medicament: altName,
-                      dosage: altName == "PARACÉTAMOL" ? "1g" : "Dosage standard",
-                      posologie: altName == "PARACÉTAMOL" ? "1 comprimé x 3 / jour" : "1 prise x 2 / jour",
-                      duree: "5 jours",
-                      instructions: "Substitut sécurisé recommandé par l'IA",
-                    ),
-                  );
-                });
-                _evaluerAlertesEnTempsReel();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0D7C66),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text("Appliquer l'alternative", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-            ),
-        ],
+        ),
       ),
     );
   }
@@ -1509,20 +2023,33 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  _alertesActives.isNotEmpty ? Icons.warning_amber_rounded : Icons.shield_outlined,
-                                  color: _alertesActives.isNotEmpty ? const Color(0xFFE53935) : const Color(0xFF2D3142),
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  _alertesActives.isNotEmpty ? "${_alertesActives.length} alerte(s)" : "Audit Sécurité IA",
-                                  style: TextStyle(
-                                    color: _alertesActives.isNotEmpty ? const Color(0xFFE53935) : const Color(0xFF2D3142),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
+                                if (_isCheckingIA) ...[
+                                  const SizedBox(
+                                    width: 14,
+                                    height: 14,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D7C66)),
                                   ),
-                                ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    "Audit en cours...",
+                                    style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 12),
+                                  ),
+                                ] else ...[
+                                  Icon(
+                                    _alertesActives.isNotEmpty ? Icons.warning_amber_rounded : Icons.shield_outlined,
+                                    color: _alertesActives.isNotEmpty ? const Color(0xFFE53935) : const Color(0xFF2D3142),
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _alertesActives.isNotEmpty ? "${_alertesActives.length} alerte(s)" : "Audit Sécurité IA",
+                                    style: TextStyle(
+                                      color: _alertesActives.isNotEmpty ? const Color(0xFFE53935) : const Color(0xFF2D3142),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -1661,93 +2188,131 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                       final item = entry.value;
                       final enConflit = _ligneAUnConflit(item);
 
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: enConflit ? const Color(0xFFE53935) : const Color(0xFFE5E9F2),
-                            width: enConflit ? 1.5 : 1.0,
+                      return InkWell(
+                        onTap: enConflit
+                            ? () {
+                                final alerte = _trouverAlertePourLigne(item);
+                                if (alerte != null) {
+                                  _afficherAlerteInteractionDialog(
+                                    alerte,
+                                    item,
+                                    allergiesList,
+                                    isFromExistingLine: true,
+                                    lineIndex: index,
+                                  );
+                                }
+                              }
+                            : null,
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: enConflit ? const Color(0xFFE53935) : const Color(0xFFE5E9F2),
+                              width: enConflit ? 1.5 : 1.0,
+                            ),
+                            boxShadow: enConflit
+                                ? [
+                                    BoxShadow(
+                                      color: const Color(0xFFE53935).withValues(alpha: 0.08),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ]
+                                : null,
                           ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                    color: enConflit ? const Color(0xFFFDE8E8) : const Color(0xFFE7F2F0),
-                                    borderRadius: BorderRadius.circular(8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: enConflit ? const Color(0xFFFDE8E8) : const Color(0xFFE7F2F0),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      enConflit ? Icons.warning_amber_rounded : Icons.medication_outlined,
+                                      color: enConflit ? const Color(0xFFE53935) : const Color(0xFF0D7C66),
+                                      size: 20,
+                                    ),
                                   ),
-                                  child: Icon(
-                                    enConflit ? Icons.warning_amber_rounded : Icons.medication_outlined,
-                                    color: enConflit ? const Color(0xFFE53935) : const Color(0xFF0D7C66),
-                                    size: 20,
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "${item.medicament} ${item.dosage}".trim(),
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: enConflit ? const Color(0xFFE53935) : const Color(0xFF2D3142),
+                                          ),
+                                        ),
+                                        if (enConflit)
+                                          Row(
+                                            children: [
+                                              Container(
+                                                margin: const EdgeInsets.only(top: 2),
+                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFFFDE8E8),
+                                                  borderRadius: BorderRadius.circular(6),
+                                                ),
+                                                child: const Text(
+                                                  "⚠️ Conflit détecté • Toucher pour voir la preuve ↗",
+                                                  style: TextStyle(fontSize: 10, color: Color(0xFFE53935), fontWeight: FontWeight.bold),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_outline, color: Color(0xFFE53935), size: 20),
+                                    onPressed: () {
+                                      setState(() => _lignes.removeAt(index));
+                                      _evaluerAlertesEnTempsReel();
+                                    },
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        "${item.medicament} ${item.dosage}".trim(),
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: enConflit ? const Color(0xFFE53935) : const Color(0xFF2D3142),
-                                        ),
-                                      ),
-                                      if (enConflit)
-                                        const Text(
-                                          "⚠️ Conflit ou doublon détecté par l'IA",
-                                          style: TextStyle(fontSize: 10, color: Color(0xFFE53935), fontWeight: FontWeight.bold),
-                                        ),
+                                      const Text("Posologie", style: TextStyle(fontSize: 11, color: Color(0xFF8E95A5))),
+                                      const SizedBox(height: 2),
+                                      Text(item.posologie, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF2D3142))),
                                     ],
                                   ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete_outline, color: Color(0xFFE53935), size: 20),
-                                  onPressed: () {
-                                    setState(() => _lignes.removeAt(index));
-                                    _evaluerAlertesEnTempsReel();
-                                  },
-                                ),
+                                  const SizedBox(width: 36),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text("Durée", style: TextStyle(fontSize: 11, color: Color(0xFF8E95A5))),
+                                      const SizedBox(height: 2),
+                                      Text(item.duree, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF2D3142))),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              if (item.instructions != null && item.instructions!.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                const Text("Instructions", style: TextStyle(fontSize: 11, color: Color(0xFF8E95A5))),
+                                const SizedBox(height: 2),
+                                Text(item.instructions!, style: const TextStyle(fontSize: 12, color: Color(0xFF5A607F))),
                               ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text("Posologie", style: TextStyle(fontSize: 11, color: Color(0xFF8E95A5))),
-                                    const SizedBox(height: 2),
-                                    Text(item.posologie, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF2D3142))),
-                                  ],
-                                ),
-                                const SizedBox(width: 36),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text("Durée", style: TextStyle(fontSize: 11, color: Color(0xFF8E95A5))),
-                                    const SizedBox(height: 2),
-                                    Text(item.duree, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF2D3142))),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            if (item.instructions != null && item.instructions!.isNotEmpty) ...[
-                              const SizedBox(height: 8),
-                              const Text("Instructions", style: TextStyle(fontSize: 11, color: Color(0xFF8E95A5))),
-                              const SizedBox(height: 2),
-                              Text(item.instructions!, style: const TextStyle(fontSize: 12, color: Color(0xFF5A607F))),
                             ],
-                          ],
+                          ),
                         ),
                       );
                     }),
