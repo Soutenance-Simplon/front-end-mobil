@@ -12,21 +12,25 @@ class BookAppointmentScreen extends StatefulWidget {
 
 class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   String _selectedPeriod = "Matin";
-  String _selectedTimeSlot = "10:30";
+  String _selectedTimeSlot = "09:00";
   String _selectedConsultationType = "CABINET"; // CABINET, TELECONSULTATION ou DOMICILE
 
   final TextEditingController _locationController = TextEditingController();
 
-  final List<String> _morningSlots = ["08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"];
-  final List<String> _eveningSlots = ["14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"];
+  final List<String> _morningSlots = [
+    "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00"
+  ];
+  final List<String> _eveningSlots = [
+    "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00", "00:00", "01:00", "02:00", "03:00", "04:00"
+  ];
 
   @override
   void initState() {
     super.initState();
     if (widget.doctor['selectedSlot'] != null) {
       _selectedTimeSlot = widget.doctor['selectedSlot'].toString();
-      final h = int.tryParse(_selectedTimeSlot.split(':')[0]) ?? 10;
-      _selectedPeriod = h >= 13 ? "Soir" : "Matin";
+      final h = int.tryParse(_selectedTimeSlot.split(':')[0]) ?? 9;
+      _selectedPeriod = (h >= 14 || h < 5) ? "Soir" : "Matin";
     }
   }
 
@@ -74,14 +78,14 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     final String price;
     final String typeText;
     if (_selectedConsultationType == "DOMICILE") {
-      price = "$tarifDom FCFA";
-      typeText = "Consultation à Domicile";
+      price = "$tarifDom FCFA / heure";
+      typeText = "Consultation à Domicile (1h)";
     } else if (_selectedConsultationType == "CABINET") {
-      price = "$tarifCab FCFA";
-      typeText = "Consultation au Cabinet Médical";
+      price = "$tarifCab FCFA / heure";
+      typeText = "Consultation au Cabinet Médical (1h)";
     } else {
-      price = "$tarifTele FCFA";
-      typeText = "Téléconsultation Vidéo";
+      price = "$tarifTele FCFA / heure";
+      typeText = "Téléconsultation Vidéo (1h)";
     }
 
     showDialog(
@@ -280,8 +284,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         _buildConsultationOption(
                           id: "CABINET",
                           title: "Consultation au Cabinet",
-                          subtitle: "Rendez-vous physique au cabinet médical",
-                          price: "${(widget.doctor['tarifConsultation'] ?? 15000).toInt()} FCFA",
+                          subtitle: "Rendez-vous physique au cabinet (durée 1h)",
+                          price: "${(widget.doctor['tarifConsultation'] ?? 15000).toInt()} FCFA / h",
                           icon: Icons.local_hospital_rounded,
                         ),
 
@@ -290,8 +294,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         _buildConsultationOption(
                           id: "TELECONSULTATION",
                           title: "Téléconsultation Vidéo",
-                          subtitle: "Consultation à distance par appel vidéo sécurisé",
-                          price: "${(widget.doctor['tarifTeleconsultation'] ?? 10000).toInt()} FCFA",
+                          subtitle: "Consultation à distance par appel vidéo (durée 1h)",
+                          price: "${(widget.doctor['tarifTeleconsultation'] ?? 10000).toInt()} FCFA / h",
                           icon: Icons.videocam_rounded,
                         ),
 
@@ -300,8 +304,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         _buildConsultationOption(
                           id: "DOMICILE",
                           title: "Consultation à Domicile",
-                          subtitle: "Déplacement et visite médicale à votre adresse",
-                          price: "${(widget.doctor['tarifDomicile'] ?? 20000).toInt()} FCFA",
+                          subtitle: "Déplacement et visite médicale (durée 1h)",
+                          price: "${(widget.doctor['tarifDomicile'] ?? 20000).toInt()} FCFA / h",
                           icon: Icons.home_work_rounded,
                         ),
 
@@ -439,7 +443,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                   boxShadow: [
                                     if (isSelected)
                                       BoxShadow(
-                                        color: const Color(0xFF00A884).withOpacity(0.3),
+                                        color: const Color(0xFF00A884).withValues(alpha: 0.3),
                                         blurRadius: 8,
                                         offset: const Offset(0, 3),
                                       ),
@@ -478,15 +482,27 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: Text(
-                      _selectedConsultationType == "DOMICILE"
-                          ? "Confirmer la Visite à Domicile (15 000 FCFA)"
-                          : "Confirmer la Téléconsultation (10 000 FCFA)",
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    child: Builder(
+                      builder: (context) {
+                        final currentTarif = _selectedConsultationType == "DOMICILE"
+                            ? (widget.doctor['tarifDomicile'] ?? 20000).toInt()
+                            : _selectedConsultationType == "CABINET"
+                                ? (widget.doctor['tarifConsultation'] ?? 15000).toInt()
+                                : (widget.doctor['tarifTeleconsultation'] ?? 10000).toInt();
+                        final currentType = _selectedConsultationType == "DOMICILE"
+                            ? "la Visite à Domicile"
+                            : _selectedConsultationType == "CABINET"
+                                ? "la Consultation en Cabinet"
+                                : "la Téléconsultation";
+                        return Text(
+                          "Confirmer $currentType ($currentTarif FCFA / h)",
+                          style: const TextStyle(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -523,7 +539,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           boxShadow: [
             if (isSelected)
               BoxShadow(
-                color: const Color(0xFF00A884).withOpacity(0.25),
+                color: const Color(0xFF00A884).withValues(alpha: 0.25),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -535,7 +551,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white.withOpacity(0.2) : const Color(0xFFE6F7F3),
+                color: isSelected ? Colors.white.withValues(alpha: 0.2) : const Color(0xFFE6F7F3),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -562,7 +578,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     subtitle,
                     style: TextStyle(
                       fontSize: 11,
-                      color: isSelected ? Colors.white.withOpacity(0.85) : const Color(0xFF8E95A5),
+                      color: isSelected ? Colors.white.withValues(alpha: 0.85) : const Color(0xFF8E95A5),
                     ),
                   ),
                 ],
