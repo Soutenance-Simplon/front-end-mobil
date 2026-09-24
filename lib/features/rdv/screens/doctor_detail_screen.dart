@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../providers/rdv_provider.dart';
 
 class DoctorDetailScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> doctor;
@@ -19,12 +20,20 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
   late Map<String, dynamic> _doctorData;
   late String _biographie;
   late int _experience;
-  late int _nombreAvis;
-  late double _note;
   late String _name;
   late String _spec;
   late String _image;
   bool _estDescriptionPersonnalisee = false;
+
+  /// Nombre réel d'avis affichés (strictement égal au nombre d'avis réels)
+  int get _nombreAvis => _avisList.length;
+
+  /// Note moyenne réelle calculée directement sur les avis des patients
+  double get _note {
+    if (_avisList.isEmpty) return 5.0;
+    final total = _avisList.map((a) => (a['note'] as num).toDouble()).reduce((a, b) => a + b);
+    return double.parse((total / _avisList.length).toStringAsFixed(1));
+  }
 
   final List<Map<String, dynamic>> _avisList = [
     {
@@ -154,8 +163,13 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
     }
 
     _experience = _doctorData['anneesExperience'] ?? _doctorData['annees_experience'] ?? _doctorData['experience'] ?? 8;
-    _nombreAvis = _doctorData['nombreAvis'] ?? _doctorData['nombre_avis'] ?? 36;
-    _note = (_doctorData['note'] is num) ? (_doctorData['note'] as num).toDouble() : 4.9;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = ref.read(authProvider).user;
+      if (user != null && user.id.isNotEmpty) {
+        ref.read(rdvProvider.notifier).loadMesRendezVous(patientId: user.id);
+      }
+    });
   }
 
   /// Boîte de dialogue permettant au médecin de rédiger sa propre description et son expérience
@@ -298,6 +312,58 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
     );
   }
 
+  /// Affiche l'information expliquant que seuls les patients du médecin peuvent déposer un avis
+  void _afficherAlerteNonEligibleAvis(bool isDoctor) {
+    if (isDoctor) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Un médecin ne peut pas publier d'avis sur son propre profil ou sur ses confrères."),
+          backgroundColor: Color(0xFF1E293B),
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.verified_user_outlined, color: Color(0xFF00A884), size: 26),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text("Avis certifié patient", style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+        content: Text(
+          "Afin de garantir l'authenticité et la déontologie médicale, seuls les patients ayant déjà consulté le $_name peuvent déposer un avis.\n\n"
+          "Si vous n'êtes pas patient de ce médecin ou ne l'êtes plus, vous ne pouvez pas donner d'avis sur ce praticien.\n\n"
+          "Prenez rendez-vous pour pouvoir évaluer votre prise en charge après votre consultation.",
+          style: const TextStyle(fontSize: 13.5, color: Color(0xFF4A5568), height: 1.45),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Fermer", style: TextStyle(color: Color(0xFF64748B))),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.push('/book-appointment', extra: _doctorData);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF00A884),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text("Prendre rendez-vous", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Boîte de dialogue permettant au patient de donner son avis après un rendez-vous
   void _ouvrirDialogueDonnerAvis() {
     double noteDonnee = 5.0;
@@ -383,8 +449,6 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                     : "Consultation très satisfaisante.";
 
                 setState(() {
-                  _nombreAvis++;
-                  _note = double.parse((((_note * (_nombreAvis - 1)) + noteDonnee) / _nombreAvis).toStringAsFixed(1));
                   _avisList.insert(0, {
                     "auteur": auteur.isNotEmpty ? auteur : "Patient vérifié",
                     "date": "À l'instant",
@@ -416,7 +480,27 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
-    final isCurrentUserDoctor = user != null && user.role.toUpperCase() == 'MEDECIN';
+    final isCurrentUserDoctor = user != null && (user.isMedecin == true || (user.role.toUpperCase()).contains('MEDECIN'));
+
+    final rdvState = ref.watch(rdvProvider);
+    final mesRdv = rdvState.mesRendezVous;
+
+    final docId = _doctorData['id']?.toString() ?? _doctorData['userId']?.toString() ?? '';
+    final docNomComplet = _name.toLowerCase().replaceAll('dr.', '').replaceAll('dr', '').trim();
+    final docNom = (_doctorData['nom']?.toString() ?? '').toLowerCase().trim();
+
+    // RÈGLE MÉTIER STRICTE : Seul un patient ayant déjà consulté ce médecin (RDV enregistré) peut donner un avis
+    final bool estPatientDeCeMedecin = !isCurrentUserDoctor && mesRdv.any((r) {
+      final matchId = docId.isNotEmpty && (
+        r.medecinId == docId ||
+        r.medecinId == _doctorData['user_id']?.toString() ||
+        r.medecinId == _doctorData['userId']?.toString()
+      );
+      final rNom = (r.medecinNom ?? '').toLowerCase().replaceAll('dr.', '').replaceAll('dr', '').trim();
+      final matchNom = (docNomComplet.isNotEmpty && rNom.isNotEmpty && (docNomComplet.contains(rNom) || rNom.contains(docNomComplet))) ||
+          (docNom.isNotEmpty && rNom.contains(docNom));
+      return matchId || matchNom;
+    });
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -541,7 +625,13 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                             children: [
                               // 1. AVIS & NOTE DES PATIENTS
                               InkWell(
-                                onTap: _ouvrirDialogueDonnerAvis,
+                                onTap: () {
+                                  if (estPatientDeCeMedecin) {
+                                    _ouvrirDialogueDonnerAvis();
+                                  } else {
+                                    _afficherAlerteNonEligibleAvis(isCurrentUserDoctor);
+                                  }
+                                },
                                 borderRadius: BorderRadius.circular(16),
                                 child: Padding(
                                   padding: const EdgeInsets.all(4),
@@ -829,14 +919,43 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 ),
                               ],
                             ),
-                            TextButton.icon(
-                              onPressed: _ouvrirDialogueDonnerAvis,
-                              icon: const Icon(Icons.rate_review_outlined, size: 16, color: Color(0xFF00A884)),
-                              label: const Text(
-                                "Donner un avis",
-                                style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 13),
+                            if (estPatientDeCeMedecin)
+                              TextButton.icon(
+                                onPressed: _ouvrirDialogueDonnerAvis,
+                                icon: const Icon(Icons.rate_review_outlined, size: 16, color: Color(0xFF00A884)),
+                                label: const Text(
+                                  "Donner un avis",
+                                  style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 13),
+                                ),
+                              )
+                            else
+                              InkWell(
+                                onTap: () => _afficherAlerteNonEligibleAvis(isCurrentUserDoctor),
+                                borderRadius: BorderRadius.circular(20),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF1F5F9),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.lock_outline_rounded, size: 13, color: Color(0xFF94A3B8)),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        "Réservé aux patients",
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF64748B),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 12),
