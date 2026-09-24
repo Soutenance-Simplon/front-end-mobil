@@ -21,20 +21,30 @@ class WalletApiService {
     }
   }
 
-  /// Recharger le portefeuille via Wave ou Orange Money
+  /// Recharger le portefeuille via Wave, Orange Money ou Free Money
   Future<bool> rechargerPortefeuille({
     required String portefeuilleId,
     required double montant,
-    required String moyenPaiement, // WAVE, ORANGE_MONEY
+    required String moyenPaiement, // WAVE, ORANGE_MONEY, FREE_MONEY
     required String numeroTelephone,
   }) async {
     try {
+      final String codeMoyen;
+      final upper = moyenPaiement.toUpperCase();
+      if (upper.contains('WAVE')) {
+        codeMoyen = 'MOBILE_MONEY_WAVE';
+      } else if (upper.contains('FREE')) {
+        codeMoyen = 'MOBILE_MONEY_FREE';
+      } else {
+        codeMoyen = 'MOBILE_MONEY_ORANGE';
+      }
+
       final response = await dio.post(
         '/portefeuilles/deposer',
         queryParameters: {
           'userId': portefeuilleId,
           'montant': montant,
-          'moyen': moyenPaiement == 'WAVE' ? 'MOBILE_MONEY_WAVE' : 'MOBILE_MONEY_ORANGE',
+          'moyen': codeMoyen,
           'reference': numeroTelephone,
         },
       );

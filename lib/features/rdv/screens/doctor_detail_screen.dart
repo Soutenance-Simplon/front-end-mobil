@@ -36,7 +36,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
   bool _accepteTeleconsultation = true;
   bool _accepteDomicile = true;
   bool _conventionneAssurance = true;
-  List<String> _moyensPaiement = ["Wave", "Orange Money"];
+  List<String> _moyensPaiement = ["Wave", "Orange Money", "Free Money"];
 
   static const List<String> _joursSemaineAbreges = [
     "LUN", "MAR", "MER", "JEU", "VEN", "SAM", "DIM"
@@ -285,8 +285,76 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
     }
   }
 
+  /// Vérifie si l'utilisateur actuellement connecté est CE médecin spécifique (son propre profil).
+  /// Empêche formellement à un médecin de modifier le profil d'un confrère.
+  bool _isCurrentUserProfile() {
+    final user = ref.read(authProvider).user;
+    if (user == null) return false;
+    final isDoctor = user.isMedecin == true || (user.role.toUpperCase()).contains('MEDECIN');
+    if (!isDoctor) return false;
+
+    final currentUserId = user.id.trim();
+    final docUserId = (_doctorData['userId'] ?? _doctorData['user_id'])?.toString().trim() ?? '';
+    final docRecordId = (_doctorData['id'])?.toString().trim() ?? '';
+
+    // 1. Concordance par ID utilisateur ou ID médecin
+    if (currentUserId.isNotEmpty && (currentUserId == docUserId || currentUserId == docRecordId)) {
+      return true;
+    }
+
+    // 2. Concordance par Email
+    final userEmail = user.email.trim().toLowerCase();
+    final docEmail = (_doctorData['email'])?.toString().trim().toLowerCase() ?? '';
+    if (userEmail.isNotEmpty && docEmail.isNotEmpty && userEmail == docEmail) {
+      return true;
+    }
+
+    // 3. Concordance par Numéro de Téléphone (comparaison des 9 derniers chiffres)
+    final userPhone = user.telephone.replaceAll(RegExp(r'\D'), '');
+    final docPhone = (_doctorData['telephone'] ?? _doctorData['phone'])?.toString().replaceAll(RegExp(r'\D'), '') ?? '';
+    if (userPhone.isNotEmpty && docPhone.isNotEmpty) {
+      final uSuffix = userPhone.length > 9 ? userPhone.substring(userPhone.length - 9) : userPhone;
+      final dSuffix = docPhone.length > 9 ? docPhone.substring(docPhone.length - 9) : docPhone;
+      if (uSuffix == dSuffix) {
+        return true;
+      }
+    }
+
+    // 4. Concordance par Nom et Prénom
+    final userNom = user.lastName.trim().toLowerCase();
+    final userPrenom = user.firstName.trim().toLowerCase();
+    final docNom = (_doctorData['nom'] ?? _doctorData['last_name'] ?? _doctorData['lastName'])?.toString().trim().toLowerCase() ?? '';
+    final docPrenom = (_doctorData['prenom'] ?? _doctorData['first_name'] ?? _doctorData['firstName'])?.toString().trim().toLowerCase() ?? '';
+
+    if (userNom.isNotEmpty && docNom.isNotEmpty && userNom == docNom) {
+      if (userPrenom.isEmpty || docPrenom.isEmpty || userPrenom == docPrenom) {
+        return true;
+      }
+    }
+
+    // Comparaison avec le nom affiché (ex: "Dr. Cheikh Fall")
+    if (userNom.isNotEmpty) {
+      final cleanDoctorName = _name.toLowerCase();
+      if (cleanDoctorName.contains(userNom) && (userPrenom.isEmpty || cleanDoctorName.contains(userPrenom))) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   /// Interface dédiée où le médecin fixe ses tarifs horaires de consultation et ses modalités
   void _ouvrirDialogueFixerTarifs() {
+    if (!_isCurrentUserProfile()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Action non autorisée : vous ne pouvez modifier que vos propres tarifs."),
+          backgroundColor: Color(0xFFEF4444),
+        ),
+      );
+      return;
+    }
+
     final cabController = TextEditingController(text: _tarifCabinet.toString());
     final teleController = TextEditingController(text: _tarifTeleconsultation.toString());
     final domController = TextEditingController(text: _tarifDomicile.toString());
@@ -485,7 +553,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                // MOYENS DE PAIEMENT ACCEPTÉS (WAVE & ORANGE MONEY UNIQUEMENT AVEC PHOTOS)
+                // MOYENS DE PAIEMENT ACCEPTÉS (WAVE, ORANGE MONEY, FREE MONEY AVEC PHOTOS)
                 const Text("Moyens de paiement acceptés", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4A5568))),
                 const SizedBox(height: 8),
                 Row(
@@ -520,8 +588,8 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 borderRadius: BorderRadius.circular(8),
                                 child: Image.asset(
                                   'assets/images/wave.png',
-                                  width: 30,
-                                  height: 30,
+                                  width: 28,
+                                  height: 28,
                                   fit: BoxFit.contain,
                                   errorBuilder: (_, __, ___) => const Icon(Icons.payment, size: 24, color: Color(0xFF1DC4E9)),
                                 ),
@@ -574,8 +642,8 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 borderRadius: BorderRadius.circular(8),
                                 child: Image.asset(
                                   'assets/images/orange.png',
-                                  width: 30,
-                                  height: 30,
+                                  width: 28,
+                                  height: 28,
                                   fit: BoxFit.contain,
                                   errorBuilder: (_, __, ___) => const Icon(Icons.payment, size: 24, color: Color(0xFFFF7900)),
                                 ),
@@ -598,6 +666,58 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 10),
+                // Option FREE MONEY
+                InkWell(
+                  onTap: () {
+                    setSheetState(() {
+                      if (tempMoyens.contains("Free Money")) {
+                        if (tempMoyens.length > 1) tempMoyens.remove("Free Money");
+                      } else {
+                        tempMoyens.add("Free Money");
+                      }
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(14),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: tempMoyens.contains("Free Money") ? const Color(0xFFFEF2F2) : const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: tempMoyens.contains("Free Money") ? const Color(0xFFE31B23) : const Color(0xFFE2E8F0),
+                        width: tempMoyens.contains("Free Money") ? 1.8 : 1.0,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.asset(
+                            'assets/images/free_money.png',
+                            width: 28,
+                            height: 28,
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) => const Icon(Icons.payment, size: 24, color: Color(0xFFE31B23)),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Text(
+                            "Free Money",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF2D3142)),
+                          ),
+                        ),
+                        Icon(
+                          tempMoyens.contains("Free Money") ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
+                          size: 18,
+                          color: tempMoyens.contains("Free Money") ? const Color(0xFFE31B23) : const Color(0xFFCBD5E1),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 24),
 
@@ -657,6 +777,16 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
 
   /// Boîte de dialogue permettant au médecin de rédiger sa propre description et son expérience
   void _ouvrirDialogueModificationMedecin() {
+    if (!_isCurrentUserProfile()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Action non autorisée : vous ne pouvez modifier que votre propre profil."),
+          backgroundColor: Color(0xFFEF4444),
+        ),
+      );
+      return;
+    }
+
     final bioController = TextEditingController(text: _biographie);
     final expController = TextEditingController(text: _experience.toString());
 
@@ -964,6 +1094,9 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
     final isCurrentUserDoctor = user != null && (user.isMedecin == true || (user.role.toUpperCase()).contains('MEDECIN'));
+    // VÉRIFICATION STRICTE DE PROPRIÉTÉ DU PROFIL MÉDECIN :
+    // Un médecin ne peut JAMAIS modifier le profil d'un autre médecin.
+    final bool isOwnDoctorProfile = _isCurrentUserProfile();
 
     final rdvState = ref.watch(rdvProvider);
     final mesRdv = rdvState.mesRendezVous;
@@ -973,7 +1106,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
     final docNom = (_doctorData['nom']?.toString() ?? '').toLowerCase().trim();
 
     // RÈGLE MÉTIER STRICTE : Seul un patient ayant déjà consulté ce médecin (RDV enregistré) peut donner un avis
-    final bool estPatientDeCeMedecin = !isCurrentUserDoctor && mesRdv.any((r) {
+    final bool estPatientDeCeMedecin = !isOwnDoctorProfile && mesRdv.any((r) {
       final matchId = docId.isNotEmpty && (
         r.medecinId == docId ||
         r.medecinId == _doctorData['user_id']?.toString() ||
@@ -1021,7 +1154,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 ),
                               ),
                             ),
-                            if (isCurrentUserDoctor)
+                            if (isOwnDoctorProfile)
                               TextButton.icon(
                                 onPressed: _ouvrirDialogueModificationMedecin,
                                 icon: const Icon(Icons.edit_note_rounded, color: Color(0xFF00A884), size: 20),
@@ -1159,7 +1292,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
 
                               // 2. ANNÉES D'EXPÉRIENCE RENSEIGNÉES PAR LE MÉDECIN (MODIFIABLE SEULEMENT PAR LE MÉDECIN)
                               InkWell(
-                                onTap: isCurrentUserDoctor ? _ouvrirDialogueModificationMedecin : null,
+                                onTap: isOwnDoctorProfile ? _ouvrirDialogueModificationMedecin : null,
                                 borderRadius: BorderRadius.circular(16),
                                 child: Padding(
                                   padding: const EdgeInsets.all(4),
@@ -1187,7 +1320,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                                   color: Colors.white,
                                                 ),
                                               ),
-                                              if (isCurrentUserDoctor) ...[
+                                              if (isOwnDoctorProfile) ...[
                                                 const SizedBox(width: 4),
                                                 const Icon(Icons.edit, size: 12, color: Colors.white70),
                                               ],
@@ -1245,7 +1378,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 ),
                               ],
                             ),
-                            if (isCurrentUserDoctor)
+                            if (isOwnDoctorProfile)
                               TextButton.icon(
                                 onPressed: _ouvrirDialogueModificationMedecin,
                                 icon: const Icon(Icons.edit_outlined, size: 16, color: Color(0xFF00A884)),
@@ -1296,7 +1429,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 ),
                               ],
                             ),
-                            if (isCurrentUserDoctor)
+                            if (isOwnDoctorProfile)
                               TextButton.icon(
                                 onPressed: _ouvrirDialogueFixerTarifs,
                                 icon: const Icon(Icons.tune_rounded, size: 16, color: Color(0xFF00A884)),
@@ -1466,7 +1599,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
 
                               const SizedBox(height: 10),
 
-                              // MOYENS DE PAIEMENT ACCEPTÉS (WAVE & ORANGE MONEY AVEC PHOTOS)
+                              // MOYENS DE PAIEMENT ACCEPTÉS (WAVE, ORANGE MONEY & FREE MONEY AVEC PHOTOS)
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                                 decoration: BoxDecoration(
@@ -1474,73 +1607,107 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(color: const Color(0xFFE2E8F0)),
                                 ),
-                                child: Row(
-                                  children: [
-                                    const Text(
-                                      "Paiements :",
-                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    if (_moyensPaiement.contains("Wave"))
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                        margin: const EdgeInsets.only(right: 8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(color: const Color(0xFF1DC4E9).withValues(alpha: 0.4)),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            ClipRRect(
-                                              borderRadius: BorderRadius.circular(4),
-                                              child: Image.asset(
-                                                'assets/images/wave.png',
-                                                width: 18,
-                                                height: 18,
-                                                fit: BoxFit.contain,
-                                                errorBuilder: (_, __, ___) => const Icon(Icons.payment, size: 16, color: Color(0xFF1DC4E9)),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 6),
-                                            const Text(
-                                              "Wave",
-                                              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
-                                            ),
-                                          ],
-                                        ),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const BouncingScrollPhysics(),
+                                  child: Row(
+                                    children: [
+                                      const Text(
+                                        "Paiements :",
+                                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
                                       ),
-                                    if (_moyensPaiement.contains("Orange Money"))
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(color: const Color(0xFFFF7900).withValues(alpha: 0.4)),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            ClipRRect(
-                                              borderRadius: BorderRadius.circular(4),
-                                              child: Image.asset(
-                                                'assets/images/orange.png',
-                                                width: 18,
-                                                height: 18,
-                                                fit: BoxFit.contain,
-                                                errorBuilder: (_, __, ___) => const Icon(Icons.payment, size: 16, color: Color(0xFFFF7900)),
+                                      const SizedBox(width: 8),
+                                      if (_moyensPaiement.contains("Wave"))
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          margin: const EdgeInsets.only(right: 8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: const Color(0xFF1DC4E9).withValues(alpha: 0.4)),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius: BorderRadius.circular(4),
+                                                child: Image.asset(
+                                                  'assets/images/wave.png',
+                                                  width: 18,
+                                                  height: 18,
+                                                  fit: BoxFit.contain,
+                                                  errorBuilder: (_, __, ___) => const Icon(Icons.payment, size: 16, color: Color(0xFF1DC4E9)),
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(width: 6),
-                                            const Text(
-                                              "Orange Money",
-                                              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
-                                            ),
-                                          ],
+                                              const SizedBox(width: 6),
+                                              const Text(
+                                                "Wave",
+                                                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                  ],
+                                      if (_moyensPaiement.contains("Orange Money"))
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          margin: const EdgeInsets.only(right: 8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: const Color(0xFFFF7900).withValues(alpha: 0.4)),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius: BorderRadius.circular(4),
+                                                child: Image.asset(
+                                                  'assets/images/orange.png',
+                                                  width: 18,
+                                                  height: 18,
+                                                  fit: BoxFit.contain,
+                                                  errorBuilder: (_, __, ___) => const Icon(Icons.payment, size: 16, color: Color(0xFFFF7900)),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              const Text(
+                                                "Orange Money",
+                                                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      if (_moyensPaiement.contains("Free Money"))
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: const Color(0xFFE21836).withValues(alpha: 0.4)),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius: BorderRadius.circular(4),
+                                                child: Image.asset(
+                                                  'assets/images/free_money.png',
+                                                  width: 18,
+                                                  height: 18,
+                                                  fit: BoxFit.contain,
+                                                  errorBuilder: (_, __, ___) => const Icon(Icons.payment, size: 16, color: Color(0xFFE21836)),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              const Text(
+                                                "Free Money",
+                                                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -2054,36 +2221,56 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                       Expanded(
                         child: SizedBox(
                           height: 52,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              final bookingData = {
-                                ..._doctorData,
-                                'selectedDate': _selectedDate.toIso8601String(),
-                                'selectedSlot': _selectedSlot ?? '09:00',
-                                'tarifConsultation': _tarifCabinet,
-                                'tarifTeleconsultation': _tarifTeleconsultation,
-                                'tarifDomicile': _tarifDomicile,
-                              };
-                              context.push('/book-appointment', extra: bookingData);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF00A884),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                            child: Text(
-                              _selectedSlot != null
-                                  ? "Prendre RDV (1h) • ${_formaterDateCourte(_selectedDate)} à $_selectedSlot"
-                                  : "Prendre rendez-vous (1h)",
-                              style: const TextStyle(
-                                fontSize: 14.5,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
+                          child: isOwnDoctorProfile
+                              ? ElevatedButton.icon(
+                                  onPressed: _ouvrirDialogueFixerTarifs,
+                                  icon: const Icon(Icons.tune_rounded, color: Colors.white, size: 20),
+                                  label: const Text(
+                                    "Gérer mes tarifs & disponibilités",
+                                    style: TextStyle(
+                                      fontSize: 14.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF00A884),
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                )
+                              : ElevatedButton(
+                                  onPressed: () {
+                                    final bookingData = {
+                                      ..._doctorData,
+                                      'selectedDate': _selectedDate.toIso8601String(),
+                                      'selectedSlot': _selectedSlot ?? '09:00',
+                                      'tarifConsultation': _tarifCabinet,
+                                      'tarifTeleconsultation': _tarifTeleconsultation,
+                                      'tarifDomicile': _tarifDomicile,
+                                    };
+                                    context.push('/book-appointment', extra: bookingData);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF00A884),
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    _selectedSlot != null
+                                        ? "Prendre RDV (1h) • ${_formaterDateCourte(_selectedDate)} à $_selectedSlot"
+                                        : "Prendre rendez-vous (1h)",
+                                    style: const TextStyle(
+                                      fontSize: 14.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
                         ),
                       ),
                     ],

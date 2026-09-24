@@ -88,7 +88,7 @@ class _EcranPortefeuilleState extends ConsumerState<EcranPortefeuille> {
                                   borderRadius: BorderRadius.circular(16),
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
                                     decoration: BoxDecoration(
                                       color: moyenPaiement == "Wave" ? const Color(0xFF00A884).withValues(alpha: 0.1) : const Color(0xFFF8F9FA),
                                       borderRadius: BorderRadius.circular(16),
@@ -97,18 +97,18 @@ class _EcranPortefeuilleState extends ConsumerState<EcranPortefeuille> {
                                         width: 2,
                                       ),
                                     ),
-                                    child: Image.asset('assets/images/wave.png', height: 35),
+                                    child: Image.asset('assets/images/wave.png', height: 32),
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 8),
                               Expanded(
                                 child: InkWell(
                                   onTap: () => setDialogState(() => moyenPaiement = "Orange Money"),
                                   borderRadius: BorderRadius.circular(16),
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
                                     decoration: BoxDecoration(
                                       color: moyenPaiement == "Orange Money" ? const Color(0xFFFF9F65).withValues(alpha: 0.1) : const Color(0xFFF8F9FA),
                                       borderRadius: BorderRadius.circular(16),
@@ -117,7 +117,27 @@ class _EcranPortefeuilleState extends ConsumerState<EcranPortefeuille> {
                                         width: 2,
                                       ),
                                     ),
-                                    child: Image.asset('assets/images/orange.png', height: 35),
+                                    child: Image.asset('assets/images/orange.png', height: 32),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () => setDialogState(() => moyenPaiement = "Free Money"),
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: moyenPaiement == "Free Money" ? const Color(0xFFE21836).withValues(alpha: 0.1) : const Color(0xFFF8F9FA),
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: moyenPaiement == "Free Money" ? const Color(0xFFE21836) : Colors.transparent,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Image.asset('assets/images/free_money.png', height: 32),
                                   ),
                                 ),
                               ),
@@ -293,7 +313,7 @@ class _EcranPortefeuilleState extends ConsumerState<EcranPortefeuille> {
                           ),
                           const SizedBox(height: 16),
                           DropdownButtonFormField<String>(
-                            value: lienSelectionne,
+                            initialValue: lienSelectionne,
                             icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF8E95A5)),
                             decoration: InputDecoration(
                               labelText: "Lien de parenté",
