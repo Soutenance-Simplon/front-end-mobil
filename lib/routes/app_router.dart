@@ -13,7 +13,7 @@ import '../features/profile/screens/add_family_member_screen.dart';
 import '../features/notification/screens/ecran_notifications.dart';
 import '../features/ia/screens/ecran_assistant_ia.dart';
 import '../features/patient/screens/qr_scanner_screen.dart';
-import '../features/dossier/screens/medical_record_screen.dart';
+import '../features/dossier/screens/ecran_dossier_medical.dart';
 import '../features/dossier/screens/smart_prescription_screen.dart';
 import '../features/dossier/screens/new_consultation_screen.dart';
 import '../features/wallet/screens/wallet_screen.dart';
@@ -167,12 +167,16 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/medical-record',
       name: 'medical-record',
-      builder: (context, state) => const MedicalRecordScreen(),
+      builder: (context, state) => EcranDossierMedical(
+        patientCible: state.extra != null ? _toMap(state.extra) : null,
+      ),
     ),
     GoRoute(
       path: '/dossier-medical',
       name: 'dossier-medical',
-      builder: (context, state) => const MedicalRecordScreen(),
+      builder: (context, state) => EcranDossierMedical(
+        patientCible: state.extra != null ? _toMap(state.extra) : null,
+      ),
     ),
     GoRoute(
       path: '/smart-prescription',
