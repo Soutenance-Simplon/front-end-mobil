@@ -15,7 +15,6 @@ class DoctorDetailScreen extends ConsumerStatefulWidget {
 
 class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
   bool _isFavorite = false;
-  int _selectedDateIndex = 0;
 
   late Map<String, dynamic> _doctorData;
   late String _biographie;
@@ -24,6 +23,75 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
   late String _spec;
   late String _image;
   bool _estDescriptionPersonnalisee = false;
+
+  // ── GESTION DYNAMIQUE DU CALENDRIER & DES CRÉNEAUX ──
+  late DateTime _selectedDate;
+  String? _selectedSlot = "09:30";
+  int _filtrePeriode = 0; // 0: Tous, 1: Matinée, 2: Après-midi
+
+  // ── TARIFS ET HONORAIRES FIXÉS PAR LE MÉDECIN ──
+  int _tarifCabinet = 15000;
+  int _tarifTeleconsultation = 10000;
+  int _tarifDomicile = 20000;
+  bool _accepteTeleconsultation = true;
+  bool _accepteDomicile = true;
+  bool _conventionneAssurance = true;
+  List<String> _moyensPaiement = ["Wave", "Orange Money", "Espèces", "Carte Bancaire"];
+
+  static const List<String> _joursSemaineAbreges = [
+    "LUN", "MAR", "MER", "JEU", "VEN", "SAM", "DIM"
+  ];
+
+  static const List<String> _moisNoms = [
+    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+  ];
+
+  static const List<String> _moisAbreges = [
+    "Janv.", "Févr.", "Mars", "Avr.", "Mai", "Juin",
+    "Juil.", "Août", "Sept.", "Oct.", "Nov.", "Déc."
+  ];
+
+  static String _formaterPrix(int montant) {
+    final str = montant.toString();
+    if (str.length <= 3) return str;
+    final buffer = StringBuffer();
+    int count = 0;
+    for (int i = str.length - 1; i >= 0; i--) {
+      buffer.write(str[i]);
+      count++;
+      if (count % 3 == 0 && i > 0) {
+        buffer.write(' ');
+      }
+    }
+    return buffer.toString().split('').reversed.join('');
+  }
+
+  static String _formaterDateLongue(DateTime d) {
+    final jourSemaine = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"][d.weekday - 1];
+    final mois = _moisNoms[d.month - 1];
+    return "$jourSemaine ${d.day} $mois ${d.year}";
+  }
+
+  static String _formaterDateCourte(DateTime d) {
+    final jourSemaine = ["Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam.", "Dim."][d.weekday - 1];
+    final mois = _moisAbreges[d.month - 1];
+    return "$jourSemaine ${d.day} $mois";
+  }
+
+  List<DateTime> get _prochainesDates {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return List.generate(28, (i) => today.add(Duration(days: i)));
+  }
+
+  List<String> get _creneauxMatin => [
+    "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"
+  ];
+
+  List<String> get _creneauxApresMidi => [
+    "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
+  ];
 
   /// Nombre réel d'avis affichés (strictement égal au nombre d'avis réels)
   int get _nombreAvis => _avisList.length;
@@ -54,15 +122,6 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
       "note": 4,
       "commentaire": "Professionnel et disponible pour expliquer chaque étape de la prise en charge médicale.",
     },
-  ];
-
-  final List<Map<String, String>> _dates = [
-    {"day": "LUN", "date": "10"},
-    {"day": "MAR", "date": "11"},
-    {"day": "MER", "date": "12"},
-    {"day": "JEU", "date": "13"},
-    {"day": "VEN", "date": "14"},
-    {"day": "SAM", "date": "15"},
   ];
 
   /// Génère une description clinique riche et réaliste selon la spécialité médicale
@@ -164,12 +223,302 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
 
     _experience = _doctorData['anneesExperience'] ?? _doctorData['annees_experience'] ?? _doctorData['experience'] ?? 8;
 
+    final now = DateTime.now();
+    _selectedDate = DateTime(now.year, now.month, now.day);
+    if (_selectedDate.weekday == DateTime.sunday) {
+      _selectedDate = _selectedDate.add(const Duration(days: 1));
+    }
+
+    final tc = _doctorData['tarifConsultation'] ?? _doctorData['tarif_consultation'] ?? _doctorData['tarif'];
+    if (tc is num) _tarifCabinet = tc.toInt();
+
+    final tt = _doctorData['tarifTeleconsultation'] ?? _doctorData['tarif_teleconsultation'];
+    if (tt is num) _tarifTeleconsultation = tt.toInt();
+
+    final td = _doctorData['tarifDomicile'] ?? _doctorData['tarif_domicile'];
+    if (td is num) _tarifDomicile = td.toInt();
+
+    _accepteTeleconsultation = _doctorData['accepteTeleconsultation'] ?? true;
+    _accepteDomicile = _doctorData['accepteDomicile'] ?? true;
+    _conventionneAssurance = _doctorData['conventionneAssurance'] ?? true;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final user = ref.read(authProvider).user;
       if (user != null && user.id.isNotEmpty) {
         ref.read(rdvProvider.notifier).loadMesRendezVous(patientId: user.id);
       }
     });
+  }
+
+  /// Permet au patient de choisir une date libre dans le calendrier
+  Future<void> _choisirDateCalendrier() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate.isBefore(now) ? now : _selectedDate,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 90)),
+      helpText: "CHOISIR UNE DATE DE RENDEZ-VOUS",
+      cancelText: "Annuler",
+      confirmText: "Valider",
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF00A884),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF2D3142),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedDate = DateTime(picked.year, picked.month, picked.day);
+        _selectedSlot = _selectedDate.weekday == DateTime.sunday ? null : "09:30";
+      });
+    }
+  }
+
+  /// Interface dédiée où le médecin fixe ses tarifs de consultation et ses modalités
+  void _ouvrirDialogueFixerTarifs() {
+    final cabController = TextEditingController(text: _tarifCabinet.toString());
+    final teleController = TextEditingController(text: _tarifTeleconsultation.toString());
+    final domController = TextEditingController(text: _tarifDomicile.toString());
+    bool tempTele = _accepteTeleconsultation;
+    bool tempDom = _accepteDomicile;
+    bool tempAssur = _conventionneAssurance;
+    List<String> tempMoyens = List<String>.from(_moyensPaiement);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setSheetState) => Container(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+            top: 24,
+            left: 20,
+            right: 20,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Row(
+                  children: [
+                    Icon(Icons.payments_outlined, color: Color(0xFF00A884), size: 24),
+                    SizedBox(width: 8),
+                    Text(
+                      "Fixer mes tarifs & honoraires",
+                      style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  "Définissez vos honoraires officiels affichés aux patients lors de la réservation.",
+                  style: TextStyle(fontSize: 13, color: Color(0xFF8E95A5)),
+                ),
+                const SizedBox(height: 20),
+
+                // TARIF CABINET
+                const Text("Consultation en Cabinet Médical (FCFA)", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4A5568))),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: cabController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    hintText: "Ex: 15000",
+                    suffixText: "FCFA",
+                    prefixIcon: const Icon(Icons.local_hospital_outlined, color: Color(0xFF00A884)),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // TARIF TÉLÉCONSULTATION
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Téléconsultation Vidéo (FCFA)", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4A5568))),
+                    Row(
+                      children: [
+                        Text(tempTele ? "Activée" : "Désactivée", style: TextStyle(fontSize: 12, color: tempTele ? const Color(0xFF00A884) : Colors.grey)),
+                        Switch(
+                          value: tempTele,
+                          activeThumbColor: const Color(0xFF00A884),
+                          onChanged: (val) => setSheetState(() => tempTele = val),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                if (tempTele) ...[
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: teleController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: "Ex: 10000",
+                      suffixText: "FCFA",
+                      prefixIcon: const Icon(Icons.videocam_outlined, color: Color(0xFF00A884)),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 16),
+
+                // TARIF DOMICILE
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Visite à Domicile (FCFA)", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4A5568))),
+                    Row(
+                      children: [
+                        Text(tempDom ? "Activée" : "Désactivée", style: TextStyle(fontSize: 12, color: tempDom ? const Color(0xFF00A884) : Colors.grey)),
+                        Switch(
+                          value: tempDom,
+                          activeThumbColor: const Color(0xFF00A884),
+                          onChanged: (val) => setSheetState(() => tempDom = val),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                if (tempDom) ...[
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: domController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: "Ex: 20000",
+                      suffixText: "FCFA",
+                      prefixIcon: const Icon(Icons.home_work_outlined, color: Color(0xFF00A884)),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 16),
+
+                // CONVENTION MUTUELLES & ASSURANCES
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: tempAssur,
+                  activeThumbColor: const Color(0xFF00A884),
+                  title: const Text("Conventionné IPM & Mutuelles de santé", style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: Color(0xFF2D3142))),
+                  subtitle: const Text("Prise en charge et tiers-payant autorisés", style: TextStyle(fontSize: 12, color: Color(0xFF8E95A5))),
+                  onChanged: (val) => setSheetState(() => tempAssur = val),
+                ),
+                const SizedBox(height: 12),
+
+                // MOYENS DE PAIEMENT ACCEPTÉS
+                const Text("Moyens de paiement acceptés", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4A5568))),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: ["Wave", "Orange Money", "Espèces", "Carte Bancaire"].map((moyen) {
+                    final isChecked = tempMoyens.contains(moyen);
+                    return FilterChip(
+                      label: Text(moyen),
+                      selected: isChecked,
+                      selectedColor: const Color(0xFFE6F7F3),
+                      checkmarkColor: const Color(0xFF00A884),
+                      labelStyle: TextStyle(
+                        color: isChecked ? const Color(0xFF00A884) : const Color(0xFF5A607F),
+                        fontWeight: isChecked ? FontWeight.bold : FontWeight.normal,
+                        fontSize: 12,
+                      ),
+                      onSelected: (val) {
+                        setSheetState(() {
+                          if (val) {
+                            tempMoyens.add(moyen);
+                          } else {
+                            tempMoyens.remove(moyen);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 24),
+
+                // BOUTON ENREGISTRER
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final newCab = int.tryParse(cabController.text.trim()) ?? _tarifCabinet;
+                      final newTele = int.tryParse(teleController.text.trim()) ?? _tarifTeleconsultation;
+                      final newDom = int.tryParse(domController.text.trim()) ?? _tarifDomicile;
+
+                      setState(() {
+                        _tarifCabinet = newCab;
+                        _tarifTeleconsultation = newTele;
+                        _tarifDomicile = newDom;
+                        _accepteTeleconsultation = tempTele;
+                        _accepteDomicile = tempDom;
+                        _conventionneAssurance = tempAssur;
+                        _moyensPaiement = tempMoyens;
+
+                        _doctorData['tarifConsultation'] = _tarifCabinet;
+                        _doctorData['tarif_consultation'] = _tarifCabinet;
+                        _doctorData['tarif'] = _tarifCabinet;
+                        _doctorData['tarifTeleconsultation'] = _tarifTeleconsultation;
+                        _doctorData['tarif_teleconsultation'] = _tarifTeleconsultation;
+                        _doctorData['tarifDomicile'] = _tarifDomicile;
+                        _doctorData['tarif_domicile'] = _tarifDomicile;
+                        _doctorData['accepteTeleconsultation'] = _accepteTeleconsultation;
+                        _doctorData['accepteDomicile'] = _accepteDomicile;
+                        _doctorData['conventionneAssurance'] = _conventionneAssurance;
+                      });
+
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Tarifs et honoraires de consultation enregistrés avec succès"),
+                          backgroundColor: Color(0xFF00A884),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00A884),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: const Text("Enregistrer mes honoraires", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   /// Boîte de dialogue permettant au médecin de rédiger sa propre description et son expérience
@@ -614,7 +963,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF00A884).withOpacity(0.25),
+                                color: const Color(0xFF00A884).withValues(alpha: 0.25),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -640,7 +989,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                       Container(
                                         padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
+                                          color: Colors.white.withValues(alpha: 0.2),
                                           shape: BoxShape.circle,
                                         ),
                                         child: const Icon(Icons.star_rounded, color: Colors.amberAccent, size: 24),
@@ -685,7 +1034,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                       Container(
                                         padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
+                                          color: Colors.white.withValues(alpha: 0.2),
                                           shape: BoxShape.circle,
                                         ),
                                         child: const Icon(Icons.workspace_premium_outlined, color: Colors.white, size: 22),
@@ -785,101 +1134,386 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
 
                         const SizedBox(height: 24),
 
-                        // HORAIRES DE TRAVAIL
-                        const Text(
-                          "Horaires de travail",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF2D3142),
-                          ),
+                        // ── SECTION 1 : TARIFS & HONORAIRES DE CONSULTATION ──
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "Tarifs & Honoraires",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2D3142),
+                              ),
+                            ),
+                            if (isCurrentUserDoctor)
+                              TextButton.icon(
+                                onPressed: _ouvrirDialogueFixerTarifs,
+                                icon: const Icon(Icons.tune_rounded, size: 16, color: Color(0xFF00A884)),
+                                label: const Text(
+                                  "Fixer mes tarifs",
+                                  style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 13),
+                                ),
+                              ),
+                          ],
                         ),
-                        const SizedBox(height: 6),
-                        const Text(
-                          "Lun - Ven 09:00 - 18:00 • Téléconsultations & Cabinet",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF8E95A5),
+                        const SizedBox(height: 10),
+
+                        // CARTES DES TARIFS
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: const Color(0xFFE5E9F2)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.02),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              // 1. Consultation au Cabinet
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFE6F7F3),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Icon(Icons.local_hospital_rounded, color: Color(0xFF00A884), size: 22),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  const Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Consultation au Cabinet",
+                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF2D3142)),
+                                        ),
+                                        Text(
+                                          "Sur place • Examen clinique complet",
+                                          style: TextStyle(fontSize: 11.5, color: Color(0xFF8E95A5)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    "${_formaterPrix(_tarifCabinet)} FCFA",
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF00A884)),
+                                  ),
+                                ],
+                              ),
+
+                              if (_accepteTeleconsultation) ...[
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 10),
+                                  child: Divider(color: Color(0xFFF1F5F9)),
+                                ),
+                                // 2. Téléconsultation Vidéo
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFEFF6FF),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Icon(Icons.videocam_rounded, color: Color(0xFF3B82F6), size: 22),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    const Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Téléconsultation Vidéo",
+                                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF2D3142)),
+                                          ),
+                                          Text(
+                                            "Appel sécurisé • Ordonnance digitale",
+                                            style: TextStyle(fontSize: 11.5, color: Color(0xFF8E95A5)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Text(
+                                      "${_formaterPrix(_tarifTeleconsultation)} FCFA",
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF3B82F6)),
+                                    ),
+                                  ],
+                                ),
+                              ],
+
+                              if (_accepteDomicile) ...[
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 10),
+                                  child: Divider(color: Color(0xFFF1F5F9)),
+                                ),
+                                // 3. Visite à Domicile
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFEF3C7),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Icon(Icons.home_work_rounded, color: Color(0xFFD97706), size: 22),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    const Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Visite à Domicile",
+                                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF2D3142)),
+                                          ),
+                                          Text(
+                                            "Déplacement au domicile du patient",
+                                            style: TextStyle(fontSize: 11.5, color: Color(0xFF8E95A5)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Text(
+                                      "${_formaterPrix(_tarifDomicile)} FCFA",
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFFD97706)),
+                                    ),
+                                  ],
+                                ),
+                              ],
+
+                              const SizedBox(height: 12),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF8FAFC),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.shield_outlined, size: 16, color: Color(0xFF00A884)),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        _conventionneAssurance
+                                            ? "Conventionné ONMS • Tiers-payant IPM & Mutuelles acceptés"
+                                            : "Praticien non conventionné tiers-payant",
+                                        style: const TextStyle(fontSize: 11, color: Color(0xFF5A607F), fontWeight: FontWeight.w500),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
 
                         const SizedBox(height: 24),
 
-                        // SELECTEUR DE DATE INTERACTIF
+                        // ── SECTION 2 : HORAIRES D'OUVERTURE DU CABINET ──
                         Row(
                           children: [
                             const Text(
-                              "Créneaux disponibles",
+                              "Horaires de consultation",
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF2D3142),
                               ),
                             ),
                             const Spacer(),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF1F5F9),
-                                borderRadius: BorderRadius.circular(8),
+                                color: const Color(0xFFE6F7F3),
+                                borderRadius: BorderRadius.circular(6),
                               ),
-                              child: const Row(
-                                children: [
-                                  Text("Octobre", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
-                                  Icon(Icons.keyboard_arrow_down, size: 16, color: Color(0xFF64748B)),
-                                ],
+                              child: const Text("Ouvert Lun - Sam", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00A884))),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          "Lun - Sam : 08:30 - 18:00 • Dimanche : Fermé (urgences)",
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            color: Color(0xFF8E95A5),
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // ── SECTION 3 : CRÉNEAUX DISPONIBLES & NAVIGATION FLUIDE ──
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  "Créneaux disponibles",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2D3142),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: _selectedDate.weekday == DateTime.sunday
+                                        ? const Color(0xFFFEE2E2)
+                                        : const Color(0xFFE6F7F3),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    _selectedDate.weekday == DateTime.sunday ? "Fermé" : "15 créneaux",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: _selectedDate.weekday == DateTime.sunday
+                                          ? const Color(0xFFEF4444)
+                                          : const Color(0xFF00A884),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            // SÉLECTEUR DE MOIS DYNAMIQUE & ACCÈS CALENDRIER COMPLET
+                            InkWell(
+                              onTap: _choisirDateCalendrier,
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF1F5F9),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.calendar_month_outlined, size: 14, color: Color(0xFF00A884)),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      "${_moisAbreges[_selectedDate.month - 1]} ${_selectedDate.year}",
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF2D3142)),
+                                    ),
+                                    const SizedBox(width: 2),
+                                    const Icon(Icons.keyboard_arrow_down, size: 16, color: Color(0xFF64748B)),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
                         ),
 
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 14),
 
-                        // LISTE HORIZONTALE DES DATES
+                        // CARROUSEL HORIZONTAL DES 28 PROCHAINS JOURS
                         SizedBox(
-                          height: 70,
+                          height: 78,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: _dates.length,
+                            itemCount: _prochainesDates.length,
                             itemBuilder: (context, index) {
-                              final item = _dates[index];
-                              final isSelected = _selectedDateIndex == index;
+                              final dateItem = _prochainesDates[index];
+                              final isSelected = _selectedDate.year == dateItem.year &&
+                                  _selectedDate.month == dateItem.month &&
+                                  _selectedDate.day == dateItem.day;
+                              final now = DateTime.now();
+                              final isToday = now.year == dateItem.year &&
+                                  now.month == dateItem.month &&
+                                  now.day == dateItem.day;
+                              final isDimanche = dateItem.weekday == DateTime.sunday;
 
                               return Padding(
-                                padding: const EdgeInsets.only(right: 12),
+                                padding: const EdgeInsets.only(right: 10),
                                 child: InkWell(
-                                  onTap: () => setState(() => _selectedDateIndex = index),
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedDate = dateItem;
+                                      if (isDimanche) {
+                                        _selectedSlot = null;
+                                      } else if (_selectedSlot == null) {
+                                        _selectedSlot = "09:30";
+                                      }
+                                    });
+                                  },
                                   borderRadius: BorderRadius.circular(16),
                                   child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    width: 60,
+                                    duration: const Duration(milliseconds: 180),
+                                    width: 64,
                                     decoration: BoxDecoration(
-                                      color: isSelected ? const Color(0xFF00A884) : Colors.white,
+                                      color: isSelected
+                                          ? const Color(0xFF00A884)
+                                          : (isDimanche ? const Color(0xFFF8FAFC) : Colors.white),
                                       borderRadius: BorderRadius.circular(16),
                                       border: Border.all(
-                                        color: isSelected ? const Color(0xFF00A884) : const Color(0xFFE5E9F2),
+                                        color: isSelected
+                                            ? const Color(0xFF00A884)
+                                            : (isToday ? const Color(0xFF00A884).withValues(alpha: 0.5) : const Color(0xFFE5E9F2)),
+                                        width: isSelected || isToday ? 1.5 : 1.0,
                                       ),
+                                      boxShadow: isSelected
+                                          ? [
+                                              BoxShadow(
+                                                color: const Color(0xFF00A884).withValues(alpha: 0.25),
+                                                blurRadius: 8,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ]
+                                          : null,
                                     ),
                                     child: Column(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          item['day']!,
+                                          isToday ? "AUJ." : _joursSemaineAbreges[dateItem.weekday - 1],
                                           style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600,
-                                            color: isSelected ? Colors.white70 : const Color(0xFFB4B9C5),
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.bold,
+                                            color: isSelected
+                                                ? Colors.white70
+                                                : (isDimanche ? const Color(0xFFCBD5E1) : (isToday ? const Color(0xFF00A884) : const Color(0xFF94A3B8))),
                                           ),
                                         ),
-                                        const SizedBox(height: 4),
+                                        const SizedBox(height: 3),
                                         Text(
-                                          item['date']!,
+                                          "${dateItem.day}",
                                           style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
-                                            color: isSelected ? Colors.white : const Color(0xFF5A607F),
+                                            color: isSelected
+                                                ? Colors.white
+                                                : (isDimanche ? const Color(0xFF94A3B8) : const Color(0xFF2D3142)),
                                           ),
                                         ),
+                                        if (isDimanche)
+                                          Text(
+                                            "Fermé",
+                                            style: TextStyle(
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.w600,
+                                              color: isSelected ? Colors.white70 : const Color(0xFFEF4444),
+                                            ),
+                                          )
+                                        else
+                                          Text(
+                                            _moisAbreges[dateItem.month - 1],
+                                            style: TextStyle(
+                                              fontSize: 9,
+                                              color: isSelected ? Colors.white70 : const Color(0xFF94A3B8),
+                                            ),
+                                          ),
                                       ],
                                     ),
                                   ),
@@ -888,6 +1522,102 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                             },
                           ),
                         ),
+
+                        const SizedBox(height: 16),
+
+                        // AFFICHAGE DES CRÉNEAUX SELON LE JOUR SÉLECTIONNÉ
+                        if (_selectedDate.weekday == DateTime.sunday) ...[
+                          // ÉTAT DIMANCHE (FERMÉ)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFEF2F2),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFFECACA)),
+                            ),
+                            child: Column(
+                              children: [
+                                const Icon(Icons.event_busy_rounded, color: Color(0xFFEF4444), size: 32),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  "Aucune consultation le dimanche",
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF991B1B)),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "Le cabinet du $_name est fermé le dimanche. Vous pouvez réserver dès lundi.",
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 12, color: Color(0xFF7F1D1D)),
+                                ),
+                                const SizedBox(height: 12),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedDate = _selectedDate.add(const Duration(days: 1));
+                                      _selectedSlot = "09:30";
+                                    });
+                                  },
+                                  icon: const Icon(Icons.arrow_forward_rounded, size: 16, color: Colors.white),
+                                  label: const Text("Voir les créneaux du Lundi", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.5)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF00A884),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ] else ...[
+                          // FILTRES PAR PÉRIODE (TOUS / MATIN / SOIR)
+                          Row(
+                            children: [
+                              _buildPeriodeChip(index: 0, label: "Tous (15)"),
+                              const SizedBox(width: 8),
+                              _buildPeriodeChip(index: 1, label: "Matin (7)", icon: Icons.wb_sunny_outlined),
+                              const SizedBox(width: 8),
+                              _buildPeriodeChip(index: 2, label: "Après-midi (8)", icon: Icons.cloud_outlined),
+                            ],
+                          ),
+
+                          const SizedBox(height: 14),
+
+                          // LISTE DES CRÉNEAUX HORAIRES
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              if (_filtrePeriode == 0 || _filtrePeriode == 1)
+                                ..._creneauxMatin.map((slot) => _buildCreneauBouton(slot)),
+                              if (_filtrePeriode == 0 || _filtrePeriode == 2)
+                                ..._creneauxApresMidi.map((slot) => _buildCreneauBouton(slot)),
+                            ],
+                          ),
+
+                          if (_selectedSlot != null) ...[
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE6F7F3),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.35)),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.check_circle_rounded, color: Color(0xFF00A884), size: 20),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      "Créneau sélectionné : ${_formaterDateLongue(_selectedDate)} à $_selectedSlot",
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF134E3F)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
 
                         const SizedBox(height: 28),
 
@@ -1037,7 +1767,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
+                        color: Colors.black.withValues(alpha: 0.04),
                         blurRadius: 10,
                         offset: const Offset(0, -4),
                       ),
@@ -1069,7 +1799,15 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                           height: 52,
                           child: ElevatedButton(
                             onPressed: () {
-                              context.push('/book-appointment', extra: _doctorData);
+                              final bookingData = {
+                                ..._doctorData,
+                                'selectedDate': _selectedDate.toIso8601String(),
+                                'selectedSlot': _selectedSlot ?? '09:30',
+                                'tarifConsultation': _tarifCabinet,
+                                'tarifTeleconsultation': _tarifTeleconsultation,
+                                'tarifDomicile': _tarifDomicile,
+                              };
+                              context.push('/book-appointment', extra: bookingData);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF00A884),
@@ -1078,10 +1816,12 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 borderRadius: BorderRadius.circular(16),
                               ),
                             ),
-                            child: const Text(
-                              "Prendre rendez-vous",
-                              style: TextStyle(
-                                fontSize: 16,
+                            child: Text(
+                              _selectedSlot != null
+                                  ? "Prendre RDV • ${_formaterDateCourte(_selectedDate)} à $_selectedSlot"
+                                  : "Prendre rendez-vous",
+                              style: const TextStyle(
+                                fontSize: 14.5,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
@@ -1095,6 +1835,108 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPeriodeChip({required int index, required String label, IconData? icon}) {
+    final isSelected = _filtrePeriode == index;
+    return InkWell(
+      onTap: () => setState(() => _filtrePeriode = index),
+      borderRadius: BorderRadius.circular(20),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF00A884) : const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF00A884) : const Color(0xFFE2E8F0),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 14, color: isSelected ? Colors.white : const Color(0xFF64748B)),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: isSelected ? Colors.white : const Color(0xFF475569),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCreneauBouton(String slot) {
+    final isSelected = _selectedSlot == slot;
+    final isComplet = slot == "10:00" || slot == "15:00"; // Simulation réaliste de créneau réservé
+
+    return InkWell(
+      onTap: isComplet
+          ? null
+          : () {
+              setState(() => _selectedSlot = slot);
+            },
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFF00A884)
+              : (isComplet ? const Color(0xFFF8FAFC) : Colors.white),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? const Color(0xFF00A884)
+                : (isComplet ? const Color(0xFFE2E8F0) : const Color(0xFFD1D5DB)),
+            width: isSelected ? 1.5 : 1.0,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF00A884).withValues(alpha: 0.2),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSelected) ...[
+              const Icon(Icons.check, size: 14, color: Colors.white),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              slot,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                decoration: isComplet ? TextDecoration.lineThrough : null,
+                color: isSelected
+                    ? Colors.white
+                    : (isComplet ? const Color(0xFF94A3B8) : const Color(0xFF2D3142)),
+              ),
+            ),
+            if (isComplet) ...[
+              const SizedBox(width: 4),
+              const Text(
+                "Pris",
+                style: TextStyle(fontSize: 10, color: Color(0xFFEF4444), fontWeight: FontWeight.bold),
+              ),
+            ],
+          ],
         ),
       ),
     );

@@ -13,12 +13,22 @@ class BookAppointmentScreen extends StatefulWidget {
 class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   String _selectedPeriod = "Matin";
   String _selectedTimeSlot = "10:30";
-  String _selectedConsultationType = "TELECONSULTATION"; // TELECONSULTATION ou DOMICILE
+  String _selectedConsultationType = "CABINET"; // CABINET, TELECONSULTATION ou DOMICILE
 
   final TextEditingController _locationController = TextEditingController();
 
-  final List<String> _morningSlots = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30"];
-  final List<String> _eveningSlots = ["14:00", "14:30", "15:00", "15:30", "16:00", "17:00"];
+  final List<String> _morningSlots = ["08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"];
+  final List<String> _eveningSlots = ["14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.doctor['selectedSlot'] != null) {
+      _selectedTimeSlot = widget.doctor['selectedSlot'].toString();
+      final h = int.tryParse(_selectedTimeSlot.split(':')[0]) ?? 10;
+      _selectedPeriod = h >= 13 ? "Soir" : "Matin";
+    }
+  }
 
   @override
   void dispose() {
@@ -57,8 +67,22 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         ? "Dr. ${widget.doctor['prenom'] ?? ''} ${widget.doctor['nom']}".trim()
         : "Dr. Praticien";
 
-    final price = isHome ? "15 000 FCFA" : "10 000 FCFA";
-    final typeText = isHome ? "Consultation à Domicile" : "Téléconsultation Vidéo";
+    final tarifCab = (widget.doctor['tarifConsultation'] ?? 15000).toInt();
+    final tarifTele = (widget.doctor['tarifTeleconsultation'] ?? 10000).toInt();
+    final tarifDom = (widget.doctor['tarifDomicile'] ?? 20000).toInt();
+
+    final String price;
+    final String typeText;
+    if (_selectedConsultationType == "DOMICILE") {
+      price = "$tarifDom FCFA";
+      typeText = "Consultation à Domicile";
+    } else if (_selectedConsultationType == "CABINET") {
+      price = "$tarifCab FCFA";
+      typeText = "Consultation au Cabinet Médical";
+    } else {
+      price = "$tarifTele FCFA";
+      typeText = "Téléconsultation Vidéo";
+    }
 
     showDialog(
       context: context,
@@ -254,10 +278,20 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         const SizedBox(height: 12),
 
                         _buildConsultationOption(
+                          id: "CABINET",
+                          title: "Consultation au Cabinet",
+                          subtitle: "Rendez-vous physique au cabinet médical",
+                          price: "${(widget.doctor['tarifConsultation'] ?? 15000).toInt()} FCFA",
+                          icon: Icons.local_hospital_rounded,
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        _buildConsultationOption(
                           id: "TELECONSULTATION",
                           title: "Téléconsultation Vidéo",
                           subtitle: "Consultation à distance par appel vidéo sécurisé",
-                          price: "10 000 FCFA",
+                          price: "${(widget.doctor['tarifTeleconsultation'] ?? 10000).toInt()} FCFA",
                           icon: Icons.videocam_rounded,
                         ),
 
@@ -267,7 +301,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                           id: "DOMICILE",
                           title: "Consultation à Domicile",
                           subtitle: "Déplacement et visite médicale à votre adresse",
-                          price: "15 000 FCFA",
+                          price: "${(widget.doctor['tarifDomicile'] ?? 20000).toInt()} FCFA",
                           icon: Icons.home_work_rounded,
                         ),
 

@@ -136,7 +136,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          _buildMenuTile(Icons.payments_outlined, "Mes Tarifs & Honoraires de consultation", () => _ouvrirModalTarifsMedecin(context)),
                           _buildMenuTile(Icons.calendar_today_outlined, "Mon Agenda & Disponibilités", () => context.push('/doctor-agenda')),
                           _buildMenuTile(Icons.people_outline, "Gestion des Patients Suivis", () => context.push('/medical-record', extra: {'isDoctor': true})),
                           _buildMenuTile(Icons.qr_code_scanner, "Scanner le QR d'un Patient", () => context.push('/qr-scanner', extra: {'tab': 1, 'isMedecin': true})),
@@ -226,6 +226,125 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: Color(0xFF1E293B))),
         trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: Color(0xFF94A3B8)),
         onTap: onTap,
+      ),
+    );
+  }
+
+  void _ouvrirModalTarifsMedecin(BuildContext context) {
+    int tarifCab = 15000;
+    int tarifTele = 10000;
+    int tarifDom = 20000;
+    final cabCtrl = TextEditingController(text: tarifCab.toString());
+    final teleCtrl = TextEditingController(text: tarifTele.toString());
+    final domCtrl = TextEditingController(text: tarifDom.toString());
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+          top: 24,
+          left: 20,
+          right: 20,
+        ),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Row(
+                children: [
+                  Icon(Icons.payments_outlined, color: Color(0xFF00A884), size: 24),
+                  SizedBox(width: 8),
+                  Text("Mes Honoraires & Tarifs", style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Color(0xFF2D3142))),
+                ],
+              ),
+              const SizedBox(height: 6),
+              const Text("Fixez vos tarifs de consultation affichés publiquement à vos patients.", style: TextStyle(fontSize: 13, color: Color(0xFF8E95A5))),
+              const SizedBox(height: 20),
+
+              const Text("Consultation Cabinet (FCFA)", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4A5568))),
+              const SizedBox(height: 6),
+              TextField(
+                controller: cabCtrl,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.local_hospital_outlined, color: Color(0xFF00A884)),
+                  suffixText: "FCFA",
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              const Text("Téléconsultation Vidéo (FCFA)", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4A5568))),
+              const SizedBox(height: 6),
+              TextField(
+                controller: teleCtrl,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.videocam_outlined, color: Color(0xFF00A884)),
+                  suffixText: "FCFA",
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              const Text("Visite à Domicile (FCFA)", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4A5568))),
+              const SizedBox(height: 6),
+              TextField(
+                controller: domCtrl,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.home_work_outlined, color: Color(0xFF00A884)),
+                  suffixText: "FCFA",
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Vos tarifs ont été enregistrés avec succès"),
+                        backgroundColor: Color(0xFF00A884),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00A884),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                  child: const Text("Enregistrer mes tarifs", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
