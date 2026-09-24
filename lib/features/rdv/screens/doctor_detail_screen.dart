@@ -96,6 +96,35 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
   List<String> get _soir => ["18:00", "19:00", "20:00", "21:00", "22:00", "23:00", "00:00", "01:00", "02:00", "03:00", "04:00"
   ];
 
+  /// Vérifie si un créneau horaire sur une date donnée est strictement dans le passé
+  bool _estCreneauPasse(DateTime date, String slot) {
+    final now = DateTime.now();
+    final dateJour = DateTime(date.year, date.month, date.day);
+    final dateAujourdhui = DateTime(now.year, now.month, now.day);
+    if (dateJour.isBefore(dateAujourdhui)) return true;
+    if (dateJour.isAfter(dateAujourdhui)) return false;
+
+    // Même jour : comparer l'heure et la minute précises
+    final parts = slot.split(':');
+    final h = int.tryParse(parts[0]) ?? 0;
+    final m = int.tryParse(parts[1]) ?? 0;
+    final slotDateTime = DateTime(date.year, date.month, date.day, h, m);
+    return slotDateTime.isBefore(now);
+  }
+
+  /// Trouve le premier créneau disponible et futur pour une date donnée
+  String? _trouverPremierCreneauValide(DateTime date) {
+    if (date.weekday == DateTime.sunday) return null;
+    final tous = [..._creneauxMatin, ..._creneauxApresMidi, ..._soir];
+    for (final s in tous) {
+      final isComplet = s == "10:00" || s == "15:00" || s == "21:00";
+      if (!isComplet && !_estCreneauPasse(date, s)) {
+        return s;
+      }
+    }
+    return null;
+  }
+
   /// Nombre réel d'avis affichés (strictement égal au nombre d'avis réels)
   int get _nombreAvis => _avisList.length;
 
@@ -230,6 +259,17 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
     _selectedDate = DateTime(now.year, now.month, now.day);
     if (_selectedDate.weekday == DateTime.sunday) {
       _selectedDate = _selectedDate.add(const Duration(days: 1));
+    }
+
+    _selectedSlot = _trouverPremierCreneauValide(_selectedDate);
+    // Si tous les créneaux d'aujourd'hui sont passés, avancer automatiquement à la prochaine date ouvrée
+    if (_selectedSlot == null && _selectedDate.weekday != DateTime.sunday) {
+      DateTime suivante = _selectedDate.add(const Duration(days: 1));
+      if (suivante.weekday == DateTime.sunday) {
+        suivante = suivante.add(const Duration(days: 1));
+      }
+      _selectedDate = suivante;
+      _selectedSlot = _trouverPremierCreneauValide(_selectedDate);
     }
 
     final tc = _doctorData['tarifConsultation'] ?? _doctorData['tarif_consultation'] ?? _doctorData['tarif'];
@@ -373,14 +413,15 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
     );
   }
 
-  /// Permet au patient de choisir une date libre dans le calendrier
+  /// Permet au patient de choisir une date libre dans le calendrier (interdiction stricte de dates passées)
   Future<void> _choisirDateCalendrier() async {
     final now = DateTime.now();
+    final aujourdhui = DateTime(now.year, now.month, now.day);
     final picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate.isBefore(now) ? now : _selectedDate,
-      firstDate: now,
-      lastDate: now.add(const Duration(days: 90)),
+      initialDate: _selectedDate.isBefore(aujourdhui) ? aujourdhui : _selectedDate,
+      firstDate: aujourdhui, // Bloque formellement toute date passée
+      lastDate: aujourdhui.add(const Duration(days: 90)),
       helpText: "CHOISIR UNE DATE DE RENDEZ-VOUS",
       cancelText: "Annuler",
       confirmText: "Valider",
@@ -401,7 +442,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
     if (picked != null) {
       setState(() {
         _selectedDate = DateTime(picked.year, picked.month, picked.day);
-        _selectedSlot = _selectedDate.weekday == DateTime.sunday ? null : "09:00";
+        _selectedSlot = _trouverPremierCreneauValide(_selectedDate);
       });
     }
   }
@@ -1950,11 +1991,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                   onTap: () {
                                     setState(() {
                                       _selectedDate = dateItem;
-                                      if (isDimanche) {
-                                        _selectedSlot = null;
-                                      } else if (_selectedSlot == null) {
-                                        _selectedSlot = "09:00";
-                                      }
+                                      _selectedSlot = _trouverPremierCreneauValide(_selectedDate);
                                     });
                                   },
                                   borderRadius: BorderRadius.circular(16),
@@ -2127,7 +2164,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                             ],
                           ),
 
-                          if (_selectedSlot != null) ...[
+                          if (_selectedSlot != null && !_estCreneauPasse(_selectedDate, _selectedSlot!)) ...[
                             const SizedBox(height: 12),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -2144,6 +2181,28 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                     child: Text(
                                       "Créneau sélectionné : ${_formaterDateLongue(_selectedDate)} à $_selectedSlot",
                                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF134E3F)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ] else if (_trouverPremierCreneauValide(_selectedDate) == null) ...[
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFFBEB),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0xFFFDE68A)),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.access_time_filled_rounded, color: Color(0xFFD97706), size: 20),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      "Tous les créneaux de cette journée sont déjà passés. Veuillez sélectionner une date ultérieure dans le calendrier ci-dessus.",
+                                      style: TextStyle(fontSize: 12, color: Color(0xFF92400E), fontWeight: FontWeight.w600),
                                     ),
                                   ),
                                 ],
@@ -2352,6 +2411,24 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 )
                               : ElevatedButton(
                                   onPressed: () {
+                                    // CONTRÔLE STRICT DE DATE ET HEURE : Impossible de réserver une date ou heure passée
+                                    if (_selectedSlot == null || _estCreneauPasse(_selectedDate, _selectedSlot!)) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Row(
+                                            children: [
+                                              Icon(Icons.error_outline, color: Colors.white, size: 20),
+                                              SizedBox(width: 8),
+                                              Expanded(child: Text("Impossible de prendre un rendez-vous pour une date ou une heure passée.")),
+                                            ],
+                                          ),
+                                          backgroundColor: Color(0xFFEF4444),
+                                          duration: Duration(seconds: 3),
+                                        ),
+                                      );
+                                      return;
+                                    }
+
                                     // CONTRÔLE STRICT DU SOLDE DU PORTEFEUILLE SANTÉ DU PATIENT :
                                     if (soldePortefeuille < tarifMinimumRequis) {
                                       _afficherDialogueSoldeInsuffisant(soldePortefeuille, tarifMinimumRequis);
@@ -2361,7 +2438,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                     final bookingData = {
                                       ..._doctorData,
                                       'selectedDate': _selectedDate.toIso8601String(),
-                                      'selectedSlot': _selectedSlot ?? '09:00',
+                                      'selectedSlot': _selectedSlot,
                                       'tarifConsultation': _tarifCabinet,
                                       'tarifTeleconsultation': _tarifTeleconsultation,
                                       'tarifDomicile': _tarifDomicile,
@@ -2370,16 +2447,18 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                     context.push('/book-appointment', extra: bookingData);
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF00A884),
+                                    backgroundColor: (_selectedSlot != null && !_estCreneauPasse(_selectedDate, _selectedSlot!))
+                                        ? const Color(0xFF00A884)
+                                        : const Color(0xFF94A3B8),
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
                                   child: Text(
-                                    _selectedSlot != null
+                                    _selectedSlot != null && !_estCreneauPasse(_selectedDate, _selectedSlot!)
                                         ? "Prendre RDV (1h) • ${_formaterDateCourte(_selectedDate)} à $_selectedSlot"
-                                        : "Prendre rendez-vous (1h)",
+                                        : "Sélectionner un créneau futur disponible",
                                     style: const TextStyle(
                                       fontSize: 14.5,
                                       fontWeight: FontWeight.bold,
@@ -2438,10 +2517,12 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
 
   Widget _buildCreneauBouton(String slot) {
     final isSelected = _selectedSlot == slot;
-    final isComplet = slot == "10:00" || slot == "15:00" || slot == "21:00"; // Simulation réaliste de créneau réservé
+    final isComplet = slot == "10:00" || slot == "15:00" || slot == "21:00"; // Simulation de créneau déjà réservé
+    final isPasse = _estCreneauPasse(_selectedDate, slot); // Contrôle strict : créneau passé dans le temps
+    final bool estInaccessible = isComplet || isPasse;
 
     return InkWell(
-      onTap: isComplet
+      onTap: estInaccessible
           ? null
           : () {
               setState(() => _selectedSlot = slot);
@@ -2453,12 +2534,12 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? const Color(0xFF00A884)
-              : (isComplet ? const Color(0xFFF8FAFC) : Colors.white),
+              : (estInaccessible ? const Color(0xFFF1F5F9) : Colors.white),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
                 ? const Color(0xFF00A884)
-                : (isComplet ? const Color(0xFFE2E8F0) : const Color(0xFFD1D5DB)),
+                : (estInaccessible ? const Color(0xFFE2E8F0) : const Color(0xFFD1D5DB)),
             width: isSelected ? 1.5 : 1.0,
           ),
           boxShadow: isSelected
@@ -2483,13 +2564,26 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                decoration: isComplet ? TextDecoration.lineThrough : null,
+                decoration: estInaccessible ? TextDecoration.lineThrough : null,
                 color: isSelected
                     ? Colors.white
-                    : (isComplet ? const Color(0xFF94A3B8) : const Color(0xFF2D3142)),
+                    : (estInaccessible ? const Color(0xFF94A3B8) : const Color(0xFF2D3142)),
               ),
             ),
-            if (isComplet) ...[
+            if (isPasse) ...[
+              const SizedBox(width: 5),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE2E8F0),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  "Passé",
+                  style: TextStyle(fontSize: 9.5, color: Color(0xFF64748B), fontWeight: FontWeight.bold),
+                ),
+              ),
+            ] else if (isComplet) ...[
               const SizedBox(width: 4),
               const Text(
                 "Pris",

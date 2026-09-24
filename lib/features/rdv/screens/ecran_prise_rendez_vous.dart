@@ -250,6 +250,24 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
       return;
     }
 
+    // CONTRÔLE DE DATE ET HEURE : Impossible de réserver un créneau passé
+    if (_creneauSelectionne!.dateHeureDebut.isBefore(DateTime.now())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.white, size: 20),
+              SizedBox(width: 8),
+              Expanded(child: Text("Impossible de prendre un rendez-vous pour une date ou une heure passée.")),
+            ],
+          ),
+          backgroundColor: Color(0xFFEF4444),
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
     // Réserver le créneau dans le planning global pour qu'il ne soit plus disponible
     ref.read(planningProvider.notifier).reserverCreneau(creneauId: _creneauSelectionne!.id);
 

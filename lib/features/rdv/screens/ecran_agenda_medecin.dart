@@ -285,6 +285,23 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                       );
                       final dateFin = dateDebut.add(Duration(minutes: dureeMinutes));
 
+                      if (dateDebut.isBefore(DateTime.now())) {
+                        scaffoldMessenger.showSnackBar(
+                          const SnackBar(
+                            content: Row(
+                              children: [
+                                Icon(Icons.error_outline, color: Colors.white, size: 20),
+                                SizedBox(width: 8),
+                                Expanded(child: Text("Impossible de créer un créneau pour une date ou une heure passée.")),
+                              ],
+                            ),
+                            backgroundColor: Color(0xFFEF4444),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                        return;
+                      }
+
                       try {
                         await ref.read(planningProvider.notifier).ajouterCreneau(
                           medecinId: _medecinId,
@@ -554,8 +571,8 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                       onTap: () async {
                         final picked = await showDatePicker(
                           context: context,
-                          initialDate: _dateSelectionnee,
-                          firstDate: DateTime.now().subtract(const Duration(days: 30)),
+                          initialDate: _dateSelectionnee.isBefore(DateTime.now()) ? DateTime.now() : _dateSelectionnee,
+                          firstDate: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
                           lastDate: DateTime.now().add(const Duration(days: 120)),
                         );
                         if (picked != null) {
@@ -800,7 +817,7 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: couleur.withOpacity(0.12),
+                                        color: couleur.withValues(alpha: 0.12),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(

@@ -58,12 +58,13 @@ class PlanningNotifier extends StateNotifier<PlanningState> {
     }
   }
 
-  /// Retourne UNIQUEMENT les créneaux réels DISPONIBLES pour ce médecin et cette date exacte
+  /// Retourne UNIQUEMENT les créneaux réels DISPONIBLES et FUTURS pour ce médecin et cette date exacte
   List<CreneauModel> getCreneauxDisponibles({
     required String medecinId,
     required DateTime date,
     String? periode, // 'Matin' ou 'Soir'
   }) {
+    final now = DateTime.now();
     return state.tousLesCreneaux.where((c) {
       final matchDate = c.dateHeureDebut.year == date.year &&
           c.dateHeureDebut.month == date.month &&
@@ -71,6 +72,9 @@ class PlanningNotifier extends StateNotifier<PlanningState> {
       final estDisponible = c.statut == 'DISPONIBLE';
 
       if (!matchDate || !estDisponible) return false;
+
+      // EXCLURE FORMELLEMENT LES CRÉNEAUX DÉJÀ PASSÉS
+      if (c.dateHeureDebut.isBefore(now)) return false;
 
       if (periode == 'Matin') {
         return c.dateHeureDebut.hour < 13;
@@ -88,6 +92,12 @@ class PlanningNotifier extends StateNotifier<PlanningState> {
     required DateTime dateHeureFin,
     required String typeConsultation,
   }) async {
+    // CONTRÔLE STRICT : IMPOSSIBLE DE CRÉER UN CRÉNEAU DANS LE PASSÉ
+    if (dateHeureDebut.isBefore(DateTime.now())) {
+      state = state.copyWith(isLoading: false, error: "Impossible de créer un créneau pour une date ou une heure passée.");
+      throw Exception("Impossible de créer un créneau pour une date ou une heure passée.");
+    }
+
     state = state.copyWith(isLoading: true, error: null);
 
     try {

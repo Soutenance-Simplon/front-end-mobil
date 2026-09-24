@@ -27,14 +27,50 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
     "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00", "00:00", "01:00", "02:00", "03:00", "04:00"
   ];
 
+  DateTime get _appointmentDate {
+    if (widget.doctor['selectedDate'] != null) {
+      try {
+        return DateTime.parse(widget.doctor['selectedDate'].toString());
+      } catch (_) {}
+    }
+    return DateTime.now();
+  }
+
+  /// Vérifie si le créneau sur la date choisie est déjà passé
+  bool _estCreneauPasse(String slot) {
+    final now = DateTime.now();
+    final d = _appointmentDate;
+    final dateJour = DateTime(d.year, d.month, d.day);
+    final dateAujourdhui = DateTime(now.year, now.month, now.day);
+    if (dateJour.isBefore(dateAujourdhui)) return true;
+    if (dateJour.isAfter(dateAujourdhui)) return false;
+
+    // Même jour : comparer heure et minute
+    final parts = slot.split(':');
+    final h = int.tryParse(parts[0]) ?? 0;
+    final m = int.tryParse(parts[1]) ?? 0;
+    final slotDateTime = DateTime(d.year, d.month, d.day, h, m);
+    return slotDateTime.isBefore(now);
+  }
+
   @override
   void initState() {
     super.initState();
-    if (widget.doctor['selectedSlot'] != null) {
+    final allSlots = [..._morningSlots, ..._eveningSlots];
+
+    if (widget.doctor['selectedSlot'] != null && !_estCreneauPasse(widget.doctor['selectedSlot'].toString())) {
       _selectedTimeSlot = widget.doctor['selectedSlot'].toString();
-      final h = int.tryParse(_selectedTimeSlot.split(':')[0]) ?? 9;
-      _selectedPeriod = (h >= 14 || h < 5) ? "Soir" : "Matin";
+    } else {
+      // Trouver automatiquement le premier créneau futur valide
+      final premierValide = allSlots.firstWhere(
+        (s) => !_estCreneauPasse(s),
+        orElse: () => "09:00",
+      );
+      _selectedTimeSlot = premierValide;
     }
+
+    final h = int.tryParse(_selectedTimeSlot.split(':')[0]) ?? 9;
+    _selectedPeriod = (h >= 14 || h < 5) ? "Soir" : "Matin";
 
     if (widget.doctor['selectedConsultationType'] != null && widget.doctor['selectedConsultationType'] != "CABINET") {
       _selectedConsultationType = widget.doctor['selectedConsultationType'].toString();
@@ -208,6 +244,24 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Veuillez renseigner votre adresse de localisation pour la visite à domicile."),
+          backgroundColor: Color(0xFFEF4444),
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
+    // CONTRÔLE DE DATE ET HEURE : Impossible de réserver une date ou heure passée
+    if (_estCreneauPasse(_selectedTimeSlot)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.white, size: 20),
+              SizedBox(width: 8),
+              Expanded(child: Text("Impossible de prendre un rendez-vous pour une date ou une heure passée.")),
+            ],
+          ),
           backgroundColor: Color(0xFFEF4444),
           duration: Duration(seconds: 3),
         ),
@@ -721,19 +775,24 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                           runSpacing: 10,
                           children: activeSlots.map((slot) {
                             final isSelected = _selectedTimeSlot == slot;
+                            final isPasse = _estCreneauPasse(slot);
 
                             return InkWell(
-                              onTap: () => setState(() => _selectedTimeSlot = slot),
+                              onTap: isPasse ? null : () => setState(() => _selectedTimeSlot = slot),
                               borderRadius: BorderRadius.circular(14),
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 180),
                                 width: 95,
                                 height: 44,
                                 decoration: BoxDecoration(
-                                  color: isSelected ? const Color(0xFF00A884) : Colors.white,
+                                  color: isSelected
+                                      ? const Color(0xFF00A884)
+                                      : (isPasse ? const Color(0xFFF1F5F9) : Colors.white),
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(
-                                    color: isSelected ? const Color(0xFF00A884) : const Color(0xFFE5E9F2),
+                                    color: isSelected
+                                        ? const Color(0xFF00A884)
+                                        : (isPasse ? const Color(0xFFE2E8F0) : const Color(0xFFE5E9F2)),
                                   ),
                                   boxShadow: [
                                     if (isSelected)
@@ -745,13 +804,35 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                   ],
                                 ),
                                 child: Center(
-                                  child: Text(
-                                    slot,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: isSelected ? Colors.white : const Color(0xFF5A607F),
-                                    ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        slot,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          decoration: isPasse ? TextDecoration.lineThrough : null,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : (isPasse ? const Color(0xFF94A3B8) : const Color(0xFF5A607F)),
+                                        ),
+                                      ),
+                                      if (isPasse) ...[
+                                        const SizedBox(width: 4),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFE2E8F0),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: const Text(
+                                            "Passé",
+                                            style: TextStyle(fontSize: 8.5, color: Color(0xFF64748B), fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
                                 ),
                               ),
