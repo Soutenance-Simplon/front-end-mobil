@@ -9,8 +9,8 @@ import '../providers/planning_provider.dart';
 import '../providers/rdv_provider.dart';
 import '../../medecin/models/creneau_model.dart';
 
-/// Écran complet d'Agenda et de Planning du Médecin
-/// Conçu pour une Expérience Utilisateur (UX) optimale, réactive et ergonomique.
+/// Écran d'Agenda et Planning du Médecin
+/// Créneaux découpés par tranche de 1 heure (ex: 12h-13h, 13h-14h, 14h-15h...)
 class DoctorAgendaScreen extends ConsumerStatefulWidget {
   const DoctorAgendaScreen({super.key});
 
@@ -68,12 +68,14 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
   }
 
   // =========================================================================
-  // ACTIONS SUR LES CRÉNEAUX
+  // ACTIONS SUR LES CRÉNEAUX : DÉCOUPAGE PAR TRANCHE D'1 HEURE
   // =========================================================================
 
-  void _ajouterNouveauCreneau() {
-    TimeOfDay heureDebut = const TimeOfDay(hour: 9, minute: 0);
-    int dureeMinutes = 30;
+  /// Modal ergonomique permettant au médecin de définir une plage horaire
+  /// (ex: 12h à 16h) qui sera automatiquement découpée en créneaux de 1 heure
+  void _ouvrirModalPlageHoraire() {
+    int heureDebut = 12; // 12h00 par défaut
+    int heureFin = 16;   // 16h00 par défaut
 
     showModalBottomSheet(
       context: context,
@@ -81,12 +83,17 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) {
-          final debutMinutes = heureDebut.hour * 60 + heureDebut.minute;
-          final finMinutes = debutMinutes + dureeMinutes;
-          final finHeure = (finMinutes ~/ 60) % 24;
-          final finMin = finMinutes % 60;
-          final heureDebutStr = "${heureDebut.hour.toString().padLeft(2, '0')}:${heureDebut.minute.toString().padLeft(2, '0')}";
-          final heureFinStr = "${finHeure.toString().padLeft(2, '0')}:${finMin.toString().padLeft(2, '0')}";
+          if (heureFin <= heureDebut) {
+            heureFin = heureDebut + 1;
+          }
+          final nbCreneaux = heureFin - heureDebut;
+
+          // Aperçu des tranches d'1h découpées
+          final tranchesApercu = List.generate(nbCreneaux, (i) {
+            final hStart = heureDebut + i;
+            final hEnd = hStart + 1;
+            return "${hStart.toString().padLeft(2, '0')}:00 - ${hEnd.toString().padLeft(2, '0')}:00";
+          });
 
           return Container(
             padding: EdgeInsets.only(
@@ -99,227 +106,296 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 44,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFCBD5E1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Ajouter une disponibilité",
-                      style: TextStyle(
-                        fontSize: 19,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 44,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFCBD5E1),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Color(0xFF64748B)),
-                      onPressed: () => Navigator.pop(ctx),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE7F2F0),
-                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                  const SizedBox(height: 18),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(Icons.calendar_today_rounded, size: 14, color: Color(0xFF0D7C66)),
-                      const SizedBox(width: 8),
-                      Text(
-                        DateFormat('EEEE d MMMM yyyy', 'fr_FR').format(_dateSelectionnee),
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF0D7C66),
+                      const Text(
+                        "Ouvrir une plage horaire",
+                        style: TextStyle(
+                          fontSize: 19,
                           fontWeight: FontWeight.bold,
+                          color: Color(0xFF1E293B),
                         ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Color(0xFF64748B)),
+                        onPressed: () => Navigator.pop(ctx),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 20),
-
-                // Sélection de l'heure
-                const Text(
-                  "Heure de début",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E293B)),
-                ),
-                const SizedBox(height: 8),
-                InkWell(
-                  onTap: () async {
-                    final time = await showTimePicker(
-                      context: ctx,
-                      initialTime: heureDebut,
-                    );
-                    if (time != null) {
-                      setModalState(() => heureDebut = time);
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFC3DED9)),
+                      color: const Color(0xFFE7F2F0),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.access_time_filled_rounded, color: Color(0xFF0D7C66), size: 20),
-                            const SizedBox(width: 10),
-                            Text(
-                              heureDebutStr,
-                              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE7F2F0),
-                            borderRadius: BorderRadius.circular(8),
+                        const Icon(Icons.calendar_today_rounded, size: 14, color: Color(0xFF0D7C66)),
+                        const SizedBox(width: 8),
+                        Text(
+                          DateFormat('EEEE d MMMM yyyy', 'fr_FR').format(_dateSelectionnee),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF0D7C66),
+                            fontWeight: FontWeight.bold,
                           ),
-                          child: const Text("Changer", style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 12)),
                         ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 18),
+                  const SizedBox(height: 20),
 
-                // Durée de consultation
-                const Text(
-                  "Durée du créneau",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E293B)),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [15, 30, 45, 60].map((duree) {
-                    final estChoisi = dureeMinutes == duree;
-                    return Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: InkWell(
-                          onTap: () => setModalState(() => dureeMinutes = duree),
-                          borderRadius: BorderRadius.circular(12),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 150),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: estChoisi ? const Color(0xFF0D7C66) : const Color(0xFFF8FAFC),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: estChoisi ? const Color(0xFF0D7C66) : const Color(0xFFE2E8F0),
-                                width: estChoisi ? 1.8 : 1,
-                              ),
+                  // SÉLECTEUR HEURE DE DÉBUT ET HEURE DE FIN
+                  Row(
+                    children: [
+                      // Heure de début
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "De (Heure début)",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
                             ),
-                            child: Center(
-                              child: Text(
-                                "$duree min",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: estChoisi ? Colors.white : const Color(0xFF475569),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF8FAFC),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: const Color(0xFFC3DED9)),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<int>(
+                                  value: heureDebut,
+                                  isExpanded: true,
+                                  icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF0D7C66)),
+                                  items: List.generate(24, (h) => h).map((h) {
+                                    return DropdownMenuItem<int>(
+                                      value: h,
+                                      child: Text(
+                                        "${h.toString().padLeft(2, '0')}:00",
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF1E293B)),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (val) {
+                                    if (val != null) {
+                                      setModalState(() {
+                                        heureDebut = val;
+                                        if (heureFin <= heureDebut) {
+                                          heureFin = (heureDebut + 1).clamp(1, 24);
+                                        }
+                                      });
+                                    }
+                                  },
                                 ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 24),
+                      const SizedBox(width: 14),
 
-                // Bouton de validation
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton.icon(
-                    onPressed: () async {
-                      final nav = Navigator.of(ctx);
-                      final scaffold = ScaffoldMessenger.of(context);
+                      // Heure de fin
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "À (Heure fin)",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF8FAFC),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: const Color(0xFFC3DED9)),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<int>(
+                                  value: heureFin,
+                                  isExpanded: true,
+                                  icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF0D7C66)),
+                                  items: List.generate(24, (h) => h + 1).map((h) {
+                                    return DropdownMenuItem<int>(
+                                      value: h,
+                                      enabled: h > heureDebut,
+                                      child: Text(
+                                        "${h.toString().padLeft(2, '0')}:00",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                          color: h > heureDebut ? const Color(0xFF1E293B) : const Color(0xFFCBD5E1),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (val) {
+                                    if (val != null && val > heureDebut) {
+                                      setModalState(() => heureFin = val);
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
 
-                      final dateDebut = DateTime(
-                        _dateSelectionnee.year,
-                        _dateSelectionnee.month,
-                        _dateSelectionnee.day,
-                        heureDebut.hour,
-                        heureDebut.minute,
-                      );
-                      final dateFin = dateDebut.add(Duration(minutes: dureeMinutes));
-
-                      if (dateDebut.isBefore(DateTime.now())) {
-                        scaffold.showSnackBar(
-                          const SnackBar(
-                            content: Text("Impossible de créer un créneau pour une date ou une heure passée."),
-                            backgroundColor: Color(0xFFEF4444),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                        return;
-                      }
-
-                      try {
-                        await ref.read(planningProvider.notifier).ajouterCreneau(
-                          medecinId: _medecinId,
-                          dateHeureDebut: dateDebut,
-                          dateHeureFin: dateFin,
-                          typeConsultation: "TELECONSULTATION",
-                        );
-
-                        nav.pop();
-                        scaffold.showSnackBar(
-                          SnackBar(
-                            content: Text("Créneau $heureDebutStr - $heureFinStr créé avec succès !"),
-                            backgroundColor: const Color(0xFF0D7C66),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      } catch (e) {
-                        final cleanMsg = e.toString().replaceFirst("Exception: ", "");
-                        scaffold.showSnackBar(
-                          SnackBar(
-                            content: Text(cleanMsg),
-                            backgroundColor: const Color(0xFFEF4444),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0D7C66),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      elevation: 0,
+                  // ENCART DÉCOUPAGE AUTOMATIQUE PAR TRANCHE D'1 HEURE
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
-                    icon: const Icon(Icons.check_circle_outline_rounded, size: 20),
-                    label: Text(
-                      "Valider le créneau ($heureDebutStr - $heureFinStr)",
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.auto_awesome_rounded, color: Color(0xFF0D7C66), size: 18),
+                            const SizedBox(width: 8),
+                            Text(
+                              "Découpage automatique : $nbCreneaux créneau(x) de 1h",
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0D7C66)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: tranchesApercu.map((t) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE7F2F0),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: const Color(0xFFC3DED9)),
+                              ),
+                              child: Text(
+                                t,
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 24),
+
+                  // BOUTON DE VALIDATION
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        final nav = Navigator.of(ctx);
+                        final scaffold = ScaffoldMessenger.of(context);
+
+                        int ajoutes = 0;
+                        int ignores = 0;
+
+                        for (int h = heureDebut; h < heureFin; h++) {
+                          final start = DateTime(
+                            _dateSelectionnee.year,
+                            _dateSelectionnee.month,
+                            _dateSelectionnee.day,
+                            h,
+                            0,
+                          );
+                          final end = DateTime(
+                            _dateSelectionnee.year,
+                            _dateSelectionnee.month,
+                            _dateSelectionnee.day,
+                            h + 1,
+                            0,
+                          );
+
+                          if (start.isBefore(DateTime.now())) {
+                            ignores++;
+                            continue;
+                          }
+
+                          try {
+                            await ref.read(planningProvider.notifier).ajouterCreneau(
+                              medecinId: _medecinId,
+                              dateHeureDebut: start,
+                              dateHeureFin: end,
+                              typeConsultation: "TELECONSULTATION",
+                            );
+                            ajoutes++;
+                          } catch (_) {
+                            ignores++;
+                          }
+                        }
+
+                        nav.pop();
+
+                        if (ajoutes > 0) {
+                          scaffold.showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "$ajoutes créneau(x) d'1h généré(s) de ${heureDebut.toString().padLeft(2, '0')}:00 à ${heureFin.toString().padLeft(2, '0')}:00 !" +
+                                    (ignores > 0 ? " ($ignores ignorés car passés ou déjà existants)" : ""),
+                              ),
+                              backgroundColor: const Color(0xFF0D7C66),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        } else {
+                          scaffold.showSnackBar(
+                            const SnackBar(
+                              content: Text("Aucun créneau créé : les heures sont déjà passées ou existent déjà."),
+                              backgroundColor: Color(0xFFEF4444),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0D7C66),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        elevation: 0,
+                      ),
+                      icon: const Icon(Icons.check_circle_outline_rounded, size: 20),
+                      label: Text(
+                        "Ouvrir ces $nbCreneaux créneaux de 1h",
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -327,19 +403,20 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
     );
   }
 
+  /// Ouverture rapide matinée découpée par 1h : 08:00 à 13:00 (5 créneaux d'1h)
   void _ouvrirMatinneeRapide() async {
-    final heures = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30"];
-    final fins = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00"];
+    final heures = [8, 9, 10, 11, 12];
     int ajoutes = 0;
     int ignores = 0;
 
-    for (int i = 0; i < heures.length; i++) {
-      final hParts = heures[i].split(':');
-      final fParts = fins[i].split(':');
-      final start = DateTime(_dateSelectionnee.year, _dateSelectionnee.month, _dateSelectionnee.day, int.parse(hParts[0]), int.parse(hParts[1]));
-      final end = DateTime(_dateSelectionnee.year, _dateSelectionnee.month, _dateSelectionnee.day, int.parse(fParts[0]), int.parse(fParts[1]));
+    for (final h in heures) {
+      final start = DateTime(_dateSelectionnee.year, _dateSelectionnee.month, _dateSelectionnee.day, h, 0);
+      final end = DateTime(_dateSelectionnee.year, _dateSelectionnee.month, _dateSelectionnee.day, h + 1, 0);
 
-      if (start.isBefore(DateTime.now())) continue;
+      if (start.isBefore(DateTime.now())) {
+        ignores++;
+        continue;
+      }
 
       try {
         await ref.read(planningProvider.notifier).ajouterCreneau(
@@ -358,7 +435,61 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
     if (ajoutes > 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("$ajoutes créneaux de matinée ouverts avec succès !" + (ignores > 0 ? " ($ignores ignorés car déjà passés ou en conflit)" : "")),
+          content: Text(
+            "$ajoutes créneaux d'1h ouverts pour la matinée (08h - 13h) !" +
+                (ignores > 0 ? " ($ignores ignorés car déjà passés)" : ""),
+          ),
+          backgroundColor: const Color(0xFF0D7C66),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Aucun créneau créé : les horaires de matinée sont déjà passés ou existent déjà."),
+          backgroundColor: Color(0xFFEF4444),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  /// Ouverture rapide après-midi découpée par 1h : 14:00 à 18:00 (4 créneaux d'1h)
+  void _ouvrirApresMidiRapide() async {
+    final heures = [14, 15, 16, 17];
+    int ajoutes = 0;
+    int ignores = 0;
+
+    for (final h in heures) {
+      final start = DateTime(_dateSelectionnee.year, _dateSelectionnee.month, _dateSelectionnee.day, h, 0);
+      final end = DateTime(_dateSelectionnee.year, _dateSelectionnee.month, _dateSelectionnee.day, h + 1, 0);
+
+      if (start.isBefore(DateTime.now())) {
+        ignores++;
+        continue;
+      }
+
+      try {
+        await ref.read(planningProvider.notifier).ajouterCreneau(
+          medecinId: _medecinId,
+          dateHeureDebut: start,
+          dateHeureFin: end,
+          typeConsultation: "TELECONSULTATION",
+        );
+        ajoutes++;
+      } catch (_) {
+        ignores++;
+      }
+    }
+
+    if (!mounted) return;
+    if (ajoutes > 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "$ajoutes créneaux d'1h ouverts pour l'après-midi (14h - 18h) !" +
+                (ignores > 0 ? " ($ignores ignorés car déjà passés)" : ""),
+          ),
           backgroundColor: const Color(0xFF0D7C66),
           behavior: SnackBarBehavior.floating,
         ),
@@ -374,19 +505,20 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
     }
   }
 
-  void _ouvrirApresMidiRapide() async {
-    final heures = ["14:00", "14:30", "15:00", "15:30", "16:00", "16:30"];
-    final fins = ["14:30", "15:00", "15:30", "16:00", "16:30", "17:00"];
+  /// Ouverture rapide soirée découpée par 1h : 18:00 à 22:00 (4 créneaux d'1h)
+  void _ouvrirSoireeRapide() async {
+    final heures = [18, 19, 20, 21];
     int ajoutes = 0;
     int ignores = 0;
 
-    for (int i = 0; i < heures.length; i++) {
-      final hParts = heures[i].split(':');
-      final fParts = fins[i].split(':');
-      final start = DateTime(_dateSelectionnee.year, _dateSelectionnee.month, _dateSelectionnee.day, int.parse(hParts[0]), int.parse(hParts[1]));
-      final end = DateTime(_dateSelectionnee.year, _dateSelectionnee.month, _dateSelectionnee.day, int.parse(fParts[0]), int.parse(fParts[1]));
+    for (final h in heures) {
+      final start = DateTime(_dateSelectionnee.year, _dateSelectionnee.month, _dateSelectionnee.day, h, 0);
+      final end = DateTime(_dateSelectionnee.year, _dateSelectionnee.month, _dateSelectionnee.day, h + 1, 0);
 
-      if (start.isBefore(DateTime.now())) continue;
+      if (start.isBefore(DateTime.now())) {
+        ignores++;
+        continue;
+      }
 
       try {
         await ref.read(planningProvider.notifier).ajouterCreneau(
@@ -405,7 +537,10 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
     if (ajoutes > 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("$ajoutes créneaux d'après-midi ouverts avec succès !" + (ignores > 0 ? " ($ignores ignorés car déjà passés ou en conflit)" : "")),
+          content: Text(
+            "$ajoutes créneaux d'1h ouverts pour la soirée (18h - 22h) !" +
+                (ignores > 0 ? " ($ignores ignorés car déjà passés)" : ""),
+          ),
           backgroundColor: const Color(0xFF0D7C66),
           behavior: SnackBarBehavior.floating,
         ),
@@ -435,7 +570,7 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Créneau $heureDebutStr - $heureFinStr",
+              "Créneau $heureDebutStr - $heureFinStr (1h)",
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
             ),
             const SizedBox(height: 6),
@@ -475,7 +610,7 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text("Créneau supprimé du planning"),
+                    content: Text("Créneau d'1h supprimé du planning"),
                     backgroundColor: Color(0xFFEF4444),
                   ),
                 );
@@ -546,7 +681,7 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
         centerTitle: true,
         actions: [
           IconButton(
-            tooltip: "Ajouter un créneau",
+            tooltip: "Ouvrir une plage horaire",
             icon: Container(
               padding: const EdgeInsets.all(6),
               decoration: const BoxDecoration(
@@ -555,7 +690,7 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
               ),
               child: const Icon(Icons.add, color: Color(0xFF0D7C66), size: 20),
             ),
-            onPressed: _ajouterNouveauCreneau,
+            onPressed: _ouvrirModalPlageHoraire,
           ),
           IconButton(
             tooltip: "Actualiser",
@@ -600,7 +735,7 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text("Mon Planning"),
+                  const Text("Mon Planning (1h)"),
                   if (creneauxDuJour.isNotEmpty) ...[
                     const SizedBox(width: 6),
                     Container(
@@ -636,9 +771,9 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
                   controller: _tabController,
                   children: [
                     // ONGLET 1 : RENDEZ-VOUS & CONSULTATIONS PATIENTS
-                    _buildConsultationsTab(rdvsFiltres, rdvsDuJour),
+                    _buildConsultationsTab(rdvsFiltres),
 
-                    // ONGLET 2 : DISPONIBILITÉS & GESTION DES CRÉNEAUX
+                    // ONGLET 2 : DISPONIBILITÉS & GESTION DES CRÉNEAUX D'1H
                     _buildPlanningTab(creneauxDuJour, creneauxDispos, visiosDuJour, rdvsDuJour.length),
                   ],
                 ),
@@ -648,11 +783,11 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _ajouterNouveauCreneau,
+        onPressed: _ouvrirModalPlageHoraire,
         backgroundColor: const Color(0xFF0D7C66),
         foregroundColor: Colors.white,
-        icon: const Icon(Icons.add_alarm_rounded),
-        label: const Text("Nouveau Créneau", style: TextStyle(fontWeight: FontWeight.bold)),
+        icon: const Icon(Icons.more_time_rounded),
+        label: const Text("Ouvrir Plage (1h)", style: TextStyle(fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -836,10 +971,10 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
   }
 
   // =========================================================================
-  // VUE 1 : RENDEZ-VOUS & CONSULTATIONS PATIENTS
+  // VUE 1 : RENDEZ-VOUS & CONSULTATIONS PATIENTS (DURÉE 1H)
   // =========================================================================
 
-  Widget _buildConsultationsTab(List<RendezVousModel> rdvsFiltres, List<RendezVousModel> rdvsDuJour) {
+  Widget _buildConsultationsTab(List<RendezVousModel> rdvsFiltres) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -899,8 +1034,8 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
             _buildEmptyStateCard(
               icon: Icons.event_available_rounded,
               title: "Aucune consultation trouvée",
-              subtitle: "Vous n'avez pas de rendez-vous correspondant à ce filtre. Vous pouvez ouvrir des créneaux dans l'onglet « Mon Planning ».",
-              buttonLabel: "Gérer mes créneaux",
+              subtitle: "Vous n'avez pas de rendez-vous pour ce filtre. Vous pouvez ouvrir des plages horaires de 1h dans l'onglet « Mon Planning ».",
+              buttonLabel: "Ouvrir des plages horaires (1h)",
               onButtonPressed: () => _tabController.animateTo(1),
             )
           else
@@ -914,7 +1049,8 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
 
   Widget _buildConsultationCard(RendezVousModel rdv) {
     final heureStr = DateFormat('HH:mm').format(rdv.dateHeure);
-    final heureFinStr = DateFormat('HH:mm').format(rdv.dateHeure.add(const Duration(minutes: 30)));
+    // Consultation par tranche d'1 heure
+    final heureFinStr = DateFormat('HH:mm').format(rdv.dateHeure.add(const Duration(hours: 1)));
     final dateStr = DateFormat('EEE d MMM', 'fr_FR').format(rdv.dateHeure);
 
     // Extraction du nom du patient et éventuel bénéficiaire
@@ -960,7 +1096,7 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // LIGNE DU HAUT : HORAIRE + BADGE STATUT
+            // LIGNE DU HAUT : HORAIRE 1H + BADGE STATUT
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1081,7 +1217,7 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
                                 Icon(Icons.videocam_rounded, size: 12, color: Color(0xFF2563EB)),
                                 SizedBox(width: 4),
                                 Text(
-                                  "Téléconsultation Médicale",
+                                  "Téléconsultation (1h)",
                                   style: TextStyle(color: Color(0xFF2563EB), fontSize: 11, fontWeight: FontWeight.bold),
                                 ),
                               ],
@@ -1112,7 +1248,7 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      rdv.motif.isNotEmpty ? rdv.motif : "Consultation médicale de suivi",
+                      rdv.motif.isNotEmpty ? rdv.motif : "Consultation médicale de suivi (1 heure)",
                       style: const TextStyle(fontSize: 13, color: Color(0xFF334155)),
                     ),
                   ),
@@ -1121,7 +1257,7 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
             ),
             const SizedBox(height: 14),
 
-            // BOUTONS D'ACTION RAPIDE (EXPERIENCE UTILISATEUR TOP-TIER)
+            // BOUTONS D'ACTION RAPIDE (EXPERIENCE UTILISATEUR OPTIMALE)
             Row(
               children: [
                 // BOUTON 1 : LANCER LA TÉLÉCONSULTATION
@@ -1198,7 +1334,7 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
   }
 
   // =========================================================================
-  // VUE 2 : PLANNING & GESTION DES CRÉNEAUX DE DISPONIBILITÉS
+  // VUE 2 : PLANNING & GESTION DES CRÉNEAUX DE DISPONIBILITÉS (DÉCOUPÉS PAR 1H)
   // =========================================================================
 
   Widget _buildPlanningTab(
@@ -1237,7 +1373,7 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
               const SizedBox(width: 10),
               Expanded(
                 child: _buildKpiCard(
-                  titre: "Disponibles",
+                  titre: "Dispos (1h)",
                   valeur: "$creneauxDispos",
                   icone: Icons.access_time_rounded,
                   color: const Color(0xFF0D7C66),
@@ -1248,9 +1384,9 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
           ),
           const SizedBox(height: 18),
 
-          // ── ACTIONS RAPIDES EN 1 CLIC ──
+          // ── ACTIONS RAPIDES PAR TRANCHES DE 1 HEURE ──
           const Text(
-            "Actions Rapides de Disponibilité",
+            "Ouverture Rapide par Plages de 1h",
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
           ),
           const SizedBox(height: 10),
@@ -1266,11 +1402,11 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
-                  icon: const Icon(Icons.wb_sunny_rounded, size: 16),
-                  label: const Text("Ouvrir Matinée", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  icon: const Icon(Icons.wb_sunny_rounded, size: 15),
+                  label: const Text("Matin (8h-13h)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: _ouvrirApresMidiRapide,
@@ -1280,34 +1416,34 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
-                  icon: const Icon(Icons.wb_twilight_rounded, size: 16),
-                  label: const Text("Après-Midi", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  icon: const Icon(Icons.wb_twilight_rounded, size: 15),
+                  label: const Text("A-M (14h-18h)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
                 ),
               ),
-              const SizedBox(width: 8),
-              InkWell(
-                onTap: _ajouterNouveauCreneau,
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE7F2F0),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFFC3DED9)),
+              const SizedBox(width: 6),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _ouvrirSoireeRapide,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF0D7C66),
+                    side: const BorderSide(color: Color(0xFF0D7C66), width: 1.5),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
-                  child: const Icon(Icons.add, color: Color(0xFF0D7C66)),
+                  icon: const Icon(Icons.nights_stay_rounded, size: 15),
+                  label: const Text("Soir (18h-22h)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 22),
 
-          // ── LISTE CHRONOLOGIQUE DES CRÉNEAUX ──
+          // ── LISTE CHRONOLOGIQUE DES CRÉNEAUX D'1H ──
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Créneaux du ${DateFormat('d MMMM', 'fr_FR').format(_dateSelectionnee)}",
+                "Créneaux d'1h du ${DateFormat('d MMMM', 'fr_FR').format(_dateSelectionnee)}",
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
               ),
               Container(
@@ -1317,7 +1453,7 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  "${creneauxDuJour.length} créneau(x)",
+                  "${creneauxDuJour.length} créneau(x) d'1h",
                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                 ),
               ),
@@ -1329,9 +1465,9 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
             _buildEmptyStateCard(
               icon: Icons.alarm_off_rounded,
               title: "Aucun créneau ouvert",
-              subtitle: "Vous n'avez pas encore défini vos heures de disponibilité pour ce jour. Cliquez sur « Ouvrir Matinée » ou « + Créneau » pour commencer.",
-              buttonLabel: "Ouvrir la matinée (09h - 12h)",
-              onButtonPressed: _ouvrirMatinneeRapide,
+              subtitle: "Définissez une plage horaire (ex: 12h à 16h) pour la découper automatiquement par tranches de 1h.",
+              buttonLabel: "Ouvrir une plage (ex: 12h-16h)",
+              onButtonPressed: _ouvrirModalPlageHoraire,
             )
           else
             ...creneauxDuJour.map((creneau) => _buildSlotCard(creneau)),
@@ -1434,11 +1570,11 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
           "$heureDebutStr - $heureFinStr",
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF1E293B)),
         ),
-        subtitle: Row(
+        subtitle: const Row(
           children: [
-            const Icon(Icons.videocam_rounded, size: 12, color: Color(0xFF64748B)),
-            const SizedBox(width: 4),
-            const Text("Téléconsultation • 30 min", style: TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+            Icon(Icons.videocam_rounded, size: 12, color: Color(0xFF64748B)),
+            SizedBox(width: 4),
+            Text("Téléconsultation • 1h (Tarif horaire)", style: TextStyle(fontSize: 12, color: Color(0xFF64748B))),
           ],
         ),
         trailing: Container(
