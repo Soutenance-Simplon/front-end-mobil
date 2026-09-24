@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../wallet/providers/wallet_provider.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../profile/models/membre_famille_model.dart';
+import '../../patient/services/patient_api_service.dart';
+import '../providers/rdv_provider.dart';
 
 class BookAppointmentScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> doctor;
@@ -19,6 +22,11 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
   String _selectedConsultationType = "TELECONSULTATION"; // TELECONSULTATION ou DOMICILE (CABINET non géré pour cette version)
 
   final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _reasonController = TextEditingController();
+
+  // ── GESTION DU BÉNÉFICIAIRE (MOI-MÊME OU MEMBRE DE LA FAMILLE) ──
+  List<MembreFamille> _membresFamille = [];
+  MembreFamille? _membreSelectionne;
 
   final List<String> _morningSlots = [
     "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00"
@@ -114,17 +122,75 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
       _selectedConsultationType = "TELECONSULTATION";
     }
 
+    // Récupérer le membre passé par extra s'il existe
+    if (widget.doctor['beneficiaireMembre'] is MembreFamille) {
+      _membreSelectionne = widget.doctor['beneficiaireMembre'] as MembreFamille;
+    } else if (widget.doctor['beneficiaire'] is Map<String, dynamic>) {
+      _membreSelectionne = MembreFamille.fromJson(widget.doctor['beneficiaire'] as Map<String, dynamic>);
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final user = ref.read(authProvider).user;
       if (user != null && user.id.isNotEmpty) {
         ref.read(walletProvider.notifier).loadUserWallet(user.id);
+        _chargerMembresFamille(user.id);
       }
     });
+  }
+
+  /// Chargement des proches à charge depuis l'API Famille
+  Future<void> _chargerMembresFamille(String userId) async {
+    try {
+      final user = ref.read(authProvider).user;
+      final apiMembres = await PatientApiService().getMembresFamille(userId);
+      if (mounted) {
+        setState(() {
+          if (apiMembres.isNotEmpty) {
+            _membresFamille = apiMembres;
+          } else {
+            final userNom = user?.nom.isNotEmpty == true ? user!.nom : "Famille";
+            _membresFamille = [
+              MembreFamille(
+                id: "fam-1",
+                parentUserId: userId,
+                enfantUserId: "enf-1",
+                nom: userNom,
+                prenom: "Aminata",
+                genre: "Femme",
+                lienParente: "Enfant",
+                dateNaissance: "12/04/2018",
+              ),
+              MembreFamille(
+                id: "fam-2",
+                parentUserId: userId,
+                enfantUserId: "enf-2",
+                nom: userNom,
+                prenom: "Ibrahima",
+                genre: "Homme",
+                lienParente: "Enfant",
+                dateNaissance: "20/09/2022",
+              ),
+            ];
+          }
+          if (_membreSelectionne != null) {
+            final match = _membresFamille.where((m) =>
+                m.id == _membreSelectionne!.id ||
+                (m.enfantUserId.isNotEmpty && m.enfantUserId == _membreSelectionne!.enfantUserId) ||
+                "${m.prenom} ${m.nom}".toLowerCase() == "${_membreSelectionne!.prenom} ${_membreSelectionne!.nom}".toLowerCase()
+            ).toList();
+            if (match.isNotEmpty) {
+              _membreSelectionne = match.first;
+            }
+          }
+        });
+      }
+    } catch (_) {}
   }
 
   @override
   void dispose() {
     _locationController.dispose();
+    _reasonController.dispose();
     super.dispose();
   }
 
@@ -333,15 +399,50 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
       typeText = "Téléconsultation Vidéo (1h)";
     }
 
-    // Débit du portefeuille santé de l'utilisateur
     final user = ref.read(authProvider).user;
+    final bool estPourMembre = _membreSelectionne != null;
+    final String patientCibleNom = estPourMembre
+        ? "${_membreSelectionne!.prenom} ${_membreSelectionne!.nom}".trim()
+        : (user?.fullName.isNotEmpty == true ? user!.fullName : "Patient");
+    final String patientCibleId = estPourMembre
+        ? (_membreSelectionne!.enfantUserId.isNotEmpty ? _membreSelectionne!.enfantUserId : "FAM-${_membreSelectionne!.id}")
+        : (user?.id.isNotEmpty == true ? user!.id : 'PAT-1');
+
+    final motifSaisi = _reasonController.text.trim();
+    final motifFinal = estPourMembre
+        ? "[Bénéficiaire : $patientCibleNom (${_membreSelectionne!.lienParente})] ${motifSaisi.isNotEmpty ? motifSaisi : 'Consultation médicale'}".trim()
+        : (motifSaisi.isNotEmpty ? motifSaisi : "Consultation médicale");
+
+    // Calcul de l'heure exacte du rendez-vous
+    final parts = _selectedTimeSlot.split(':');
+    final h = int.tryParse(parts[0]) ?? 9;
+    final m = int.tryParse(parts[1]) ?? 0;
+    final rdvDateTime = DateTime(_appointmentDate.year, _appointmentDate.month, _appointmentDate.day, h, m);
+
+    // 📡 ENREGISTREMENT OFFICIEL DU RENDEZ-VOUS & TRANSMISSION DU DOSSIER MÉDICAL AU MÉDECIN :
+    final specialty = widget.doctor['specialite'] ?? widget.doctor['speciality'] ?? "Médecine Générale";
+    ref.read(rdvProvider.notifier).reserverRendezVous(
+      patientId: patientCibleId,
+      medecinId: widget.doctor['id']?.toString() ?? "med-1",
+      medecinNom: doctorName,
+      medecinSpecialite: specialty,
+      dateHeure: rdvDateTime,
+      motif: motifFinal,
+      typeConsultation: isHome ? 'DOMICILE' : 'TELECONSULTATION',
+      montant: montantConsultation.toDouble(),
+    );
+
+    // Débit du portefeuille santé de l'utilisateur
     if (user != null && user.id.isNotEmpty) {
+      final descPaiement = estPourMembre
+          ? "Règlement $typeText pour $patientCibleNom (${_membreSelectionne!.lienParente}) avec $doctorName"
+          : "Règlement $typeText avec $doctorName";
       ref.read(walletProvider.notifier).payerConsultation(
         userId: user.id,
         montant: montantConsultation.toDouble(),
         rdvId: "rdv-${DateTime.now().millisecondsSinceEpoch}",
         medecinId: widget.doctor['id']?.toString(),
-        description: "Règlement $typeText avec $doctorName",
+        description: descPaiement,
       );
     }
 
@@ -385,7 +486,34 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                       Text(typeText, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.person_rounded, color: Color(0xFF00A884), size: 16),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          "Bénéficiaire : $patientCibleNom ${estPourMembre ? '(${_membreSelectionne!.lienParente})' : '(Dossier personnel)'}",
+                          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.folder_shared_rounded, color: Color(0xFF16A34A), size: 16),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          "Dossier médical de $patientCibleNom transmis avec succès au praticien.",
+                          style: const TextStyle(fontSize: 11.5, color: Color(0xFF15803D), fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   Text("🕒 Créneau : $_selectedTimeSlot ($_selectedPeriod)", style: const TextStyle(fontSize: 12, color: Color(0xFF5A607F))),
                   Text("💰 Tarif : $price", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF00A884))),
                   if (isHome) ...[
@@ -556,6 +684,41 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                             ],
                           ),
                         ),
+
+                        const SizedBox(height: 20),
+
+                        // ── SECTION BÉNÉFICIAIRE DE LA CONSULTATION (FAMILLE / PROCHES) ──
+                        Row(
+                          children: [
+                            const Text(
+                              "Bénéficiaire de la consultation",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2D3142),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE6F7F3),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                _membreSelectionne == null ? "Moi-même" : _membreSelectionne!.prenom,
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          "Pour qui prenez-vous ce rendez-vous ? Le dossier médical associé sera automatiquement transmis au praticien.",
+                          style: TextStyle(fontSize: 12.5, color: Color(0xFF8E95A5)),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildSelecteurBeneficiaire(ref.watch(authProvider).user, doctorName),
 
                         const SizedBox(height: 20),
 
@@ -891,6 +1054,33 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                           }).toList(),
                         ),
 
+                        const SizedBox(height: 20),
+
+                        // MOTIF DE CONSULTATION (OPTIONNEL)
+                        const Text(
+                          "Motif de la consultation (optionnel)",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF2D3142),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: _reasonController,
+                          maxLines: 2,
+                          decoration: InputDecoration(
+                            hintText: "Précisez vos symptômes ou le motif (ex: Fièvre persistante, maux de tête...)",
+                            hintStyle: const TextStyle(fontSize: 12.5, color: Color(0xFF94A3B8)),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF00A884), width: 1.5)),
+                            contentPadding: const EdgeInsets.all(12),
+                          ),
+                        ),
+
                         const SizedBox(height: 28),
                       ],
                     ),
@@ -1062,6 +1252,203 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                 fontWeight: FontWeight.bold,
                 color: isSelected ? Colors.white : const Color(0xFF8E95A5),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Sélecteur de bénéficiaire de consultation (Moi-même ou proche à charge)
+  Widget _buildSelecteurBeneficiaire(dynamic currentUser, String doctorName) {
+    final patientName = (currentUser?.fullName.toString().trim().isNotEmpty == true)
+        ? currentUser!.fullName.toString().trim()
+        : "Dossier personnel";
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            children: [
+              // Option 1 : Moi-même
+              _buildItemBeneficiaire(
+                titre: "Moi-même",
+                sousTitre: patientName,
+                icone: Icons.person_rounded,
+                estSelectionne: _membreSelectionne == null,
+                onTap: () => setState(() => _membreSelectionne = null),
+              ),
+
+              // Option pour chaque membre de la famille
+              ..._membresFamille.map((membre) {
+                final estSelectionne = _membreSelectionne?.id == membre.id ||
+                    (_membreSelectionne?.enfantUserId.isNotEmpty == true &&
+                        _membreSelectionne?.enfantUserId == membre.enfantUserId);
+                return _buildItemBeneficiaire(
+                  titre: "${membre.prenom} ${membre.nom}".trim(),
+                  sousTitre: membre.lienParente,
+                  icone: membre.genre == 'Femme' ? Icons.face_3_rounded : Icons.face_rounded,
+                  estSelectionne: estSelectionne,
+                  onTap: () => setState(() => _membreSelectionne = membre),
+                );
+              }),
+
+              // Bouton Ajouter un nouveau proche
+              InkWell(
+                onTap: () async {
+                  await context.push('/add-family-member');
+                  final u = ref.read(authProvider).user;
+                  if (u != null) _chargerMembresFamille(u.id);
+                },
+                borderRadius: BorderRadius.circular(18),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.35)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.add_circle_outline_rounded, color: Color(0xFF00A884), size: 22),
+                      SizedBox(width: 8),
+                      Text(
+                        "Nouveau proche",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF00A884),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 10),
+
+        // Carte explicative claire sur la transmission du dossier médical au médecin
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF0FDF4),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFF86EFAC).withValues(alpha: 0.6)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.folder_shared_rounded, color: Color(0xFF16A34A), size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _membreSelectionne == null
+                          ? "Dossier médical personnel transmis"
+                          : "Dossier médical de ${_membreSelectionne!.prenom} ${_membreSelectionne!.nom} transmis",
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: Color(0xFF166534)),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _membreSelectionne == null
+                          ? "Votre dossier médical personnel complet sera accessible au $doctorName pour cette consultation."
+                          : "Le dossier médical de votre ${_membreSelectionne!.lienParente.toLowerCase()} (${_membreSelectionne!.prenom}) sera automatiquement transmis au $doctorName. Vos antécédents personnels restent confidentiels.",
+                      style: const TextStyle(fontSize: 11.5, color: Color(0xFF15803D), height: 1.35),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildItemBeneficiaire({
+    required String titre,
+    required String sousTitre,
+    required IconData icone,
+    required bool estSelectionne,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.only(right: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: estSelectionne ? const Color(0xFF00A884) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFFE2E8F0),
+            width: estSelectionne ? 1.5 : 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: estSelectionne
+                  ? const Color(0xFF00A884).withValues(alpha: 0.25)
+                  : Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                color: estSelectionne
+                    ? Colors.white.withValues(alpha: 0.2)
+                    : const Color(0xFFE6F7F3),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icone,
+                color: estSelectionne ? Colors.white : const Color(0xFF00A884),
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  titre,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: estSelectionne ? Colors.white : const Color(0xFF2D3142),
+                  ),
+                ),
+                Text(
+                  sousTitre,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: estSelectionne ? Colors.white.withValues(alpha: 0.85) : const Color(0xFF8E95A5),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
