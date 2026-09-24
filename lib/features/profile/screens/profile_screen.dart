@@ -60,10 +60,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: const Color(0xFF00A884), width: 2),
+                                  border: Border.all(color: const Color(0xFF0D7C66), width: 2),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF00A884).withValues(alpha: 0.15),
+                                      color: const Color(0xFF0D7C66).withValues(alpha: 0.15),
                                       blurRadius: 10,
                                     ),
                                   ],
@@ -83,7 +83,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: const BoxDecoration(
-                                    color: Color(0xFF00A884),
+                                    color: Color(0xFF0D7C66),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(Icons.camera_alt, size: 16, color: Colors.white),
@@ -101,12 +101,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE6F7F3),
+                            color: const Color(0xFFE7F2F0),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             role,
-                            style: const TextStyle(fontSize: 12, color: Color(0xFF00A884), fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontSize: 12, color: Color(0xFF0D7C66), fontWeight: FontWeight.bold),
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -131,7 +131,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF00A884),
+                                color: Color(0xFF0D7C66),
                                 letterSpacing: 0.5,
                               ),
                             ),
@@ -187,10 +187,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFFE6F7F3),
+              color: const Color(0xFFE7F2F0),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: const Color(0xFF00A884), size: 18),
+            child: Icon(icon, color: const Color(0xFF0D7C66), size: 18),
           ),
           const SizedBox(width: 14),
           Column(
@@ -268,7 +268,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               const SizedBox(height: 16),
               const Row(
                 children: [
-                  Icon(Icons.payments_outlined, color: Color(0xFF00A884), size: 24),
+                  Icon(Icons.payments_outlined, color: Color(0xFF0D7C66), size: 24),
                   SizedBox(width: 8),
                   Text("Mes Honoraires & Tarifs", style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Color(0xFF2D3142))),
                 ],
@@ -283,7 +283,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 controller: cabCtrl,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.local_hospital_outlined, color: Color(0xFF00A884)),
+                  prefixIcon: const Icon(Icons.local_hospital_outlined, color: Color(0xFF0D7C66)),
                   suffixText: "FCFA",
                   filled: true,
                   fillColor: const Color(0xFFF8FAFC),
@@ -298,7 +298,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 controller: teleCtrl,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.videocam_outlined, color: Color(0xFF00A884)),
+                  prefixIcon: const Icon(Icons.videocam_outlined, color: Color(0xFF0D7C66)),
                   suffixText: "FCFA",
                   filled: true,
                   fillColor: const Color(0xFFF8FAFC),
@@ -313,7 +313,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 controller: domCtrl,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.home_work_outlined, color: Color(0xFF00A884)),
+                  prefixIcon: const Icon(Icons.home_work_outlined, color: Color(0xFF0D7C66)),
                   suffixText: "FCFA",
                   filled: true,
                   fillColor: const Color(0xFFF8FAFC),
@@ -331,12 +331,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Vos tarifs ont été enregistrés avec succès"),
-                        backgroundColor: Color(0xFF00A884),
+                        backgroundColor: Color(0xFF0D7C66),
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00A884),
+                    backgroundColor: const Color(0xFF0D7C66),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                   child: const Text("Enregistrer mes tarifs", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),

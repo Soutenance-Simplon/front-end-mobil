@@ -298,7 +298,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                   ),
                 ],
               ),
-              backgroundColor: Color(0xFF00A884),
+              backgroundColor: Color(0xFF0D7C66),
               duration: Duration(milliseconds: 1600),
             ),
           );
@@ -440,14 +440,14 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF146C38), Color(0xFF00A884)],
+                    colors: [Color(0xFF0D7C66), Color(0xFF0D7C66)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF00A884).withOpacity(0.35),
+                      color: const Color(0xFF0D7C66).withOpacity(0.35),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -491,10 +491,10 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: isMedecinView ? const Color(0xFF00A884).withOpacity(0.15) : const Color(0xFF00A884).withOpacity(0.15),
+                  color: isMedecinView ? const Color(0xFF0D7C66).withOpacity(0.15) : const Color(0xFF0D7C66).withOpacity(0.15),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: isMedecinView ? const Color(0xFF00A884).withOpacity(0.4) : const Color(0xFF00A884).withOpacity(0.4),
+                    color: isMedecinView ? const Color(0xFF0D7C66).withOpacity(0.4) : const Color(0xFF0D7C66).withOpacity(0.4),
                   ),
                 ),
                 child: Row(
@@ -502,14 +502,14 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                   children: [
                     Icon(
                       isMedecinView ? Icons.verified_rounded : Icons.shield_rounded,
-                      color: isMedecinView ? const Color(0xFF00A884) : const Color(0xFF00A884),
+                      color: isMedecinView ? const Color(0xFF0D7C66) : const Color(0xFF0D7C66),
                       size: 16,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       isMedecinView ? "ACCÈS MÉDICAL APPROFONDI (RÔLE MÉDECIN)" : "ACCÈS D'URGENCE (SECOURISTE / PUBLIC)",
                       style: TextStyle(
-                        color: isMedecinView ? const Color(0xFF00A884) : const Color(0xFF00A884),
+                        color: isMedecinView ? const Color(0xFF0D7C66) : const Color(0xFF0D7C66),
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
@@ -527,12 +527,12 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: isMedecinView ? const Color(0xFF00A884).withOpacity(0.2) : const Color(0xFF00A884).withOpacity(0.2),
+                      color: isMedecinView ? const Color(0xFF0D7C66).withOpacity(0.2) : const Color(0xFF0D7C66).withOpacity(0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       isMedecinView ? Icons.medical_services : Icons.person_pin,
-                      color: isMedecinView ? const Color(0xFF00A884) : const Color(0xFF00A884),
+                      color: isMedecinView ? const Color(0xFF0D7C66) : const Color(0xFF0D7C66),
                       size: 28,
                     ),
                   ),
@@ -607,7 +607,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                       if (data.telephonePatient != null && data.telephonePatient!.isNotEmpty)
                         Row(
                           children: [
-                            const Icon(Icons.phone_iphone_rounded, color: Color(0xFF00A884), size: 16),
+                            const Icon(Icons.phone_iphone_rounded, color: Color(0xFF0D7C66), size: 16),
                             const SizedBox(width: 8),
                             const Text("Tél. Patient : ", style: TextStyle(color: Colors.white60, fontSize: 12)),
                             Text(
@@ -645,19 +645,19 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      const Color(0xFF00A884).withOpacity(0.15),
-                      const Color(0xFF00A884).withOpacity(0.05),
+                      const Color(0xFF0D7C66).withOpacity(0.15),
+                      const Color(0xFF0D7C66).withOpacity(0.05),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF00A884).withOpacity(0.35)),
+                  border: Border.all(color: const Color(0xFF0D7C66).withOpacity(0.35)),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: const BoxDecoration(
-                        color: Color(0xFF00A884),
+                        color: Color(0xFF0D7C66),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.phone_in_talk, color: Colors.white, size: 20),
@@ -667,7 +667,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text("PROCHE À CONTACTER D'URGENCE (ICE)", style: TextStyle(color: Color(0xFF00A884), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                          const Text("PROCHE À CONTACTER D'URGENCE (ICE)", style: TextStyle(color: Color(0xFF0D7C66), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                           const SizedBox(height: 2),
                           Text(
                             "${data.contactUrgenceNom} (${data.contactUrgenceLien})",
@@ -699,7 +699,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                       },
                       icon: const Icon(Icons.call, color: Colors.white),
                       style: IconButton.styleFrom(
-                        backgroundColor: const Color(0xFF00A884),
+                        backgroundColor: const Color(0xFF0D7C66),
                         padding: const EdgeInsets.all(12),
                       ),
                     ),
@@ -740,9 +740,9 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                       (m) => Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF00A884).withOpacity(0.2),
+                          color: const Color(0xFF0D7C66).withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFF00A884).withOpacity(0.5)),
+                          border: Border.all(color: const Color(0xFF0D7C66).withOpacity(0.5)),
                         ),
                         child: Text(m, style: const TextStyle(color: Colors.white, fontSize: 12)),
                       ),
@@ -756,20 +756,20 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF00A884).withOpacity(0.08),
+                    color: const Color(0xFF0D7C66).withOpacity(0.08),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF00A884).withOpacity(0.3)),
+                    border: Border.all(color: const Color(0xFF0D7C66).withOpacity(0.3)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Row(
                         children: [
-                          Icon(Icons.lock_open_rounded, color: Color(0xFF00A884), size: 16),
+                          Icon(Icons.lock_open_rounded, color: Color(0xFF0D7C66), size: 16),
                           SizedBox(width: 8),
                           Text(
                             "Détails Médicaux Confidentiels (Médecin)",
-                            style: TextStyle(color: Color(0xFF00A884), fontSize: 13, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Color(0xFF0D7C66), fontSize: 13, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -856,7 +856,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00A884),
+                          backgroundColor: const Color(0xFF0D7C66),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
@@ -994,12 +994,12 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF064E3B), Color(0xFF0B132B)],
+                    colors: [Color(0xFF0D7C66), Color(0xFF0B132B)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.4)),
+                  border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.4)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1012,7 +1012,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                           child: Text(
                             "DONNÉES VITALES D'URGENCE (PREMIERS SECOURS)",
                             style: TextStyle(
-                              color: Color(0xFF34D399),
+                              color: Color(0xFF0D7C66),
                               fontSize: 11.5,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 0.6,
@@ -1090,7 +1090,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.phone_in_talk_rounded, color: Color(0xFF00A884), size: 16),
+                          const Icon(Icons.phone_in_talk_rounded, color: Color(0xFF0D7C66), size: 16),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Column(
@@ -1151,14 +1151,14 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                               ),
                             ],
                           ),
-                          backgroundColor: const Color(0xFF00A884),
+                          backgroundColor: const Color(0xFF0D7C66),
                           duration: const Duration(seconds: 4),
                         ),
                       );
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00A884),
+                    backgroundColor: const Color(0xFF0D7C66),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
@@ -1261,13 +1261,13 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00A884).withOpacity(0.12),
+                      color: const Color(0xFF0D7C66).withOpacity(0.12),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFF00A884).withOpacity(0.35)),
+                      border: Border.all(color: const Color(0xFF0D7C66).withOpacity(0.35)),
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.verified_user_rounded, color: Color(0xFF00A884), size: 22),
+                        Icon(Icons.verified_user_rounded, color: Color(0xFF0D7C66), size: 22),
                         SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -1295,7 +1295,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Pass Santé prêt à être scanné par les services médicaux."),
-                        backgroundColor: Color(0xFF00A884),
+                        backgroundColor: Color(0xFF0D7C66),
                         duration: Duration(seconds: 2),
                       ),
                     );
@@ -1313,7 +1313,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                         ),
                         child: const Row(
                           children: [
-                            Icon(Icons.info_outline, color: Color(0xFF00A884), size: 24),
+                            Icon(Icons.info_outline, color: Color(0xFF0D7C66), size: 24),
                             SizedBox(width: 12),
                             Expanded(
                               child: Text(
@@ -1332,12 +1332,12 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text("Lien sécurisé de votre Pass Santé copié !"),
-                              backgroundColor: Color(0xFF00A884),
+                              backgroundColor: Color(0xFF0D7C66),
                             ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00A884),
+                          backgroundColor: const Color(0xFF0D7C66),
                           minimumSize: const Size(double.infinity, 50),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         ),
@@ -1348,13 +1348,13 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                         const SizedBox(height: 12),
                         OutlinedButton.icon(
                           onPressed: () => context.push('/dossier-medical'),
-                          icon: const Icon(Icons.security, color: Color(0xFF00A884), size: 18),
+                          icon: const Icon(Icons.security, color: Color(0xFF0D7C66), size: 18),
                           label: const Text(
                             "Gérer mes autorisations médecins 🛡️",
-                            style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 13),
+                            style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 13),
                           ),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Color(0xFF00A884), width: 1.5),
+                            side: const BorderSide(color: Color(0xFF0D7C66), width: 1.5),
                             minimumSize: const Size(double.infinity, 48),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           ),
@@ -1384,12 +1384,12 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                           borderRadius: BorderRadius.circular(24),
                           color: Colors.black,
                           border: Border.all(
-                            color: _isScanning ? const Color(0xFF00A884) : const Color(0xFF00A884).withOpacity(0.5),
+                            color: _isScanning ? const Color(0xFF0D7C66) : const Color(0xFF0D7C66).withOpacity(0.5),
                             width: 2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF00A884).withOpacity(0.25),
+                              color: const Color(0xFF0D7C66).withOpacity(0.25),
                               blurRadius: 20,
                               spreadRadius: 2,
                             ),
@@ -1424,7 +1424,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                                             icon: const Icon(Icons.refresh, size: 16),
                                             label: const Text("Activer la Caméra", style: TextStyle(fontSize: 12)),
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color(0xFF00A884),
+                                              backgroundColor: const Color(0xFF0D7C66),
                                             ),
                                           ),
                                         ],
@@ -1443,8 +1443,8 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                                   height: 36,
                                   decoration: const BoxDecoration(
                                     border: Border(
-                                      top: BorderSide(color: Color(0xFF00A884), width: 4),
-                                      left: BorderSide(color: Color(0xFF00A884), width: 4),
+                                      top: BorderSide(color: Color(0xFF0D7C66), width: 4),
+                                      left: BorderSide(color: Color(0xFF0D7C66), width: 4),
                                     ),
                                     borderRadius: BorderRadius.only(topLeft: Radius.circular(12)),
                                   ),
@@ -1458,8 +1458,8 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                                   height: 36,
                                   decoration: const BoxDecoration(
                                     border: Border(
-                                      top: BorderSide(color: Color(0xFF00A884), width: 4),
-                                      right: BorderSide(color: Color(0xFF00A884), width: 4),
+                                      top: BorderSide(color: Color(0xFF0D7C66), width: 4),
+                                      right: BorderSide(color: Color(0xFF0D7C66), width: 4),
                                     ),
                                     borderRadius: BorderRadius.only(topRight: Radius.circular(12)),
                                   ),
@@ -1473,8 +1473,8 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                                   height: 36,
                                   decoration: const BoxDecoration(
                                     border: Border(
-                                      bottom: BorderSide(color: Color(0xFF00A884), width: 4),
-                                      left: BorderSide(color: Color(0xFF00A884), width: 4),
+                                      bottom: BorderSide(color: Color(0xFF0D7C66), width: 4),
+                                      left: BorderSide(color: Color(0xFF0D7C66), width: 4),
                                     ),
                                     borderRadius: BorderRadius.only(bottomLeft: Radius.circular(12)),
                                   ),
@@ -1488,8 +1488,8 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                                   height: 36,
                                   decoration: const BoxDecoration(
                                     border: Border(
-                                      bottom: BorderSide(color: Color(0xFF00A884), width: 4),
-                                      right: BorderSide(color: Color(0xFF00A884), width: 4),
+                                      bottom: BorderSide(color: Color(0xFF0D7C66), width: 4),
+                                      right: BorderSide(color: Color(0xFF0D7C66), width: 4),
                                     ),
                                     borderRadius: BorderRadius.only(bottomRight: Radius.circular(12)),
                                   ),
@@ -1511,15 +1511,15 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                                         gradient: const LinearGradient(
                                           colors: [
                                             Colors.transparent,
-                                            Color(0xFF00E676),
+                                            Color(0xFF0D7C66),
                                             Colors.white,
-                                            Color(0xFF00E676),
+                                            Color(0xFF0D7C66),
                                             Colors.transparent,
                                           ],
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: const Color(0xFF00E676).withOpacity(0.8),
+                                            color: const Color(0xFF0D7C66).withOpacity(0.8),
                                             blurRadius: 10,
                                             spreadRadius: 2,
                                           ),
@@ -1538,7 +1538,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        CircularProgressIndicator(color: Color(0xFF00A884)),
+                                        CircularProgressIndicator(color: Color(0xFF0D7C66)),
                                         SizedBox(height: 12),
                                         Text(
                                           "Décodage en direct...",
@@ -1566,7 +1566,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                               });
                             },
                             style: IconButton.styleFrom(
-                              backgroundColor: _isTorchOn ? const Color(0xFF00A884) : Colors.white.withOpacity(0.1),
+                              backgroundColor: _isTorchOn ? const Color(0xFF0D7C66) : Colors.white.withOpacity(0.1),
                               foregroundColor: Colors.white,
                             ),
                             icon: Icon(_isTorchOn ? Icons.flash_on_rounded : Icons.flash_off_rounded, size: 20),
@@ -1591,7 +1591,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                             ),
-                            icon: const Icon(Icons.camera_alt_rounded, size: 16, color: Color(0xFF00A884)),
+                            icon: const Icon(Icons.camera_alt_rounded, size: 16, color: Color(0xFF0D7C66)),
                             label: const Text("Photo", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                           ),
                           const SizedBox(width: 8),
@@ -1603,7 +1603,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                             ),
-                            icon: const Icon(Icons.photo_library_rounded, size: 16, color: Color(0xFF00A884)),
+                            icon: const Icon(Icons.photo_library_rounded, size: 16, color: Color(0xFF0D7C66)),
                             label: const Text("Galerie", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                           ),
                         ],
@@ -1635,7 +1635,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                                     children: [
                                       Icon(
                                         _isMedecinScan ? Icons.medical_services : Icons.person_pin,
-                                        color: const Color(0xFF00A884),
+                                        color: const Color(0xFF0D7C66),
                                         size: 22,
                                       ),
                                       const SizedBox(width: 10),
@@ -1662,7 +1662,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                                 const SizedBox(width: 8),
                                 Switch(
                                   value: _isMedecinScan,
-                                  activeColor: const Color(0xFF00A884),
+                                  activeColor: const Color(0xFF0D7C66),
                                   onChanged: (val) {
                                     setState(() {
                                       _isMedecinScan = val;
@@ -1685,7 +1685,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                           hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
                           labelText: "Identifiant ou Jeton QR",
                           labelStyle: const TextStyle(color: Colors.white60, fontSize: 13),
-                          prefixIcon: const Icon(Icons.qr_code, color: Color(0xFF00A884)),
+                          prefixIcon: const Icon(Icons.qr_code, color: Color(0xFF0D7C66)),
                           suffixIcon: _tokenInputCtrl.text.isNotEmpty
                               ? IconButton(
                                   icon: const Icon(Icons.clear, color: Colors.white54, size: 18),
@@ -1695,7 +1695,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                           filled: true,
                           fillColor: Colors.white.withOpacity(0.06),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF00A884))),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF0D7C66))),
                         ),
                         onSubmitted: (val) {
                           if (val.trim().isNotEmpty) {
@@ -1732,7 +1732,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
                             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00A884),
+                            backgroundColor: const Color(0xFF0D7C66),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           ),
                         ),
@@ -1761,9 +1761,9 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> with TickerPr
         bottom: isDoctor
             ? TabBar(
                 controller: _tabController,
-                indicatorColor: const Color(0xFF00A884),
+                indicatorColor: const Color(0xFF0D7C66),
                 indicatorWeight: 3,
-                labelColor: const Color(0xFF00A884),
+                labelColor: const Color(0xFF0D7C66),
                 unselectedLabelColor: Colors.white60,
                 labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 tabs: const [

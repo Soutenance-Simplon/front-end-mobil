@@ -189,13 +189,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     width: 22,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      color: Colors.green,
+                                      color: const Color(0xFF0D7C66),
                                     ),
                                   )
                                 : const Text(
                                     "Connexion",
                                     style: TextStyle(
-                                      color: Color(0xFF129A7F), // vert primary
+                                      color: Color(0xFF0D7C66), // vert primary
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
                                     ),

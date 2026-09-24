@@ -148,10 +148,10 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen> {
                             duration: const Duration(milliseconds: 200),
                             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                             decoration: BoxDecoration(
-                              color: isSelected ? const Color(0xFF00A884) : Colors.white,
+                              color: isSelected ? const Color(0xFF0D7C66) : Colors.white,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: isSelected ? const Color(0xFF00A884) : const Color(0xFFE5E9F2),
+                                color: isSelected ? const Color(0xFF0D7C66) : const Color(0xFFE5E9F2),
                               ),
                             ),
                             child: Text(
@@ -212,10 +212,10 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen> {
                                         width: 76,
                                         height: 76,
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFE6F7F3),
+                                          color: const Color(0xFFE7F2F0),
                                           borderRadius: BorderRadius.circular(16),
                                         ),
-                                        child: const Icon(Icons.person, color: Color(0xFF00A884), size: 38),
+                                        child: const Icon(Icons.person, color: Color(0xFF0D7C66), size: 38),
                                       ),
                                       const SizedBox(width: 14),
                                       Expanded(
@@ -237,7 +237,7 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen> {
                                                 Container(
                                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                                   decoration: BoxDecoration(
-                                                    color: const Color(0xFFE6F7F3),
+                                                    color: const Color(0xFFE7F2F0),
                                                     borderRadius: BorderRadius.circular(6),
                                                   ),
                                                   child: const Text(
@@ -245,7 +245,7 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen> {
                                                     style: TextStyle(
                                                       fontSize: 10,
                                                       fontWeight: FontWeight.bold,
-                                                      color: Color(0xFF00A884),
+                                                      color: Color(0xFF0D7C66),
                                                     ),
                                                   ),
                                                 ),

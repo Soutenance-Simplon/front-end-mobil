@@ -206,7 +206,7 @@ class _EcranInscriptionState extends State<EcranInscription> {
                       child: ElevatedButton(
                         onPressed: _roleSelectionne != null ? _passerEtapeDeux : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00A884),
+                          backgroundColor: const Color(0xFF0D7C66),
                           disabledBackgroundColor: const Color(0xFFC4C4C4),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -292,21 +292,21 @@ class _EcranInscriptionState extends State<EcranInscription> {
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE6F7F3),
+                            color: const Color(0xFFE7F2F0),
                             borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: const Color(0xFF00A884)),
+                            border: Border.all(color: const Color(0xFF0D7C66)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Row(
                                 children: [
-                                  Icon(Icons.check_circle, color: Color(0xFF00A884), size: 18),
+                                  Icon(Icons.check_circle, color: Color(0xFF0D7C66), size: 18),
                                   SizedBox(width: 8),
                                   Text(
                                     "VÉRIFIÉ ONMS (Annuaire National)",
                                     style: TextStyle(
-                                      color: Color(0xFF00A884),
+                                      color: Color(0xFF0D7C66),
                                       fontWeight: FontWeight.bold,
                                       fontSize: 12,
                                     ),
@@ -367,7 +367,7 @@ class _EcranInscriptionState extends State<EcranInscription> {
                       child: ElevatedButton(
                         onPressed: _soumettreFormulaire,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00A884),
+                          backgroundColor: const Color(0xFF0D7C66),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -408,10 +408,10 @@ class _EcranInscriptionState extends State<EcranInscription> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: estSelectionne ? const Color(0xFF00A884).withOpacity(0.06) : Colors.white,
+          color: estSelectionne ? const Color(0xFF0D7C66).withOpacity(0.06) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFFE2E8F0),
+            color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFFE2E8F0),
             width: estSelectionne ? 2 : 1,
           ),
         ),
@@ -420,7 +420,7 @@ class _EcranInscriptionState extends State<EcranInscription> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFFF1F5F9),
+                color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -439,7 +439,7 @@ class _EcranInscriptionState extends State<EcranInscription> {
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFF2D3142),
+                      color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFF2D3142),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -457,7 +457,7 @@ class _EcranInscriptionState extends State<EcranInscription> {
             if (estSelectionne)
               Container(
                 decoration: const BoxDecoration(
-                  color: Color(0xFF00A884),
+                  color: Color(0xFF0D7C66),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.check, size: 18, color: Colors.white),
@@ -510,7 +510,7 @@ class _EcranInscriptionState extends State<EcranInscription> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF00A884), width: 1.8),
+              borderSide: const BorderSide(color: Color(0xFF0D7C66), width: 1.8),
             ),
           ),
         ),

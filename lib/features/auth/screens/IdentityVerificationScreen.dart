@@ -221,7 +221,7 @@ class _IdentityVerificationScreenState
   Color _getColor() {
     switch (_verificationStatus) {
       case "approved":
-        return Colors.green;
+        return const Color(0xFF0D7C66);
       case "manual":
         return Colors.orange;
       case "rejected":
@@ -300,7 +300,7 @@ class _IdentityVerificationScreenState
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                   color: _idBytes != null
-                                      ? Colors.green
+                                      ? const Color(0xFF0D7C66)
                                       : Colors.grey,
                                   width: 2),
                               image: _idBytes != null

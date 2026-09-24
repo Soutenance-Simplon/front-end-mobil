@@ -68,7 +68,7 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Identité vérifiée avec succès !'),
-            backgroundColor: Colors.green,
+            backgroundColor: Color(0xFF0D7C66),
           ),
         );
 
@@ -173,7 +173,7 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
               if (_verificationResult != null) ...[
                 Card(
                   color: _verificationResult!['status'] == 'approved'
-                      ? Colors.green[50]
+                      ? const Color(0xFFE7F2F0)
                       : _verificationResult!['status'] == 'manual'
                           ? Colors.orange[50]
                           : Colors.red[50],
@@ -187,7 +187,7 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: _verificationResult!['status'] == 'approved'
-                                ? Colors.green
+                                ? const Color(0xFF0D7C66)
                                 : _verificationResult!['status'] == 'manual'
                                     ? Colors.orange
                                     : Colors.red,

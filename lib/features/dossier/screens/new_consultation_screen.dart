@@ -56,7 +56,7 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF00A884),
+              primary: Color(0xFF0D7C66),
               onPrimary: Colors.white,
               onSurface: Color(0xFF2D3142),
             ),
@@ -79,7 +79,7 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF00A884),
+              primary: Color(0xFF0D7C66),
               onPrimary: Colors.white,
               onSurface: Color(0xFF2D3142),
             ),
@@ -110,7 +110,7 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Photo médicale ajoutée à la consultation"),
-              backgroundColor: Color(0xFF00A884),
+              backgroundColor: Color(0xFF0D7C66),
               duration: Duration(seconds: 2),
             ),
           );
@@ -142,7 +142,7 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("$type ajouté(e) avec succès !"),
-              backgroundColor: const Color(0xFF00A884),
+              backgroundColor: const Color(0xFF0D7C66),
               duration: const Duration(seconds: 2),
             ),
           );
@@ -174,7 +174,7 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Ordonnance rattachée à cette consultation."),
-            backgroundColor: Color(0xFF00A884),
+            backgroundColor: Color(0xFF0D7C66),
             duration: Duration(seconds: 2),
           ),
         );
@@ -233,12 +233,12 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
                     leading: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE6F7F3),
+                        color: const Color(0xFFE7F2F0),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         item['code']!,
-                        style: const TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 12),
+                        style: const TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 12),
                       ),
                     ),
                     title: Text(
@@ -272,7 +272,7 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
             ),
           ],
         ),
-        backgroundColor: const Color(0xFF00A884),
+        backgroundColor: const Color(0xFF0D7C66),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -359,7 +359,7 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             title: const Row(
               children: [
-                Icon(Icons.check_circle, color: Color(0xFF00A884), size: 28),
+                Icon(Icons.check_circle, color: Color(0xFF0D7C66), size: 28),
                 SizedBox(width: 10),
                 Text("Consultation enregistrée"),
               ],
@@ -377,7 +377,7 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
                   context.pop(true);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00A884),
+                  backgroundColor: const Color(0xFF0D7C66),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: const Text("Terminer", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -452,7 +452,7 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
                 ElevatedButton.icon(
                   onPressed: () => context.pop(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00A884),
+                    backgroundColor: const Color(0xFF0D7C66),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
@@ -490,9 +490,9 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
                 ? const SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00A884)),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D7C66)),
                   )
-                : const Icon(Icons.save_outlined, color: Color(0xFF00A884)),
+                : const Icon(Icons.save_outlined, color: Color(0xFF0D7C66)),
             onPressed: _isSaving ? null : _saveConsultation,
             tooltip: "Enregistrer",
           ),
@@ -617,20 +617,20 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE6F7F3),
+                            color: const Color(0xFFE7F2F0),
                             borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.3)),
+                            border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.3)),
                           ),
                           child: const Row(
                             children: [
-                              Icon(Icons.assignment_outlined, size: 16, color: Color(0xFF00A884)),
+                              Icon(Icons.assignment_outlined, size: 16, color: Color(0xFF0D7C66)),
                               SizedBox(width: 6),
                               Text(
                                 "ICD-10",
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF00A884),
+                                  color: Color(0xFF0D7C66),
                                 ),
                               ),
                             ],
@@ -670,10 +670,10 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE6F7F3).withValues(alpha: 0.6),
+                          color: const Color(0xFFE7F2F0).withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: const Color(0xFF00A884),
+                            color: const Color(0xFF0D7C66),
                             width: 1.5,
                             style: BorderStyle.solid,
                           ),
@@ -681,14 +681,14 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.medication_outlined, color: Color(0xFF00A884), size: 20),
+                            Icon(Icons.medication_outlined, color: Color(0xFF0D7C66), size: 20),
                             SizedBox(width: 8),
                             Text(
                               "Ajouter une ordonnance",
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF00A884),
+                                color: Color(0xFF0D7C66),
                               ),
                             ),
                           ],
@@ -699,13 +699,13 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE6F7F3),
+                        color: const Color(0xFFE7F2F0),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFF00A884)),
+                        border: Border.all(color: const Color(0xFF0D7C66)),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.check_circle_rounded, color: Color(0xFF00A884), size: 22),
+                          const Icon(Icons.check_circle_rounded, color: Color(0xFF0D7C66), size: 22),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Column(
@@ -775,12 +775,12 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.4)),
+                            border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.4)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(f['icon'] as IconData, size: 16, color: const Color(0xFF00A884)),
+                              Icon(f['icon'] as IconData, size: 16, color: const Color(0xFF0D7C66)),
                               const SizedBox(width: 6),
                               ConstrainedBox(
                                 constraints: const BoxConstraints(maxWidth: 120),
@@ -822,7 +822,7 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.calendar_today_outlined, color: Color(0xFF00A884), size: 18),
+                                const Icon(Icons.calendar_today_outlined, color: Color(0xFF0D7C66), size: 18),
                                 const SizedBox(width: 10),
                                 Text(
                                   _formattedDate,
@@ -847,7 +847,7 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.access_time, color: Color(0xFF00A884), size: 18),
+                                const Icon(Icons.access_time, color: Color(0xFF0D7C66), size: 18),
                                 const SizedBox(width: 10),
                                 Text(
                                   _formattedTime,
@@ -870,7 +870,7 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
                     child: ElevatedButton(
                       onPressed: _isSaving ? null : _saveConsultation,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF146C38),
+                        backgroundColor: const Color(0xFF0D7C66),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -932,10 +932,10 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
             child: Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: const Color(0xFFE6F7F3),
+                color: const Color(0xFFE7F2F0),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.mic_none, color: Color(0xFF00A884), size: 18),
+              child: const Icon(Icons.mic_none, color: Color(0xFF0D7C66), size: 18),
             ),
           ),
       ],
@@ -978,7 +978,7 @@ class _NewConsultationScreenState extends ConsumerState<NewConsultationScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 16, color: const Color(0xFF00A884)),
+              Icon(icon, size: 16, color: const Color(0xFF0D7C66)),
               const SizedBox(width: 6),
               Text(
                 label,

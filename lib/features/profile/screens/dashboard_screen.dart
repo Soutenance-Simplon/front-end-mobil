@@ -75,7 +75,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final nonLues = notifState.nonLuesCount;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF00A884),
+      backgroundColor: const Color(0xFF0D7C66),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/assistant-ia'),
         backgroundColor: const Color(0xFF0F172A), // Dark color to contrast with the green background
@@ -95,7 +95,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: _loadDashboardData,
-                    color: const Color(0xFF00A884),
+                    color: const Color(0xFF0D7C66),
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       child: _buildRoleContent(role, user),
@@ -112,11 +112,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   // ==========================================
-  // EN-TÊTE SUPÉRIEUR INSPIRÉ DE WAVE (#00A884)
+  // EN-TÊTE SUPÉRIEUR INSPIRÉ DE WAVE (#0D7C66)
   // ==========================================
   Widget _buildWaveTopHeader(double solde, int nonLues) {
     return Container(
-      color: const Color(0xFF00A884),
+      color: const Color(0xFF0D7C66),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -219,7 +219,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   // ==========================================
   Widget _buildDoctorModeSwitcher() {
     return Container(
-      color: const Color(0xFF00A884),
+      color: const Color(0xFF0D7C66),
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: Container(
         padding: const EdgeInsets.all(4),
@@ -256,7 +256,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       Icon(
                         Icons.medical_services_rounded,
                         size: 15,
-                        color: _doctorModeIndex == 0 ? const Color(0xFF00A884) : Colors.white70,
+                        color: _doctorModeIndex == 0 ? const Color(0xFF0D7C66) : Colors.white70,
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -264,7 +264,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 12.5,
-                          color: _doctorModeIndex == 0 ? const Color(0xFF00A884) : Colors.white,
+                          color: _doctorModeIndex == 0 ? const Color(0xFF0D7C66) : Colors.white,
                         ),
                       ),
                     ],
@@ -299,7 +299,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       Icon(
                         Icons.person_rounded,
                         size: 15,
-                        color: _doctorModeIndex == 1 ? const Color(0xFF00A884) : Colors.white70,
+                        color: _doctorModeIndex == 1 ? const Color(0xFF0D7C66) : Colors.white70,
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -307,7 +307,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 12.5,
-                          color: _doctorModeIndex == 1 ? const Color(0xFF00A884) : Colors.white,
+                          color: _doctorModeIndex == 1 ? const Color(0xFF0D7C66) : Colors.white,
                         ),
                       ),
                     ],
@@ -349,14 +349,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF00A884), Color(0xFF064E3B)],
+          colors: [Color(0xFF0D7C66), Color(0xFF0D7C66)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(26),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00A884).withValues(alpha: 0.35),
+            color: const Color(0xFF0D7C66).withValues(alpha: 0.35),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -468,7 +468,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             size: 120.0,
                             eyeStyle: const QrEyeStyle(
                               eyeShape: QrEyeShape.square,
-                              color: Color(0xFF00A884),
+                              color: Color(0xFF0D7C66),
                             ),
                             dataModuleStyle: const QrDataModuleStyle(
                               dataModuleShape: QrDataModuleShape.square,
@@ -486,10 +486,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                             decoration: BoxDecoration(
-                              color: isDoctor ? const Color(0xFFF1F5F9) : const Color(0xFFE6F7F3),
+                              color: isDoctor ? const Color(0xFFF1F5F9) : const Color(0xFFE7F2F0),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: isDoctor ? const Color(0xFFE2E8F0) : const Color(0xFF00A884).withValues(alpha: 0.3),
+                                color: isDoctor ? const Color(0xFFE2E8F0) : const Color(0xFF0D7C66).withValues(alpha: 0.3),
                               ),
                             ),
                             child: Row(
@@ -497,7 +497,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               children: [
                                 Icon(
                                   isDoctor ? Icons.camera_alt_rounded : Icons.badge_outlined,
-                                  color: isDoctor ? const Color(0xFF0F172A) : const Color(0xFF00A884),
+                                  color: isDoctor ? const Color(0xFF0F172A) : const Color(0xFF0D7C66),
                                   size: 14,
                                 ),
                                 const SizedBox(width: 5),
@@ -506,7 +506,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w800,
-                                    color: isDoctor ? const Color(0xFF0F172A) : const Color(0xFF00A884),
+                                    color: isDoctor ? const Color(0xFF0F172A) : const Color(0xFF0D7C66),
                                   ),
                                 ),
                               ],
@@ -551,7 +551,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         ),
                         child: const Row(
                           children: [
-                            Icon(Icons.favorite, color: Color(0xFF34D399), size: 13),
+                            Icon(Icons.favorite, color: Color(0xFF0D7C66), size: 13),
                             SizedBox(width: 4),
                             Text(
                               "Diam-Yaraam",
@@ -580,8 +580,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             {
               "title": "Patients",
               "icon": Icons.folder_shared_rounded,
-              "bg": const Color(0xFFE6F7F3),
-              "color": const Color(0xFF00A884),
+              "bg": const Color(0xFFE7F2F0),
+              "color": const Color(0xFF0D7C66),
               "route": "/medical-record",
             },
             {
@@ -595,7 +595,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               "title": "Prescrire",
               "icon": Icons.auto_awesome,
               "bg": const Color(0xFFCCFBF1),
-              "color": const Color(0xFF0D9488),
+              "color": const Color(0xFF0D7C66),
               "route": "/smart-prescription",
             },
             {
@@ -616,8 +616,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             {
               "title": "Honoraires",
               "icon": Icons.account_balance_wallet_rounded,
-              "bg": const Color(0xFFDCFCE7),
-              "color": const Color(0xFF16A34A),
+              "bg": const Color(0xFFE7F2F0),
+              "color": const Color(0xFF0D7C66),
               "route": "/wallet",
             },
             {
@@ -640,8 +640,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             {
               "title": "Docteur",
               "icon": Icons.medical_services_rounded,
-              "bg": const Color(0xFFE6F7F3),
-              "color": const Color(0xFF00A884),
+              "bg": const Color(0xFFE7F2F0),
+              "color": const Color(0xFF0D7C66),
               "route": "/doctors",
             },
             {
@@ -655,7 +655,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               "title": "Médicaments",
               "icon": Icons.medication_rounded,
               "bg": const Color(0xFFCCFBF1),
-              "color": const Color(0xFF0D9488),
+              "color": const Color(0xFF0D7C66),
               "route": "/medical-record",
             },
             {
@@ -677,8 +677,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             {
               "title": "Paiement",
               "icon": Icons.account_balance_wallet_rounded,
-              "bg": const Color(0xFFDCFCE7),
-              "color": const Color(0xFF16A34A),
+              "bg": const Color(0xFFE7F2F0),
+              "color": const Color(0xFF0D7C66),
               "route": "/wallet",
             },
             {
@@ -876,7 +876,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF00A884),
+                    color: Color(0xFF0D7C66),
                   ),
                 ),
               ),
@@ -950,13 +950,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE6F7F3),
+                              color: const Color(0xFFE7F2F0),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               act['montant'] as String,
                               style: const TextStyle(
-                                color: Color(0xFF00A884),
+                                color: Color(0xFF0D7C66),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -968,7 +968,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
-                              color: isCredit ? const Color(0xFF00A884) : const Color(0xFF0F172A),
+                              color: isCredit ? const Color(0xFF0D7C66) : const Color(0xFF0F172A),
                             ),
                           ),
                       ],
@@ -1081,42 +1081,42 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         "sousTitre": "Vérification Identité",
         "icone": Icons.verified_user_rounded,
         "route": "/upload-id",
-        "accentColor": const Color(0xFF00A884),
+        "accentColor": const Color(0xFF0D7C66),
       },
       {
         "titre": "Annuaire Médical",
         "sousTitre": "Gestion Praticiens",
         "icone": Icons.medical_services_rounded,
         "route": "/doctors",
-        "accentColor": const Color(0xFF00A884),
+        "accentColor": const Color(0xFF0D7C66),
       },
       {
         "titre": "Supervision RDV",
         "sousTitre": "Flux Téléconsultations",
         "icone": Icons.monitor_heart_rounded,
         "route": "/appointments",
-        "accentColor": const Color(0xFF00A884),
+        "accentColor": const Color(0xFF0D7C66),
       },
       {
         "titre": "Audit Financier",
         "sousTitre": "Transactions & Wallets",
         "icone": Icons.receipt_long_rounded,
         "route": "/wallet",
-        "accentColor": const Color(0xFF00A884),
+        "accentColor": const Color(0xFF0D7C66),
       },
       {
         "titre": "Assistant IA",
         "sousTitre": "Triage & Diagnostics",
         "icone": Icons.auto_awesome,
         "route": "/assistant-ia",
-        "accentColor": const Color(0xFF00A884),
+        "accentColor": const Color(0xFF0D7C66),
       },
       {
         "titre": "Notifications",
         "sousTitre": "Alertes Globales",
         "icone": Icons.campaign_rounded,
         "route": "/notifications",
-        "accentColor": const Color(0xFF00A884),
+        "accentColor": const Color(0xFF0D7C66),
       },
     ];
 
@@ -1124,9 +1124,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildHeader(
-          avatarColor: const Color(0xFF00A884),
+          avatarColor: const Color(0xFF0D7C66),
           badgeText: "Administration Centrale",
-          badgeColor: const Color(0xFF00A884),
+          badgeColor: const Color(0xFF0D7C66),
           displayName: displayName,
           nonLues: nonLues,
         ),
@@ -1162,14 +1162,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               height: 50,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFE6F7F3), Color(0xFFCCF2E7)],
+                  colors: [Color(0xFFE7F2F0), Color(0xFFE7F2F0)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.25), width: 1.5),
+                border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.25), width: 1.5),
               ),
-              child: const Icon(Icons.person, color: Color(0xFF00A884), size: 28),
+              child: const Icon(Icons.person, color: Color(0xFF0D7C66), size: 28),
             ),
             Positioned(
               right: 0,
@@ -1178,7 +1178,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 width: 14,
                 height: 14,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF00A884),
+                  color: const Color(0xFF0D7C66),
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2),
                 ),
@@ -1207,27 +1207,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  const Icon(Icons.verified, size: 16, color: Color(0xFF00A884)),
+                  const Icon(Icons.verified, size: 16, color: Color(0xFF0D7C66)),
                 ],
               ),
               const SizedBox(height: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE6F7F3),
+                  color: const Color(0xFFE7F2F0),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.18)),
+                  border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.18)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.circle, size: 6, color: Color(0xFF00A884)),
+                    const Icon(Icons.circle, size: 6, color: Color(0xFF0D7C66)),
                     const SizedBox(width: 5),
                     Text(
                       badgeText,
                       style: const TextStyle(
                         fontSize: 11,
-                        color: Color(0xFF00A884),
+                        color: Color(0xFF0D7C66),
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -1317,14 +1317,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF00A884), Color(0xFF064E3B)],
+          colors: [Color(0xFF0D7C66), Color(0xFF0D7C66)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00A884).withValues(alpha: 0.25),
+            color: const Color(0xFF0D7C66).withValues(alpha: 0.25),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -1367,14 +1367,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF10B981).withValues(alpha: 0.30),
+                          color: const Color(0xFF0D7C66).withValues(alpha: 0.30),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
                         ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.circle, color: Color(0xFF34D399), size: 7),
+                            Icon(Icons.circle, color: Color(0xFF0D7C66), size: 7),
                             SizedBox(width: 5),
                             Text("DISPONIBLE", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
                           ],
@@ -1453,7 +1453,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               children: [
                                 Text(
                                   "$creneauxLibres",
-                                  style: const TextStyle(color: Color(0xFF6EE7B7), fontSize: 24, fontWeight: FontWeight.w900),
+                                  style: const TextStyle(color: Color(0xFF0D7C66), fontSize: 24, fontWeight: FontWeight.w900),
                                 ),
                                 const SizedBox(height: 2),
                                 const Text("Créneaux", style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w500)),
@@ -1472,7 +1472,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           onPressed: () => context.push('/doctor-agenda'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
-                            foregroundColor: const Color(0xFF00A884),
+                            foregroundColor: const Color(0xFF0D7C66),
                             elevation: 0,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             padding: const EdgeInsets.symmetric(vertical: 11),
@@ -1516,14 +1516,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF00A884), Color(0xFF053B2E)],
+          colors: [Color(0xFF0D7C66), Color(0xFF0D7C66)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00A884).withValues(alpha: 0.20),
+            color: const Color(0xFF0D7C66).withValues(alpha: 0.20),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -1542,7 +1542,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.25),
+                  color: const Color(0xFF0D7C66).withValues(alpha: 0.25),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Row(
@@ -1570,7 +1570,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             onPressed: () => context.push('/doctors'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF00A884),
+              foregroundColor: const Color(0xFF0D7C66),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
             ),
@@ -1595,7 +1595,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         decoration: InputDecoration(
           hintText: "Rechercher médecin, cardiologue, pédiatre...",
           hintStyle: const TextStyle(color: Color(0xFFB4B9C5), fontSize: 13),
-          prefixIcon: const Icon(Icons.search, color: Color(0xFF00A884)),
+          prefixIcon: const Icon(Icons.search, color: Color(0xFF0D7C66)),
           suffixIcon: IconButton(
             icon: const Icon(Icons.tune, color: Color(0xFF5A607F), size: 20),
             onPressed: () => context.push('/doctors'),
@@ -1632,8 +1632,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       itemBuilder: (context, index) {
         final action = items[index];
         final isDanger = action['isDanger'] == true;
-        final Color accentColor = action['accentColor'] as Color? ?? const Color(0xFF00A884);
-        final Color iconBg = isDanger ? const Color(0xFFFEE2E2) : const Color(0xFFE6F7F3);
+        final Color accentColor = action['accentColor'] as Color? ?? const Color(0xFF0D7C66);
+        final Color iconBg = isDanger ? const Color(0xFFFEE2E2) : const Color(0xFFE7F2F0);
         final Color iconColor = isDanger ? const Color(0xFFEF4444) : accentColor;
 
         return InkWell(
@@ -1647,7 +1647,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               border: Border.all(
                 color: isDanger
                     ? const Color(0xFFFECACA)
-                    : const Color(0xFF00A884).withValues(alpha: 0.12),
+                    : const Color(0xFF0D7C66).withValues(alpha: 0.12),
                 width: 1.2,
               ),
               boxShadow: [
@@ -1747,7 +1747,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF00A884),
+                  color: Color(0xFF0D7C66),
                 ),
               ),
             ),
@@ -1779,10 +1779,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE6F7F3),
+                      color: const Color(0xFFE7F2F0),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(Icons.person, color: Color(0xFF00A884), size: 26),
+                    child: const Icon(Icons.person, color: Color(0xFF0D7C66), size: 26),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -1800,7 +1800,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         const SizedBox(height: 3),
                         Text(
                           "${med.tarifConsultation.toInt()} FCFA",
-                          style: const TextStyle(fontSize: 11, color: Color(0xFF00A884), fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 11, color: Color(0xFF0D7C66), fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -1808,7 +1808,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ElevatedButton(
                     onPressed: () => context.push('/book-appointment', extra: med),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00A884),
+                      backgroundColor: const Color(0xFF0D7C66),
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -1854,7 +1854,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF00A884),
+                  color: Color(0xFF0D7C66),
                 ),
               ),
             ),
@@ -1872,7 +1872,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             child: const Row(
               children: [
-                Icon(Icons.event_available, color: Color(0xFF00A884), size: 28),
+                Icon(Icons.event_available, color: Color(0xFF0D7C66), size: 28),
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -1902,12 +1902,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: isVisio ? const Color(0xFFE6F7F3) : const Color(0xFFE6F7F3),
+                      color: isVisio ? const Color(0xFFE7F2F0) : const Color(0xFFE7F2F0),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       isVisio ? Icons.videocam_rounded : Icons.local_hospital_rounded,
-                      color: isVisio ? const Color(0xFF00A884) : const Color(0xFF00A884),
+                      color: isVisio ? const Color(0xFF0D7C66) : const Color(0xFF0D7C66),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -1929,7 +1929,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ElevatedButton(
                     onPressed: () => context.push('/appointments'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isVisio ? const Color(0xFF00A884) : const Color(0xFF00A884),
+                      backgroundColor: isVisio ? const Color(0xFF0D7C66) : const Color(0xFF0D7C66),
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1969,7 +1969,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
           child: Row(
             children: [
-              const Icon(Icons.info_outline, color: Color(0xFF00A884), size: 22),
+              const Icon(Icons.info_outline, color: Color(0xFF0D7C66), size: 22),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -2133,12 +2133,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF00A884).withValues(alpha: 0.10) : Colors.transparent,
+          color: isSelected ? const Color(0xFF0D7C66).withValues(alpha: 0.10) : Colors.transparent,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Icon(
           icon,
-          color: isSelected ? const Color(0xFF00A884) : const Color(0xFF8E95A5),
+          color: isSelected ? const Color(0xFF0D7C66) : const Color(0xFF8E95A5),
           size: 24,
         ),
       ),

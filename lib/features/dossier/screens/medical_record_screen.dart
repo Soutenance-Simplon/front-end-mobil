@@ -76,11 +76,11 @@ class _MedicalRecordScreenState extends ConsumerState<MedicalRecordScreen> {
                         Container(
                           padding: const EdgeInsets.all(18),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF146C38),
+                            color: const Color(0xFF0D7C66),
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF146C38).withOpacity(0.3),
+                                color: const Color(0xFF0D7C66).withOpacity(0.3),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -166,17 +166,17 @@ class _MedicalRecordScreenState extends ConsumerState<MedicalRecordScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE6F7F3),
+                              color: const Color(0xFFE7F2F0),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.lock_outline, size: 14, color: Color(0xFF00A884)),
+                                Icon(Icons.lock_outline, size: 14, color: Color(0xFF0D7C66)),
                                 SizedBox(width: 6),
                                 Text(
                                   "Accès autorisé par la patiente ✔",
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                                 ),
                               ],
                             ),
@@ -212,7 +212,7 @@ class _MedicalRecordScreenState extends ConsumerState<MedicalRecordScreen> {
                                       width: 16,
                                       height: 16,
                                       decoration: BoxDecoration(
-                                        color: item['isLatest'] ? const Color(0xFF146C38) : const Color(0xFFCBD5E1),
+                                        color: item['isLatest'] ? const Color(0xFF0D7C66) : const Color(0xFFCBD5E1),
                                         shape: BoxShape.circle,
                                       ),
                                     ),
@@ -233,12 +233,12 @@ class _MedicalRecordScreenState extends ConsumerState<MedicalRecordScreen> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFE6F7F3),
+                                          color: const Color(0xFFE7F2F0),
                                           borderRadius: BorderRadius.circular(10),
                                         ),
                                         child: Text(
                                           item['date'],
-                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF146C38)),
+                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                                         ),
                                       ),
                                       const SizedBox(height: 8),
@@ -273,8 +273,8 @@ class _MedicalRecordScreenState extends ConsumerState<MedicalRecordScreen> {
                                               child: OutlinedButton(
                                                 onPressed: () {},
                                                 style: OutlinedButton.styleFrom(
-                                                  foregroundColor: const Color(0xFF146C38),
-                                                  side: const BorderSide(color: Color(0xFF146C38)),
+                                                  foregroundColor: const Color(0xFF0D7C66),
+                                                  side: const BorderSide(color: Color(0xFF0D7C66)),
                                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                                 ),
                                                 child: const Text("Voir détails", style: TextStyle(fontWeight: FontWeight.bold)),
@@ -318,7 +318,7 @@ class _MedicalRecordScreenState extends ConsumerState<MedicalRecordScreen> {
                             icon: const Icon(Icons.add, color: Colors.white, size: 18),
                             label: const Text("Diagnostic", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF146C38),
+                              backgroundColor: const Color(0xFF0D7C66),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             ),
@@ -359,7 +359,7 @@ class _MedicalRecordScreenState extends ConsumerState<MedicalRecordScreen> {
         children: [
           Icon(
             icon,
-            color: isSelected ? const Color(0xFF146C38) : const Color(0xFF8E95A5),
+            color: isSelected ? const Color(0xFF0D7C66) : const Color(0xFF8E95A5),
             size: 22,
           ),
           const SizedBox(height: 4),
@@ -368,7 +368,7 @@ class _MedicalRecordScreenState extends ConsumerState<MedicalRecordScreen> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              color: isSelected ? const Color(0xFF146C38) : const Color(0xFF8E95A5),
+              color: isSelected ? const Color(0xFF0D7C66) : const Color(0xFF8E95A5),
             ),
           ),
           const SizedBox(height: 6),
@@ -376,7 +376,7 @@ class _MedicalRecordScreenState extends ConsumerState<MedicalRecordScreen> {
             width: 32,
             height: 3,
             decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF146C38) : Colors.transparent,
+              color: isSelected ? const Color(0xFF0D7C66) : Colors.transparent,
               borderRadius: BorderRadius.circular(2),
             ),
           ),

@@ -180,7 +180,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00A884),
+                  backgroundColor: const Color(0xFF0D7C66),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
@@ -227,7 +227,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: const Row(
             children: [
-              Icon(Icons.check_circle, color: Color(0xFF00A884), size: 28),
+              Icon(Icons.check_circle, color: Color(0xFF0D7C66), size: 28),
               SizedBox(width: 10),
               Text("Ordonnance transmise"),
             ],
@@ -243,7 +243,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                 context.pop();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00A884),
+                backgroundColor: const Color(0xFF0D7C66),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: const Text("OK", style: TextStyle(color: Colors.white)),
@@ -302,7 +302,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                 ElevatedButton.icon(
                   onPressed: () => context.pop(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00A884),
+                    backgroundColor: const Color(0xFF0D7C66),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
@@ -447,7 +447,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                       ),
                       child: const Row(
                         children: [
-                          SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00A884))),
+                          SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D7C66))),
                           SizedBox(width: 16),
                           Text("L'IA analyse les interactions médicamenteuses...", style: TextStyle(color: Color(0xFF2D3142), fontWeight: FontWeight.bold)),
                         ],
@@ -554,19 +554,19 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE6F7F3),
+                        color: const Color(0xFFE7F2F0),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.3)),
+                        border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.3)),
                       ),
                       child: const Row(
                         children: [
-                          Icon(Icons.check_circle, color: Color(0xFF00A884), size: 20),
+                          Icon(Icons.check_circle, color: Color(0xFF0D7C66), size: 20),
                           SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               "Contrôle IA Kaay Fadjou actif — Aucune interaction toxique",
                               style: TextStyle(
-                                color: Color(0xFF00A884),
+                                color: Color(0xFF0D7C66),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
                               ),
@@ -623,7 +623,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.medication_outlined, color: Color(0xFF00A884), size: 22),
+                                const Icon(Icons.medication_outlined, color: Color(0xFF0D7C66), size: 22),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
@@ -686,18 +686,18 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE6F7F3).withValues(alpha: 0.5),
+                        color: const Color(0xFFE7F2F0).withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFF00A884), width: 1.5),
+                        border: Border.all(color: const Color(0xFF0D7C66), width: 1.5),
                       ),
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.add_circle_outline, color: Color(0xFF00A884), size: 20),
+                          Icon(Icons.add_circle_outline, color: Color(0xFF0D7C66), size: 20),
                           SizedBox(width: 8),
                           Text(
                             "Ajouter un médicament",
-                            style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 14),
+                            style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 14),
                           ),
                         ],
                       ),
@@ -778,7 +778,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                                   fontFamily: 'Cursive',
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF00A884).withValues(alpha: 0.8),
+                                  color: const Color(0xFF0D7C66).withValues(alpha: 0.8),
                                 ),
                               ),
                             ],
@@ -797,10 +797,10 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () => setState(() => _isSigned = !_isSigned),
-                          icon: Icon(Icons.gesture, color: _isSigned ? const Color(0xFF00A884) : const Color(0xFF5A607F), size: 18),
+                          icon: Icon(Icons.gesture, color: _isSigned ? const Color(0xFF0D7C66) : const Color(0xFF5A607F), size: 18),
                           label: Text(
                             _isSigned ? "Signé" : "Signer",
-                            style: TextStyle(color: _isSigned ? const Color(0xFF00A884) : const Color(0xFF5A607F)),
+                            style: TextStyle(color: _isSigned ? const Color(0xFF0D7C66) : const Color(0xFF5A607F)),
                           ),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -818,7 +818,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                           icon: const Icon(Icons.send, color: Colors.white, size: 18),
                           label: const Text("Envoyer", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF146C38),
+                            backgroundColor: const Color(0xFF0D7C66),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           ),
@@ -833,7 +833,7 @@ class _SmartPrescriptionScreenState extends ConsumerState<SmartPrescriptionScree
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text("Génération de l'ordonnance PDF sécurisée..."),
-                                backgroundColor: Color(0xFF00A884),
+                                backgroundColor: Color(0xFF0D7C66),
                               ),
                             );
                           },

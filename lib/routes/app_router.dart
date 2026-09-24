@@ -4,6 +4,7 @@ import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/auth/screens/verify_phone_otp_screen.dart';
 import '../features/auth/screens/setup_profile_screen.dart';
+import '../features/auth/screens/info_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/profile/screens/dashboard_screen.dart';
 import '../features/profile/screens/account_settings_screen.dart';
@@ -28,6 +29,7 @@ const String loginRoute = 'login';
 const String inscriptionRoute = 'inscription';
 const String profileRoute = 'profile';
 const String dashboardRoute = 'dashboard';
+const String infoRoute = 'info';
 
 Map<String, dynamic> _toMap(Object? extra) {
   if (extra is Map<String, dynamic>) return extra;
@@ -92,6 +94,14 @@ final GoRouter appRouter = GoRouter(
       path: '/configuration-profil',
       name: 'configuration-profil',
       builder: (context, state) => SetupProfileScreen(userInfo: _toMap(state.extra)),
+    ),
+    GoRoute(
+      path: '/info',
+      name: infoRoute,
+      builder: (context, state) {
+        final extra = _toMap(state.extra);
+        return InfoScreen(email: extra['email']?.toString() ?? '');
+      },
     ),
 
     // ── TABLEAU DE BORD (Accueil unifié Patient & Médecin) ──

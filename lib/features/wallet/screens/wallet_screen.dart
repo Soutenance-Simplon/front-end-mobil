@@ -58,12 +58,12 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF00A884).withValues(alpha: 0.1),
+                        color: const Color(0xFF0D7C66).withValues(alpha: 0.1),
                         borderRadius: const BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28)),
                       ),
                       child: const Row(
                         children: [
-                          Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF00A884), size: 28),
+                          Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF0D7C66), size: 28),
                           SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -91,10 +91,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                     duration: const Duration(milliseconds: 200),
                                     padding: const EdgeInsets.symmetric(vertical: 12),
                                     decoration: BoxDecoration(
-                                      color: paymentMethod == "Wave" ? const Color(0xFF00A884).withValues(alpha: 0.1) : const Color(0xFFF8F9FA),
+                                      color: paymentMethod == "Wave" ? const Color(0xFF0D7C66).withValues(alpha: 0.1) : const Color(0xFFF8F9FA),
                                       borderRadius: BorderRadius.circular(16),
                                       border: Border.all(
-                                        color: paymentMethod == "Wave" ? const Color(0xFF00A884) : Colors.transparent,
+                                        color: paymentMethod == "Wave" ? const Color(0xFF0D7C66) : Colors.transparent,
                                         width: 2,
                                       ),
                                     ),
@@ -192,10 +192,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                 flex: 2,
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    gradient: const LinearGradient(colors: [Color(0xFF00A884), Color(0xFF146C38)]),
+                                    gradient: const LinearGradient(colors: [Color(0xFF0D7C66), Color(0xFF0D7C66)]),
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: [
-                                      BoxShadow(color: const Color(0xFF00A884).withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6)),
+                                      BoxShadow(color: const Color(0xFF0D7C66).withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6)),
                                     ],
                                   ),
                                   child: ElevatedButton(
@@ -211,7 +211,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                       scaffoldMessenger.showSnackBar(
                                         SnackBar(
                                           content: Text(ok ? "Recharge de ${amount.toStringAsFixed(0)} FCFA réussie !" : "Erreur de recharge"),
-                                          backgroundColor: ok ? const Color(0xFF00A884) : Colors.red,
+                                          backgroundColor: ok ? const Color(0xFF0D7C66) : Colors.red,
                                         ),
                                       );
                                     },
@@ -276,12 +276,12 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF00A884).withValues(alpha: 0.1),
+                        color: const Color(0xFF0D7C66).withValues(alpha: 0.1),
                         borderRadius: const BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28)),
                       ),
                       child: const Row(
                         children: [
-                          Icon(Icons.person_add_rounded, color: Color(0xFF00A884), size: 28),
+                          Icon(Icons.person_add_rounded, color: Color(0xFF0D7C66), size: 28),
                           SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -378,10 +378,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                 flex: 2,
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    gradient: const LinearGradient(colors: [Color(0xFF00A884), Color(0xFF146C38)]),
+                                    gradient: const LinearGradient(colors: [Color(0xFF0D7C66), Color(0xFF0D7C66)]),
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: [
-                                      BoxShadow(color: const Color(0xFF00A884).withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6)),
+                                      BoxShadow(color: const Color(0xFF0D7C66).withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6)),
                                     ],
                                   ),
                                   child: ElevatedButton(
@@ -396,7 +396,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                           });
                                         });
                                         ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text("Bénéficiaire ajouté avec succès"), backgroundColor: Color(0xFF00A884)),
+                                          const SnackBar(content: Text("Bénéficiaire ajouté avec succès"), backgroundColor: Color(0xFF0D7C66)),
                                         );
                                         Navigator.pop(context);
                                       }
@@ -468,7 +468,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             constraints: const BoxConstraints(maxWidth: 500),
             padding: const EdgeInsets.all(20),
             child: RefreshIndicator(
-              color: const Color(0xFF00A884),
+              color: const Color(0xFF0D7C66),
               onRefresh: () async {
                 final user = ref.read(authProvider).user;
                 if (user != null && user.id.isNotEmpty) {
@@ -485,14 +485,14 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF00A884), Color(0xFF146C38)],
+                        colors: [Color(0xFF0D7C66), Color(0xFF0D7C66)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF00A884).withValues(alpha: 0.3),
+                          color: const Color(0xFF0D7C66).withValues(alpha: 0.3),
                           blurRadius: 16,
                           offset: const Offset(0, 6),
                         ),
@@ -534,7 +534,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                 onPressed: _showDepotDialog,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
-                                  foregroundColor: const Color(0xFF00A884),
+                                  foregroundColor: const Color(0xFF0D7C66),
                                   padding: const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                                 ),
@@ -658,7 +658,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                   const TextSpan(text: " souhaite prendre en charge vos actes et consultations médicales en tant que "),
                                   TextSpan(
                                     text: lien,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                                   ),
                                   const TextSpan(text: "."),
                                 ],
@@ -726,7 +726,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text("Prise en charge autorisée ! $tuteurNom prendra en charge vos actes médicaux."),
-                                          backgroundColor: const Color(0xFF00A884),
+                                          backgroundColor: const Color(0xFF0D7C66),
                                         ),
                                       );
                                     }
@@ -734,7 +734,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                   icon: const Icon(Icons.check_circle_outline, size: 16, color: Colors.white),
                                   label: const Text("Accepter", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.white)),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF00A884),
+                                    backgroundColor: const Color(0xFF0D7C66),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                     padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                                     elevation: 1,
@@ -759,7 +759,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                         onTap: _showAddBeneficiaireDialog,
                         child: const Text(
                           "+ Ajouter",
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                         ),
                       ),
                     ],
@@ -821,10 +821,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                               width: 44,
                               height: 44,
                               decoration: BoxDecoration(
-                                color: isAttente ? const Color(0xFFFFF4E5) : const Color(0xFFE6F7F3),
+                                color: isAttente ? const Color(0xFFFFF4E5) : const Color(0xFFE7F2F0),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Icon(Icons.person_outline, color: isAttente ? const Color(0xFFFFB74D) : const Color(0xFF00A884)),
+                              child: Icon(Icons.person_outline, color: isAttente ? const Color(0xFFFFB74D) : const Color(0xFF0D7C66)),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -846,12 +846,12 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: isAttente ? const Color(0xFFFFF4E5) : const Color(0xFFE6F7F3),
+                                color: isAttente ? const Color(0xFFFFF4E5) : const Color(0xFFE7F2F0),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 isAttente ? "En attente" : "Actif",
-                                style: TextStyle(color: isAttente ? const Color(0xFFFFB74D) : const Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 11),
+                                style: TextStyle(color: isAttente ? const Color(0xFFFFB74D) : const Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 11),
                               ),
                             ),
                           ],
@@ -870,7 +870,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     Container(
                       padding: const EdgeInsets.all(30),
                       alignment: Alignment.center,
-                      child: const CircularProgressIndicator(color: Color(0xFF00A884)),
+                      child: const CircularProgressIndicator(color: Color(0xFF0D7C66)),
                     )
                   else if (transactions.isEmpty)
                     Container(
@@ -916,12 +916,12 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                               width: 44,
                               height: 44,
                               decoration: BoxDecoration(
-                                color: isRecharge ? const Color(0xFFE6F7F3) : const Color(0xFFFDE8E8),
+                                color: isRecharge ? const Color(0xFFE7F2F0) : const Color(0xFFFDE8E8),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
                                 isRecharge ? Icons.add_circle_outline : Icons.remove_circle_outline,
-                                color: isRecharge ? const Color(0xFF00A884) : const Color(0xFFEF4444),
+                                color: isRecharge ? const Color(0xFF0D7C66) : const Color(0xFFEF4444),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -945,7 +945,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                             Text(
                               "${isRecharge ? '+' : '-'}${tx.montant.toStringAsFixed(0)} FCFA",
                               style: TextStyle(
-                                color: isRecharge ? const Color(0xFF00A884) : const Color(0xFFEF4444),
+                                color: isRecharge ? const Color(0xFF0D7C66) : const Color(0xFFEF4444),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
                               ),

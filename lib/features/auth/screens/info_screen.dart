@@ -291,11 +291,11 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                               TextButton.icon(
                                 onPressed: _pickImage,
                                 icon: const Icon(Icons.add_a_photo_outlined,
-                                    color: Color(0xFF129A7F)),
+                                    color: Color(0xFF0D7C66)),
                                 label: const Text(
                                   "Ajouter une photo",
                                   style: TextStyle(
-                                      color: Color(0xFF129A7F), fontWeight: FontWeight.w600),
+                                      color: Color(0xFF0D7C66), fontWeight: FontWeight.w600),
                                 ),
                               ),
                             ],

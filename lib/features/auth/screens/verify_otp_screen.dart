@@ -101,7 +101,7 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
               fontSize: 32, // texte plus grand
               fontWeight: FontWeight.bold,
             ),
-            cursorColor: const Color(0xFF129A7F),
+            cursorColor: const Color(0xFF0D7C66),
             decoration: InputDecoration(
               counterText: '',
               filled: true,
@@ -116,7 +116,7 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: Color(0xFF129A7F),
+                  color: Color(0xFF0D7C66),
                   width: 2,
                 ),
               ),

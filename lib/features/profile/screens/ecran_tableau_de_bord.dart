@@ -54,7 +54,7 @@ class _EcranTableauDeBordState extends ConsumerState<EcranTableauDeBord> {
                                 width: 46,
                                 height: 46,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF00A884),
+                                  color: const Color(0xFF0D7C66),
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                                 child: Center(
@@ -105,7 +105,7 @@ class _EcranTableauDeBordState extends ConsumerState<EcranTableauDeBord> {
                                 ),
                                 child: const Icon(
                                   Icons.calendar_month_outlined,
-                                  color: Color(0xFF00A884),
+                                  color: Color(0xFF0D7C66),
                                   size: 20,
                                 ),
                               ),
@@ -167,13 +167,13 @@ class _EcranTableauDeBordState extends ConsumerState<EcranTableauDeBord> {
                               itemBuilder: (context, index) {
                                 final spec = specialites[index];
                                 final couleurs = [
-                                  const Color(0xFF00A884),
+                                  const Color(0xFF0D7C66),
                                   const Color(0xFF5B67F7),
                                   const Color(0xFFFFA06D),
                                   const Color(0xFFB57CFF),
-                                  const Color(0xFF00A884),
+                                  const Color(0xFF0D7C66),
                                   const Color(0xFFEF4444),
-                                  const Color(0xFF10B981),
+                                  const Color(0xFF0D7C66),
                                 ];
                                 final couleur =
                                     couleurs[index % couleurs.length];
@@ -297,10 +297,10 @@ class _EcranTableauDeBordState extends ConsumerState<EcranTableauDeBord> {
                                                     width: 110,
                                                     height: 100,
                                                     decoration: BoxDecoration(
-                                                      color: const Color(0xFFE6F7F3),
+                                                      color: const Color(0xFFE7F2F0),
                                                       borderRadius: BorderRadius.circular(14),
                                                     ),
-                                                    child: const Icon(Icons.person, color: Color(0xFF00A884), size: 40),
+                                                    child: const Icon(Icons.person, color: Color(0xFF0D7C66), size: 40),
                                                   ),
                                                   const SizedBox(height: 10),
                                                   Text(
@@ -379,12 +379,12 @@ class _EcranTableauDeBordState extends ConsumerState<EcranTableauDeBord> {
       return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFF00A884).withOpacity(0.12),
+          color: const Color(0xFF0D7C66).withOpacity(0.12),
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Icon(
           Icons.home_filled,
-          color: Color(0xFF00A884),
+          color: Color(0xFF0D7C66),
           size: 24,
         ),
       );
@@ -402,7 +402,7 @@ class _EcranTableauDeBordState extends ConsumerState<EcranTableauDeBord> {
         padding: const EdgeInsets.all(8),
         child: Icon(
           icone,
-          color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFF8E95A5),
+          color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFF8E95A5),
           size: 24,
         ),
       ),

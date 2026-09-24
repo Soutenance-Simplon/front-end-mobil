@@ -32,7 +32,7 @@ class EcranNotifications extends ConsumerWidget {
             constraints: const BoxConstraints(maxWidth: 500),
             padding: const EdgeInsets.all(20),
             child: notifState.isLoading
-                ? const Center(child: CircularProgressIndicator(color: Color(0xFF00A884)))
+                ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D7C66)))
                 : notifications.isEmpty
                     ? const Center(
                         child: Text(
@@ -52,11 +52,11 @@ class EcranNotifications extends ConsumerWidget {
                           switch (notif.typeNotification) {
                             case 'RAPPEL_RDV':
                               iconData = Icons.videocam_outlined;
-                              iconColor = const Color(0xFF00A884);
+                              iconColor = const Color(0xFF0D7C66);
                               break;
                             case 'PAIEMENT':
                               iconData = Icons.account_balance_wallet_outlined;
-                              iconColor = const Color(0xFF00A884);
+                              iconColor = const Color(0xFF0D7C66);
                               break;
                             case 'RAPPEL_TRAITEMENT':
                               iconData = Icons.medication_outlined;
@@ -70,10 +70,10 @@ class EcranNotifications extends ConsumerWidget {
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
                             decoration: BoxDecoration(
-                              color: estLue ? Colors.white : const Color(0xFFE6F7F3).withOpacity(0.3),
+                              color: estLue ? Colors.white : const Color(0xFFE7F2F0).withOpacity(0.3),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: estLue ? const Color(0xFFE5E9F2) : const Color(0xFF00A884).withOpacity(0.4),
+                                color: estLue ? const Color(0xFFE5E9F2) : const Color(0xFF0D7C66).withOpacity(0.4),
                               ),
                             ),
                             child: ListTile(

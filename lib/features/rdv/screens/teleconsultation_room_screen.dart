@@ -129,8 +129,8 @@ class _TeleconsultationRoomScreenState extends ConsumerState<TeleconsultationRoo
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: const Color(0xFFE6F7F3), borderRadius: BorderRadius.circular(10)),
-                child: const Icon(Icons.star_rounded, color: Color(0xFF00A884), size: 28),
+                decoration: BoxDecoration(color: const Color(0xFFE7F2F0), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.star_rounded, color: Color(0xFF0D7C66), size: 28),
               ),
               const SizedBox(width: 12),
               const Expanded(
@@ -201,13 +201,13 @@ class _TeleconsultationRoomScreenState extends ConsumerState<TeleconsultationRoo
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text("Merci infiniment pour votre avis !"),
-                    backgroundColor: Color(0xFF00A884),
+                    backgroundColor: Color(0xFF0D7C66),
                   ),
                 );
                 if (mounted) Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00A884),
+                backgroundColor: const Color(0xFF0D7C66),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: const Text("Publier mon avis", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -254,13 +254,13 @@ class _TeleconsultationRoomScreenState extends ConsumerState<TeleconsultationRoo
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF00A884).withValues(alpha: 0.12),
+                  color: const Color(0xFF0D7C66).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.35)),
+                  border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.35)),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.shield_rounded, color: Color(0xFF00A884), size: 20),
+                    Icon(Icons.shield_rounded, color: Color(0xFF0D7C66), size: 20),
                     SizedBox(width: 10),
                     Expanded(
                       child: Column(
@@ -268,7 +268,7 @@ class _TeleconsultationRoomScreenState extends ConsumerState<TeleconsultationRoo
                         children: [
                           Text(
                             "SESSIONS MÉDICALES SÉCURISÉES JITSI",
-                            style: TextStyle(color: Color(0xFF00A884), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                            style: TextStyle(color: Color(0xFF0D7C66), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5),
                           ),
                           SizedBox(height: 2),
                           Text(
@@ -295,10 +295,10 @@ class _TeleconsultationRoomScreenState extends ConsumerState<TeleconsultationRoo
                   children: [
                     CircleAvatar(
                       radius: 42,
-                      backgroundColor: const Color(0xFF00A884).withValues(alpha: 0.2),
+                      backgroundColor: const Color(0xFF0D7C66).withValues(alpha: 0.2),
                       child: Icon(
                         isDoctor ? Icons.person_rounded : Icons.medical_services_rounded,
-                        color: const Color(0xFF00A884),
+                        color: const Color(0xFF0D7C66),
                         size: 42,
                       ),
                     ),
@@ -312,12 +312,12 @@ class _TeleconsultationRoomScreenState extends ConsumerState<TeleconsultationRoo
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF00A884).withValues(alpha: 0.15),
+                        color: const Color(0xFF0D7C66).withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         interlocuteurRole,
-                        style: const TextStyle(color: Color(0xFF00A884), fontSize: 12, fontWeight: FontWeight.w600),
+                        style: const TextStyle(color: Color(0xFF0D7C66), fontSize: 12, fontWeight: FontWeight.w600),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -364,7 +364,7 @@ class _TeleconsultationRoomScreenState extends ConsumerState<TeleconsultationRoo
                       ? null
                       : () => _lancerVisio(rdv),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00A884),
+                    backgroundColor: const Color(0xFF0D7C66),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 4,
                   ),

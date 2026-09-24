@@ -79,7 +79,7 @@ class _EcranAssistantIaState extends ConsumerState<EcranAssistantIa> {
           return const Center(
             child: Padding(
               padding: EdgeInsets.all(8.0),
-              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00A884))),
+              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D7C66))),
             ),
           );
         }
@@ -101,8 +101,8 @@ class _EcranAssistantIaState extends ConsumerState<EcranAssistantIa> {
               children: [
                 CircleAvatar(
                   radius: 18,
-                  backgroundColor: const Color(0xFF00A884).withValues(alpha: 0.15),
-                  child: const Icon(Icons.person_outline, color: Color(0xFF00A884), size: 20),
+                  backgroundColor: const Color(0xFF0D7C66).withValues(alpha: 0.15),
+                  child: const Icon(Icons.person_outline, color: Color(0xFF0D7C66), size: 20),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -118,7 +118,7 @@ class _EcranAssistantIaState extends ConsumerState<EcranAssistantIa> {
                 ElevatedButton(
                   onPressed: () => context.push('/doctors'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00A884),
+                    backgroundColor: const Color(0xFF0D7C66),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                     minimumSize: const Size(0, 32),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -154,10 +154,10 @@ class _EcranAssistantIaState extends ConsumerState<EcranAssistantIa> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF00A884).withValues(alpha: 0.12),
+                color: const Color(0xFF0D7C66).withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.auto_awesome, color: Color(0xFF00A884), size: 20),
+              child: const Icon(Icons.auto_awesome, color: Color(0xFF0D7C66), size: 20),
             ),
             const SizedBox(width: 12),
             const Column(
@@ -169,7 +169,7 @@ class _EcranAssistantIaState extends ConsumerState<EcranAssistantIa> {
                 ),
                 Text(
                   "Triage & Conseil Diam Yaraam",
-                  style: TextStyle(color: Color(0xFF00A884), fontSize: 11, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: Color(0xFF0D7C66), fontSize: 11, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -256,7 +256,7 @@ class _EcranAssistantIaState extends ConsumerState<EcranAssistantIa> {
                                 SizedBox(
                                   width: 16,
                                   height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00A884)),
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D7C66)),
                                 ),
                                 SizedBox(width: 10),
                                 Text(
@@ -279,7 +279,7 @@ class _EcranAssistantIaState extends ConsumerState<EcranAssistantIa> {
                           constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: estUser ? const Color(0xFF00A884) : Colors.white,
+                            color: estUser ? const Color(0xFF0D7C66) : Colors.white,
                             borderRadius: BorderRadius.circular(20).copyWith(
                               bottomRight: estUser ? const Radius.circular(4) : const Radius.circular(20),
                               bottomLeft: !estUser ? const Radius.circular(4) : const Radius.circular(20),
@@ -310,7 +310,7 @@ class _EcranAssistantIaState extends ConsumerState<EcranAssistantIa> {
                                 const SizedBox(height: 8),
                                 const Text(
                                   "Actions recommandées :",
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                                 ),
                                 const SizedBox(height: 6),
                                 ...msg.recommandations!.map((rec) => Padding(
@@ -318,7 +318,7 @@ class _EcranAssistantIaState extends ConsumerState<EcranAssistantIa> {
                                       child: Row(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          const Text("• ", style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold)),
+                                          const Text("• ", style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold)),
                                           Expanded(
                                             child: Text(rec, style: const TextStyle(fontSize: 12, color: Color(0xFF5A607F))),
                                           ),
@@ -331,7 +331,7 @@ class _EcranAssistantIaState extends ConsumerState<EcranAssistantIa> {
                                   child: ElevatedButton(
                                     onPressed: () => context.push('/doctors'),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF00A884),
+                                      backgroundColor: const Color(0xFF0D7C66),
                                       elevation: 0,
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -350,12 +350,12 @@ class _EcranAssistantIaState extends ConsumerState<EcranAssistantIa> {
                                 const SizedBox(height: 10),
                                 Row(
                                   children: [
-                                    const Icon(Icons.medical_services_outlined, color: Color(0xFF00A884), size: 16),
+                                    const Icon(Icons.medical_services_outlined, color: Color(0xFF0D7C66), size: 16),
                                     const SizedBox(width: 6),
                                     Expanded(
                                       child: Text(
                                         "Spécialistes suggérés : ${msg.specialitesSuggerees!.first}",
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                                       ),
                                     ),
                                   ],
@@ -415,7 +415,7 @@ class _EcranAssistantIaState extends ConsumerState<EcranAssistantIa> {
                           width: 46,
                           height: 46,
                           decoration: const BoxDecoration(
-                            color: Color(0xFF00A884),
+                            color: Color(0xFF0D7C66),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),

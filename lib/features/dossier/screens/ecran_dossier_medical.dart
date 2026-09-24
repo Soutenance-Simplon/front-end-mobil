@@ -181,7 +181,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
               const SizedBox(height: 18),
               const Row(
                 children: [
-                  Icon(Icons.monitor_weight_outlined, color: Color(0xFF00A884), size: 22),
+                  Icon(Icons.monitor_weight_outlined, color: Color(0xFF0D7C66), size: 22),
                   SizedBox(width: 8),
                   Text(
                     "Modifier les Constantes Vitales",
@@ -210,7 +210,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                 items: groupes.map((g) {
                   return DropdownMenuItem(
                     value: g,
-                    child: Text(g, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF00A884))),
+                    child: Text(g, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0D7C66))),
                   );
                 }).toList(),
                 onChanged: (val) => setModalState(() => selectedGroupe = val ?? selectedGroupe),
@@ -281,12 +281,12 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Constantes médicales mises à jour avec succès !"),
-                        backgroundColor: Color(0xFF00A884),
+                        backgroundColor: Color(0xFF0D7C66),
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00A884),
+                    backgroundColor: const Color(0xFF0D7C66),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                   child: const Text("Enregistrer les modifications", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
@@ -381,7 +381,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                           );
                       Navigator.pop(ctx);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Allergie ajoutée au dossier médical !"), backgroundColor: Color(0xFF00A884)),
+                        const SnackBar(content: Text("Allergie ajoutée au dossier médical !"), backgroundColor: Color(0xFF0D7C66)),
                       );
                     }
                   },
@@ -445,7 +445,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.qr_code_scanner_rounded, color: Color(0xFF00A884)),
+            icon: const Icon(Icons.qr_code_scanner_rounded, color: Color(0xFF0D7C66)),
             tooltip: "Scanner Pass Urgence",
             onPressed: () => context.push('/qr-scanner', extra: {'tab': 1, 'isMedecin': true}),
           ),
@@ -464,14 +464,14 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF00A884), Color(0xFF064E3B)],
+                      colors: [Color(0xFF0D7C66), Color(0xFF0D7C66)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF00A884).withValues(alpha: 0.25),
+                        color: const Color(0xFF0D7C66).withValues(alpha: 0.25),
                         blurRadius: 14,
                         offset: const Offset(0, 5),
                       ),
@@ -519,7 +519,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF10B981),
+                              color: const Color(0xFF0D7C66),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -560,7 +560,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.25), width: 1.2),
+                    border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.25), width: 1.2),
                     boxShadow: [
                       BoxShadow(
                         color: const Color(0xFF0F172A).withValues(alpha: 0.04),
@@ -574,10 +574,10 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE6F7F3),
+                          color: const Color(0xFFE7F2F0),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Icon(Icons.health_and_safety_rounded, color: Color(0xFF00A884), size: 26),
+                        child: const Icon(Icons.health_and_safety_rounded, color: Color(0xFF0D7C66), size: 26),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
@@ -608,7 +608,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                               );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00A884),
+                          backgroundColor: const Color(0xFF0D7C66),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -635,7 +635,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                     decoration: InputDecoration(
                       hintText: "Rechercher parmi mes patients (Nom, ID, Téléphone)...",
                       hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
-                      prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF00A884)),
+                      prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF0D7C66)),
                       suffixIcon: _rechercheCtrl.text.isNotEmpty
                           ? IconButton(
                               icon: const Icon(Icons.clear, size: 18, color: Colors.grey),
@@ -720,13 +720,13 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                                         width: 48,
                                         height: 48,
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFE6F7F3),
+                                          color: const Color(0xFFE7F2F0),
                                           borderRadius: BorderRadius.circular(16),
                                         ),
                                         alignment: Alignment.center,
                                         child: Text(
                                           initiales,
-                                          style: const TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 16),
+                                          style: const TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 16),
                                         ),
                                       ),
                                       const SizedBox(width: 14),
@@ -781,7 +781,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                                             ),
                                             Text(
                                               "${p['motifDernierRdv']} (${p['typeDernierRdv']})",
-                                              style: const TextStyle(fontSize: 11, color: Color(0xFF00A884)),
+                                              style: const TextStyle(fontSize: 11, color: Color(0xFF0D7C66)),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ],
@@ -791,7 +791,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                                       ElevatedButton.icon(
                                         onPressed: () => _selectionnerPatient(p),
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF00A884),
+                                          backgroundColor: const Color(0xFF0D7C66),
                                           elevation: 0,
                                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -914,7 +914,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.qr_code_2_rounded, color: Color(0xFF00A884)),
+            icon: const Icon(Icons.qr_code_2_rounded, color: Color(0xFF0D7C66)),
             tooltip: "Voir le Pass Santé",
             onPressed: () => context.push('/qr-scanner'),
           ),
@@ -940,19 +940,19 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE6F7F3),
+                        color: const Color(0xFFE7F2F0),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.arrow_back, size: 14, color: Color(0xFF00A884)),
+                          const Icon(Icons.arrow_back, size: 14, color: Color(0xFF0D7C66)),
                           const SizedBox(width: 6),
                           Text(
                             _voirMonPropreDossier
                                 ? "Retourner à l'espace praticien (Mes Patients)"
                                 : "Revenir au répertoire de mes patients",
-                            style: const TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 12),
+                            style: const TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 12),
                           ),
                         ],
                       ),
@@ -966,15 +966,15 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: (isDoctor && !_voirMonPropreDossier)
-                          ? [const Color(0xFF00A884), const Color(0xFF00A884)]
-                          : [const Color(0xFF008764), const Color(0xFF00A884)],
+                          ? [const Color(0xFF0D7C66), const Color(0xFF0D7C66)]
+                          : [const Color(0xFF0D7C66), const Color(0xFF0D7C66)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF00A884).withValues(alpha: 0.35),
+                        color: const Color(0xFF0D7C66).withValues(alpha: 0.35),
                         blurRadius: 16,
                         offset: const Offset(0, 6),
                       ),
@@ -1144,7 +1144,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.3)),
+                        border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.3)),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.03),
@@ -1158,10 +1158,10 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE6F7F3),
+                              color: const Color(0xFFE7F2F0),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Icon(Icons.calendar_month_rounded, color: Color(0xFF00A884), size: 20),
+                            child: const Icon(Icons.calendar_month_rounded, color: Color(0xFF0D7C66), size: 20),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -1179,7 +1179,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                               ],
                             ),
                           ),
-                          const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF00A884)),
+                          const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF0D7C66)),
                         ],
                       ),
                     ),
@@ -1207,10 +1207,10 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                             duration: const Duration(milliseconds: 200),
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
-                              color: estSelectionne ? const Color(0xFF00A884) : Colors.white,
+                              color: estSelectionne ? const Color(0xFF0D7C66) : Colors.white,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFFE2E8F0),
+                                color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFFE2E8F0),
                               ),
                             ),
                             child: Text(
@@ -1233,13 +1233,13 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                 // CONTENU DES ONGLETS
                 Expanded(
                   child: dossierState.isLoading
-                      ? const Center(child: CircularProgressIndicator(color: Color(0xFF00A884)))
+                      ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D7C66)))
                       : RefreshIndicator(
                           onRefresh: () async {
                             final pId = idPatient;
                             await ref.read(dossierProvider.notifier).loadDossier(patientId: pId);
                           },
-                          color: const Color(0xFF00A884),
+                          color: const Color(0xFF0D7C66),
                           child: SingleChildScrollView(
                             physics: const AlwaysScrollableScrollPhysics(),
                             child: Column(
@@ -1269,7 +1269,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                             'patient_nom': nomPatient,
                           }),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00A884),
+                            backgroundColor: const Color(0xFF0D7C66),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           ),
@@ -1286,7 +1286,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                             'groupe': groupeSanguin,
                           }),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00A884),
+                            backgroundColor: const Color(0xFF0D7C66),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           ),
@@ -1301,18 +1301,18 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00A884).withValues(alpha: 0.08),
+                      color: const Color(0xFF0D7C66).withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.25)),
+                      border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.25)),
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.verified_user_rounded, color: Color(0xFF00A884), size: 18),
+                        Icon(Icons.verified_user_rounded, color: Color(0xFF0D7C66), size: 18),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             "Dossier médical certifié : Seul un médecin agréé est habilité à prescrire des ordonnances, consigner des diagnostics ou enregistrer des antécédents médicaux.",
-                            style: TextStyle(fontSize: 11, color: Color(0xFF064E3B), fontWeight: FontWeight.w500),
+                            style: TextStyle(fontSize: 11, color: Color(0xFF0D7C66), fontWeight: FontWeight.w500),
                           ),
                         ),
                       ],
@@ -1424,7 +1424,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
             const Text("Allergies Connues", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
             if (isDoctor)
               IconButton(
-                icon: const Icon(Icons.add_circle, color: Color(0xFF00A884), size: 22),
+                icon: const Icon(Icons.add_circle, color: Color(0xFF0D7C66), size: 22),
                 tooltip: "Ajouter une allergie",
                 onPressed: _ouvrirModalAjouterAllergie,
               ),
@@ -1476,10 +1476,10 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE6F7F3),
+                      color: const Color(0xFFE7F2F0),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.history_edu_rounded, color: Color(0xFF00A884), size: 18),
+                    child: const Icon(Icons.history_edu_rounded, color: Color(0xFF0D7C66), size: 18),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -1525,10 +1525,10 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE6F7F3),
+                    color: const Color(0xFFE7F2F0),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.vaccines_rounded, color: Color(0xFF00A884), size: 20),
+                  child: const Icon(Icons.vaccines_rounded, color: Color(0xFF0D7C66), size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -1538,17 +1538,17 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                       Text(v.nomVaccin, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B))),
                       Text("Administré le : ${v.dateAdministration.day}/${v.dateAdministration.month}/${v.dateAdministration.year}", style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
                       if (v.dateRappel != null)
-                        Text("Prochain rappel : ${v.dateRappel!.day}/${v.dateRappel!.month}/${v.dateRappel!.year}", style: const TextStyle(fontSize: 11, color: Color(0xFF00A884), fontWeight: FontWeight.w600)),
+                        Text("Prochain rappel : ${v.dateRappel!.day}/${v.dateRappel!.month}/${v.dateRappel!.year}", style: const TextStyle(fontSize: 11, color: Color(0xFF0D7C66), fontWeight: FontWeight.w600)),
                     ],
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFDCFCE7),
+                    color: const Color(0xFFE7F2F0),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text("À jour ✔", style: TextStyle(color: Color(0xFF16A34A), fontSize: 11, fontWeight: FontWeight.bold)),
+                  child: const Text("À jour ✔", style: TextStyle(color: Color(0xFF0D7C66), fontSize: 11, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -1576,12 +1576,12 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE6F7F3),
+                  color: const Color(0xFFE7F2F0),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   "${c.dateConsultation.day}/${c.dateConsultation.month}/${c.dateConsultation.year}",
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                 ),
               ),
               Text(
@@ -1624,7 +1624,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                 "Ordonnance du ${p.datePrescription.day}/${p.datePrescription.month}/${p.datePrescription.year}",
                 style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
               ),
-              const Icon(Icons.verified, color: Color(0xFF00A884), size: 16),
+              const Icon(Icons.verified, color: Color(0xFF0D7C66), size: 16),
             ],
           ),
           const SizedBox(height: 6),
@@ -1632,7 +1632,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                 padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Row(
                   children: [
-                    const Icon(Icons.circle, size: 6, color: Color(0xFF00A884)),
+                    const Icon(Icons.circle, size: 6, color: Color(0xFF0D7C66)),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -1684,12 +1684,12 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFFE6F7F3), Color(0xFFF0FDF4)],
+              colors: [Color(0xFFE7F2F0), Color(0xFFE7F2F0)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.3)),
+            border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.3)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1699,7 +1699,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00A884),
+                      color: const Color(0xFF0D7C66),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(Icons.shield_outlined, color: Colors.white, size: 20),
@@ -1728,13 +1728,13 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00A884).withValues(alpha: 0.15),
+                      color: const Color(0xFF0D7C66).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       "$totalAutorises / ${medecins.length} Actif(s)",
                       style: const TextStyle(
-                        color: Color(0xFF00A884),
+                        color: Color(0xFF0D7C66),
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
                       ),
@@ -1764,10 +1764,10 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
             if (canManageAccess)
               TextButton.icon(
                 onPressed: () => _ouvrirModalDemanderAcces(),
-                icon: const Icon(Icons.person_add_alt_1, size: 16, color: Color(0xFF00A884)),
+                icon: const Icon(Icons.person_add_alt_1, size: 16, color: Color(0xFF0D7C66)),
                 label: const Text(
                   "Ajouter",
-                  style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 12),
+                  style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 12),
                 ),
               ),
           ],
@@ -1791,7 +1791,7 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: med.estAutorise ? const Color(0xFF00A884).withValues(alpha: 0.35) : const Color(0xFFEF4444).withValues(alpha: 0.35),
+          color: med.estAutorise ? const Color(0xFF0D7C66).withValues(alpha: 0.35) : const Color(0xFFEF4444).withValues(alpha: 0.35),
           width: 1.2,
         ),
         boxShadow: [
@@ -1812,12 +1812,12 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: med.estAutorise ? const Color(0xFFE6F7F3) : const Color(0xFFFEE2E2),
+                  color: med.estAutorise ? const Color(0xFFE7F2F0) : const Color(0xFFFEE2E2),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
                   med.estAutorise ? Icons.medical_services_rounded : Icons.person_off_rounded,
-                  color: med.estAutorise ? const Color(0xFF00A884) : const Color(0xFFEF4444),
+                  color: med.estAutorise ? const Color(0xFF0D7C66) : const Color(0xFFEF4444),
                   size: 24,
                 ),
               ),
@@ -1839,10 +1839,10 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: med.estAutorise ? const Color(0xFFE6F7F3) : const Color(0xFFFEE2E2),
+                            color: med.estAutorise ? const Color(0xFFE7F2F0) : const Color(0xFFFEE2E2),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: med.estAutorise ? const Color(0xFF00A884) : const Color(0xFFEF4444),
+                              color: med.estAutorise ? const Color(0xFF0D7C66) : const Color(0xFFEF4444),
                               width: 0.8,
                             ),
                           ),
@@ -1852,13 +1852,13 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                               Icon(
                                 med.estAutorise ? Icons.check_circle : Icons.cancel,
                                 size: 11,
-                                color: med.estAutorise ? const Color(0xFF00A884) : const Color(0xFFEF4444),
+                                color: med.estAutorise ? const Color(0xFF0D7C66) : const Color(0xFFEF4444),
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 med.estAutorise ? "ACCÈS AUTORISÉ" : "ACCÈS RÉVOQUÉ",
                                 style: TextStyle(
-                                  color: med.estAutorise ? const Color(0xFF00A884) : const Color(0xFFEF4444),
+                                  color: med.estAutorise ? const Color(0xFF0D7C66) : const Color(0xFFEF4444),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 10,
                                 ),
@@ -1932,14 +1932,14 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text("Accès au dossier médical accordé au ${med.nom}"),
-                          backgroundColor: const Color(0xFF00A884),
+                          backgroundColor: const Color(0xFF0D7C66),
                         ),
                       );
                     },
                     icon: const Icon(Icons.lock_open_rounded, size: 14, color: Colors.white),
                     label: const Text("Accorder l'Accès", style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00A884),
+                      backgroundColor: const Color(0xFF0D7C66),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       elevation: 0,
@@ -2084,12 +2084,12 @@ class _EcranDossierMedicalState extends ConsumerState<EcranDossierMedical> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text("Accès accordé au ${nomCtrl.text.trim()} !"),
-                      backgroundColor: const Color(0xFF00A884),
+                      backgroundColor: const Color(0xFF0D7C66),
                     ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00A884),
+                  backgroundColor: const Color(0xFF0D7C66),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
                 child: const Text("Valider l'autorisation", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),

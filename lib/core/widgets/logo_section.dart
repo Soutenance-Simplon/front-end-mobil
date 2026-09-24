@@ -7,7 +7,7 @@ class LogoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      // color: const Color(0xFF129A7F),
+      // color: const Color(0xFF0D7C66),
       color: Colors.white,
       child: Center(
         child: Column(
@@ -25,7 +25,7 @@ class LogoSection extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color:   Color(0xFF129A7F),
+                color:   Color(0xFF0D7C66),
               ),
             ),
           ],

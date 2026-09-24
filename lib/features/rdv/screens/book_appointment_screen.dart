@@ -213,7 +213,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("Position GPS actuelle ajoutée avec succès"),
-        backgroundColor: Color(0xFF00A884),
+        backgroundColor: Color(0xFF0D7C66),
         duration: Duration(seconds: 2),
       ),
     );
@@ -295,7 +295,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
             const SizedBox(height: 12),
             const Text(
               "💡 Rechargez facilement votre portefeuille par Wave, Orange Money ou Free Money pour débloquer votre réservation.",
-              style: TextStyle(fontSize: 11.5, color: Color(0xFF00A884), fontStyle: FontStyle.italic),
+              style: TextStyle(fontSize: 11.5, color: Color(0xFF0D7C66), fontStyle: FontStyle.italic),
             ),
           ],
         ),
@@ -325,7 +325,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                   icon: const Icon(Icons.add_card_rounded, color: Colors.white, size: 18),
                   label: const Text("Recharger", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00A884),
+                    backgroundColor: const Color(0xFF0D7C66),
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -454,7 +454,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Row(
           children: [
-            Icon(Icons.check_circle, color: Color(0xFF00A884), size: 28),
+            Icon(Icons.check_circle, color: Color(0xFF0D7C66), size: 28),
             SizedBox(width: 10),
             Text("RDV Confirmé !", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ],
@@ -481,7 +481,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                   Row(
                     children: [
                       Icon(isHome ? Icons.home_work_rounded : Icons.videocam_rounded, 
-                          color: const Color(0xFF00A884), size: 18),
+                          color: const Color(0xFF0D7C66), size: 18),
                       const SizedBox(width: 8),
                       Text(typeText, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                     ],
@@ -489,7 +489,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.person_rounded, color: Color(0xFF00A884), size: 16),
+                      const Icon(Icons.person_rounded, color: Color(0xFF0D7C66), size: 16),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
@@ -503,19 +503,19 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.folder_shared_rounded, color: Color(0xFF16A34A), size: 16),
+                      const Icon(Icons.folder_shared_rounded, color: Color(0xFF0D7C66), size: 16),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           "Dossier médical de $patientCibleNom transmis avec succès au praticien.",
-                          style: const TextStyle(fontSize: 11.5, color: Color(0xFF15803D), fontWeight: FontWeight.w600),
+                          style: const TextStyle(fontSize: 11.5, color: Color(0xFF0D7C66), fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Text("🕒 Créneau : $_selectedTimeSlot ($_selectedPeriod)", style: const TextStyle(fontSize: 12, color: Color(0xFF5A607F))),
-                  Text("💰 Tarif : $price", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF00A884))),
+                  Text("💰 Tarif : $price", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF0D7C66))),
                   if (isHome) ...[
                     const SizedBox(height: 6),
                     Text("📍 Adresse : ${_locationController.text.trim()}", style: const TextStyle(fontSize: 12, color: Color(0xFF5A607F))),
@@ -527,18 +527,18 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
+                color: const Color(0xFFE7F2F0),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF86EFAC)),
+                border: Border.all(color: const Color(0xFFC3DED9)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF16A34A), size: 20),
+                  const Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF0D7C66), size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       "Paiement effectué : ${_formaterPrix(montantConsultation)} FCFA débités de votre Portefeuille Santé.\nNouveau solde : ${_formaterPrix(nouveauSolde)} FCFA.",
-                      style: const TextStyle(fontSize: 11.5, color: Color(0xFF166534), fontWeight: FontWeight.w500),
+                      style: const TextStyle(fontSize: 11.5, color: Color(0xFF0D7C66), fontWeight: FontWeight.w500),
                     ),
                   ),
                 ],
@@ -553,7 +553,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
               context.go('/dashboard');
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00A884),
+              backgroundColor: const Color(0xFF0D7C66),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             ),
@@ -646,10 +646,10 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFE6F7F3),
+                                  color: const Color(0xFFE7F2F0),
                                   borderRadius: BorderRadius.circular(14),
                                 ),
-                                child: const Icon(Icons.person, color: Color(0xFF00A884), size: 26),
+                                child: const Icon(Icons.person, color: Color(0xFF0D7C66), size: 26),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -662,7 +662,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                     ),
                                     Text(
                                       specialty,
-                                      style: const TextStyle(fontSize: 12, color: Color(0xFF00A884), fontWeight: FontWeight.w600),
+                                      style: const TextStyle(fontSize: 12, color: Color(0xFF0D7C66), fontWeight: FontWeight.w600),
                                     ),
                                   ],
                                 ),
@@ -670,14 +670,14 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFE6F7F3),
+                                  color: const Color(0xFFE7F2F0),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Row(
                                   children: [
-                                    Icon(Icons.verified, color: Color(0xFF00A884), size: 12),
+                                    Icon(Icons.verified, color: Color(0xFF0D7C66), size: 12),
                                     SizedBox(width: 4),
-                                    Text("Médecin Vérifié", style: TextStyle(fontSize: 10, color: Color(0xFF00A884), fontWeight: FontWeight.bold)),
+                                    Text("Médecin Vérifié", style: TextStyle(fontSize: 10, color: Color(0xFF0D7C66), fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                               ),
@@ -702,12 +702,12 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE6F7F3),
+                                color: const Color(0xFFE7F2F0),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
                                 _membreSelectionne == null ? "Moi-même" : _membreSelectionne!.prenom,
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                               ),
                             ),
                           ],
@@ -768,10 +768,10 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: aSoldeSuffisant ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
+                            color: aSoldeSuffisant ? const Color(0xFFE7F2F0) : const Color(0xFFFEF2F2),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: aSoldeSuffisant ? const Color(0xFF86EFAC) : const Color(0xFFFECACA),
+                              color: aSoldeSuffisant ? const Color(0xFFC3DED9) : const Color(0xFFFECACA),
                             ),
                           ),
                           child: Column(
@@ -782,7 +782,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                   Icon(
                                     Icons.account_balance_wallet_rounded,
                                     size: 20,
-                                    color: aSoldeSuffisant ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                                    color: aSoldeSuffisant ? const Color(0xFF0D7C66) : const Color(0xFFDC2626),
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
@@ -791,7 +791,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.bold,
-                                        color: aSoldeSuffisant ? const Color(0xFF166534) : const Color(0xFF991B1B),
+                                        color: aSoldeSuffisant ? const Color(0xFF0D7C66) : const Color(0xFF991B1B),
                                       ),
                                     ),
                                   ),
@@ -804,7 +804,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
-                                          color: aSoldeSuffisant ? const Color(0xFF86EFAC) : const Color(0xFFFECACA),
+                                          color: aSoldeSuffisant ? const Color(0xFFC3DED9) : const Color(0xFFFECACA),
                                         ),
                                       ),
                                       child: Text(
@@ -812,7 +812,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                         style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.bold,
-                                          color: aSoldeSuffisant ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                                          color: aSoldeSuffisant ? const Color(0xFF0D7C66) : const Color(0xFFDC2626),
                                         ),
                                       ),
                                     ),
@@ -833,13 +833,13 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
-                                      color: aSoldeSuffisant ? const Color(0xFF166534) : const Color(0xFFDC2626),
+                                      color: aSoldeSuffisant ? const Color(0xFF0D7C66) : const Color(0xFFDC2626),
                                     ),
                                   ),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: aSoldeSuffisant ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
+                                      color: aSoldeSuffisant ? const Color(0xFFE7F2F0) : const Color(0xFFFEE2E2),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
@@ -847,7 +847,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                       style: TextStyle(
                                         fontSize: 10.5,
                                         fontWeight: FontWeight.bold,
-                                        color: aSoldeSuffisant ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
+                                        color: aSoldeSuffisant ? const Color(0xFF0D7C66) : const Color(0xFFB91C1C),
                                       ),
                                     ),
                                   ),
@@ -862,9 +862,9 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF0FDF4),
+                              color: const Color(0xFFE7F2F0),
                               borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: const Color(0xFFBBEFDB)),
+                              border: Border.all(color: const Color(0xFFC3DED9)),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -874,11 +874,11 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                   children: [
                                     const Row(
                                       children: [
-                                        Icon(Icons.location_on_rounded, color: Color(0xFF00A884), size: 20),
+                                        Icon(Icons.location_on_rounded, color: Color(0xFF0D7C66), size: 20),
                                         SizedBox(width: 6),
                                         Text(
                                           "Adresse de Consultation",
-                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF134E3F)),
+                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0D7C66)),
                                         ),
                                       ],
                                     ),
@@ -887,7 +887,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF00A884),
+                                          color: const Color(0xFF0D7C66),
                                           borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: const Row(
@@ -920,7 +920,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: const BorderSide(color: Color(0xFF00A884), width: 1.5),
+                                      borderSide: const BorderSide(color: Color(0xFF0D7C66), width: 1.5),
                                     ),
                                     contentPadding: const EdgeInsets.all(12),
                                   ),
@@ -987,18 +987,18 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                                 height: 44,
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? const Color(0xFF00A884)
+                                      ? const Color(0xFF0D7C66)
                                       : (estInaccessible ? const Color(0xFFF1F5F9) : Colors.white),
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(
                                     color: isSelected
-                                        ? const Color(0xFF00A884)
+                                        ? const Color(0xFF0D7C66)
                                         : (estInaccessible ? const Color(0xFFE2E8F0) : const Color(0xFFE5E9F2)),
                                   ),
                                   boxShadow: [
                                     if (isSelected)
                                       BoxShadow(
-                                        color: const Color(0xFF00A884).withValues(alpha: 0.3),
+                                        color: const Color(0xFF0D7C66).withValues(alpha: 0.3),
                                         blurRadius: 8,
                                         offset: const Offset(0, 3),
                                       ),
@@ -1076,7 +1076,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                             fillColor: Colors.white,
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
                             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF00A884), width: 1.5)),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF0D7C66), width: 1.5)),
                             contentPadding: const EdgeInsets.all(12),
                           ),
                         ),
@@ -1093,7 +1093,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                   child: ElevatedButton(
                     onPressed: _onContinue,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00A884),
+                      backgroundColor: const Color(0xFF0D7C66),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -1140,16 +1140,16 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF00A884) : Colors.white,
+          color: isSelected ? const Color(0xFF0D7C66) : Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected ? const Color(0xFF00A884) : const Color(0xFFE5E9F2),
+            color: isSelected ? const Color(0xFF0D7C66) : const Color(0xFFE5E9F2),
             width: isSelected ? 1.5 : 1.0,
           ),
           boxShadow: [
             if (isSelected)
               BoxShadow(
-                color: const Color(0xFF00A884).withValues(alpha: 0.25),
+                color: const Color(0xFF0D7C66).withValues(alpha: 0.25),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -1161,12 +1161,12 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white.withValues(alpha: 0.2) : const Color(0xFFE6F7F3),
+                color: isSelected ? Colors.white.withValues(alpha: 0.2) : const Color(0xFFE7F2F0),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? Colors.white : const Color(0xFF00A884),
+                color: isSelected ? Colors.white : const Color(0xFF0D7C66),
                 size: 24,
               ),
             ),
@@ -1198,7 +1198,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white : const Color(0xFFE6F7F3),
+                color: isSelected ? Colors.white : const Color(0xFFE7F2F0),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -1206,7 +1206,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: isSelected ? const Color(0xFF00A884) : const Color(0xFF00A884),
+                  color: isSelected ? const Color(0xFF0D7C66) : const Color(0xFF0D7C66),
                 ),
               ),
             ),
@@ -1233,7 +1233,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
           color: estSelectionne(isSelected),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected ? const Color(0xFF00A884) : const Color(0xFFE5E9F2),
+            color: isSelected ? const Color(0xFF0D7C66) : const Color(0xFFE5E9F2),
           ),
         ),
         child: Row(
@@ -1309,7 +1309,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.35)),
+                    border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.35)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.03),
@@ -1320,14 +1320,14 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                   ),
                   child: const Row(
                     children: [
-                      Icon(Icons.add_circle_outline_rounded, color: Color(0xFF00A884), size: 22),
+                      Icon(Icons.add_circle_outline_rounded, color: Color(0xFF0D7C66), size: 22),
                       SizedBox(width: 8),
                       Text(
                         "Nouveau proche",
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF00A884),
+                          color: Color(0xFF0D7C66),
                         ),
                       ),
                     ],
@@ -1344,14 +1344,14 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
-            color: const Color(0xFFF0FDF4),
+            color: const Color(0xFFE7F2F0),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFF86EFAC).withValues(alpha: 0.6)),
+            border: Border.all(color: const Color(0xFFC3DED9).withValues(alpha: 0.6)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.folder_shared_rounded, color: Color(0xFF16A34A), size: 20),
+              const Icon(Icons.folder_shared_rounded, color: Color(0xFF0D7C66), size: 20),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -1361,14 +1361,14 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                       _membreSelectionne == null
                           ? "Dossier médical personnel transmis"
                           : "Dossier médical de ${_membreSelectionne!.prenom} ${_membreSelectionne!.nom} transmis",
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: Color(0xFF166534)),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: Color(0xFF0D7C66)),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       _membreSelectionne == null
                           ? "Votre dossier médical personnel complet sera accessible au $doctorName pour cette consultation."
                           : "Le dossier médical de votre ${_membreSelectionne!.lienParente.toLowerCase()} (${_membreSelectionne!.prenom}) sera automatiquement transmis au $doctorName. Vos antécédents personnels restent confidentiels.",
-                      style: const TextStyle(fontSize: 11.5, color: Color(0xFF15803D), height: 1.35),
+                      style: const TextStyle(fontSize: 11.5, color: Color(0xFF0D7C66), height: 1.35),
                     ),
                   ],
                 ),
@@ -1395,16 +1395,16 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
         margin: const EdgeInsets.only(right: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: estSelectionne ? const Color(0xFF00A884) : Colors.white,
+          color: estSelectionne ? const Color(0xFF0D7C66) : Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFFE2E8F0),
+            color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFFE2E8F0),
             width: estSelectionne ? 1.5 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
               color: estSelectionne
-                  ? const Color(0xFF00A884).withValues(alpha: 0.25)
+                  ? const Color(0xFF0D7C66).withValues(alpha: 0.25)
                   : Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 2),
@@ -1418,12 +1418,12 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
               decoration: BoxDecoration(
                 color: estSelectionne
                     ? Colors.white.withValues(alpha: 0.2)
-                    : const Color(0xFFE6F7F3),
+                    : const Color(0xFFE7F2F0),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icone,
-                color: estSelectionne ? Colors.white : const Color(0xFF00A884),
+                color: estSelectionne ? Colors.white : const Color(0xFF0D7C66),
                 size: 20,
               ),
             ),
@@ -1456,5 +1456,5 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
     );
   }
 
-  Color estSelectionne(bool sel) => sel ? const Color(0xFF00A884) : Colors.white;
+  Color estSelectionne(bool sel) => sel ? const Color(0xFF0D7C66) : Colors.white;
 }

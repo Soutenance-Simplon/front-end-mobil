@@ -46,8 +46,8 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: const Color(0xFFE6F7F3), borderRadius: BorderRadius.circular(10)),
-                child: const Icon(Icons.star_rounded, color: Color(0xFF00A884), size: 28),
+                decoration: BoxDecoration(color: const Color(0xFFE7F2F0), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.star_rounded, color: Color(0xFF0D7C66), size: 28),
               ),
               const SizedBox(width: 12),
               const Expanded(
@@ -115,12 +115,12 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text("Merci ! Votre avis a été enregistré pour aider les autres patients."),
-                    backgroundColor: Color(0xFF00A884),
+                    backgroundColor: Color(0xFF0D7C66),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00A884),
+                backgroundColor: const Color(0xFF0D7C66),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: const Text("Envoyer mon avis", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -224,7 +224,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF00A884) : Colors.transparent,
+          color: isSelected ? const Color(0xFF0D7C66) : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -271,14 +271,14 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF00A884), Color(0xFF00896C)],
+              colors: [Color(0xFF0D7C66), Color(0xFF0D7C66)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF00A884).withValues(alpha: 0.25),
+                color: const Color(0xFF0D7C66).withValues(alpha: 0.25),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -306,7 +306,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                     const SizedBox(height: 2),
                     Text(
                       "${tousRdv.length} consultation(s) enregistrée(s)",
-                      style: const TextStyle(color: Color(0xFFE6F7F3), fontSize: 12),
+                      style: const TextStyle(color: Color(0xFFE7F2F0), fontSize: 12),
                     ),
                   ],
                 ),
@@ -315,7 +315,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                 onPressed: () => context.push('/doctors'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF00A884),
+                  foregroundColor: const Color(0xFF0D7C66),
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -352,10 +352,10 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: estSelectionne ? const Color(0xFF00A884) : Colors.white,
+                      color: estSelectionne ? const Color(0xFF0D7C66) : Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFFE2E8F0),
+                        color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFFE2E8F0),
                       ),
                     ),
                     child: Text(
@@ -380,7 +380,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
           const Center(
             child: Padding(
               padding: EdgeInsets.all(40),
-              child: CircularProgressIndicator(color: Color(0xFF00A884)),
+              child: CircularProgressIndicator(color: Color(0xFF0D7C66)),
             ),
           )
         else if (rdvsAffiches.isEmpty)
@@ -426,7 +426,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: estTeleconsultation ? const Color(0xFFE6F7F3) : const Color(0xFFEFF6FF),
+                  color: estTeleconsultation ? const Color(0xFFE7F2F0) : const Color(0xFFEFF6FF),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -435,7 +435,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                     Icon(
                       estTeleconsultation ? Icons.videocam_rounded : Icons.local_hospital_rounded,
                       size: 15,
-                      color: estTeleconsultation ? const Color(0xFF00A884) : const Color(0xFF2563EB),
+                      color: estTeleconsultation ? const Color(0xFF0D7C66) : const Color(0xFF2563EB),
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -443,7 +443,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                       style: TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.bold,
-                        color: estTeleconsultation ? const Color(0xFF00A884) : const Color(0xFF2563EB),
+                        color: estTeleconsultation ? const Color(0xFF0D7C66) : const Color(0xFF2563EB),
                       ),
                     ),
                   ],
@@ -452,7 +452,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: estConfirme ? const Color(0xFFDCFCE7) : const Color(0xFFFEF3C7),
+                  color: estConfirme ? const Color(0xFFE7F2F0) : const Color(0xFFFEF3C7),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -460,7 +460,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: estConfirme ? const Color(0xFF16A34A) : const Color(0xFFD97706),
+                    color: estConfirme ? const Color(0xFF0D7C66) : const Color(0xFFD97706),
                   ),
                 ),
               ),
@@ -477,8 +477,8 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                 child: Container(
                   width: 52,
                   height: 52,
-                  color: const Color(0xFFE6F7F3),
-                  child: const Icon(Icons.person, color: Color(0xFF00A884), size: 30),
+                  color: const Color(0xFFE7F2F0),
+                  child: const Icon(Icons.person, color: Color(0xFF0D7C66), size: 30),
                 ),
               ),
               const SizedBox(width: 14),
@@ -549,7 +549,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
               ),
               Text(
                 "${rdv.montant.toInt()} FCFA",
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
               ),
             ],
           ),
@@ -568,7 +568,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                         context.push('/teleconsultation-room', extra: rdv.toJson());
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00A884),
+                        backgroundColor: const Color(0xFF0D7C66),
                         elevation: 0,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
@@ -588,13 +588,13 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                   child: OutlinedButton.icon(
                     onPressed: () => _ouvrirDialogueAvisPostRdv(context, rdv),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF00A884)),
+                      side: const BorderSide(color: Color(0xFF0D7C66)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
                     label: const Text(
                       "Donner avis",
-                      style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 12),
+                      style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 12),
                     ),
                   ),
                 ),
@@ -659,10 +659,10 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF00A884).withValues(alpha: 0.2),
+                          color: const Color(0xFF0D7C66).withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(Icons.medical_services_rounded, color: Color(0xFF00A884), size: 22),
+                        child: const Icon(Icons.medical_services_rounded, color: Color(0xFF0D7C66), size: 22),
                       ),
                       const SizedBox(width: 10),
                       const Column(
@@ -716,7 +716,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                     child: _buildMetricBox(
                       label: "Téléconsultations",
                       valeur: "$totalTeleconsult",
-                      couleur: const Color(0xFF34D399),
+                      couleur: const Color(0xFF0D7C66),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -780,7 +780,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
           const Center(
             child: Padding(
               padding: EdgeInsets.all(40),
-              child: CircularProgressIndicator(color: Color(0xFF00A884)),
+              child: CircularProgressIndicator(color: Color(0xFF0D7C66)),
             ),
           )
         else if (rdvsAffiches.isEmpty)
@@ -861,7 +861,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: estTeleconsultation ? const Color(0xFFE6F7F3) : const Color(0xFFEFF6FF),
+                  color: estTeleconsultation ? const Color(0xFFE7F2F0) : const Color(0xFFEFF6FF),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -870,7 +870,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                     Icon(
                       estTeleconsultation ? Icons.videocam_rounded : Icons.home_repair_service_rounded,
                       size: 15,
-                      color: estTeleconsultation ? const Color(0xFF00A884) : const Color(0xFF2563EB),
+                      color: estTeleconsultation ? const Color(0xFF0D7C66) : const Color(0xFF2563EB),
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -878,7 +878,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                       style: TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.bold,
-                        color: estTeleconsultation ? const Color(0xFF00A884) : const Color(0xFF2563EB),
+                        color: estTeleconsultation ? const Color(0xFF0D7C66) : const Color(0xFF2563EB),
                       ),
                     ),
                   ],
@@ -887,20 +887,20 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFDCFCE7),
+                  color: const Color(0xFFE7F2F0),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.check_circle, size: 13, color: Color(0xFF16A34A)),
+                    const Icon(Icons.check_circle, size: 13, color: Color(0xFF0D7C66)),
                     const SizedBox(width: 4),
                     Text(
                       "Honoraires payés (+${rdv.montant.toInt()} F)",
                       style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF16A34A),
+                        color: Color(0xFF0D7C66),
                       ),
                     ),
                   ],
@@ -1010,7 +1010,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                   context.push('/teleconsultation-room', extra: rdv.toJson());
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00A884),
+                  backgroundColor: const Color(0xFF0D7C66),
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
@@ -1056,8 +1056,8 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
                     });
                   },
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF00A884),
-                    side: const BorderSide(color: Color(0xFF00A884)),
+                    foregroundColor: const Color(0xFF0D7C66),
+                    side: const BorderSide(color: Color(0xFF0D7C66)),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -1103,7 +1103,7 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
           ElevatedButton(
             onPressed: onAction,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00A884),
+              backgroundColor: const Color(0xFF0D7C66),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
             ),

@@ -239,14 +239,14 @@ class _EcranVerificationOtpState extends State<EcranVerificationOtp> {
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(
                                     color: estActif
-                                        ? const Color(0xFF00A884)
+                                        ? const Color(0xFF0D7C66)
                                         : const Color(0xFFE5E9F2),
                                     width: estActif ? 2 : 1.5,
                                   ),
                                   boxShadow: [
                                     if (estActif)
                                       BoxShadow(
-                                        color: const Color(0xFF00A884).withOpacity(0.15),
+                                        color: const Color(0xFF0D7C66).withOpacity(0.15),
                                         blurRadius: 8,
                                         offset: const Offset(0, 3),
                                       ),
@@ -257,7 +257,7 @@ class _EcranVerificationOtpState extends State<EcranVerificationOtp> {
                                       ? Container(
                                           width: 2,
                                           height: 20,
-                                          color: const Color(0xFF00A884),
+                                          color: const Color(0xFF0D7C66),
                                         )
                                       : Text(
                                           _listeChiffres[index],
@@ -295,8 +295,8 @@ class _EcranVerificationOtpState extends State<EcranVerificationOtp> {
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
                                       color: _secondesRestantes == 0
-                                          ? const Color(0xFF00A884)
-                                          : const Color(0xFF00A884).withOpacity(0.6),
+                                          ? const Color(0xFF0D7C66)
+                                          : const Color(0xFF0D7C66).withOpacity(0.6),
                                     ),
                                   ),
                                 ),
@@ -350,7 +350,7 @@ class _EcranVerificationOtpState extends State<EcranVerificationOtp> {
               color: Colors.black.withOpacity(0.35),
               child: const Center(
                 child: CircularProgressIndicator(
-                  color: Color(0xFF00A884),
+                  color: Color(0xFF0D7C66),
                 ),
               ),
             ),

@@ -136,7 +136,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                   child: ElevatedButton(
                     onPressed: _isSaving ? null : _saveMember,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00A884),
+                      backgroundColor: const Color(0xFF0D7C66),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       elevation: 0,
                     ),
@@ -176,7 +176,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
             fillColor: const Color(0xFFF8FAFC),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF00A884))),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF0D7C66))),
             errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red)),
           ),
         ),

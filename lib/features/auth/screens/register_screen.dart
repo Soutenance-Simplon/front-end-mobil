@@ -347,7 +347,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       child: ElevatedButton(
                         onPressed: _selectedRole != null ? _goToStep2 : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00A884),
+                          backgroundColor: const Color(0xFF0D7C66),
                           disabledBackgroundColor: const Color(0xFFC4C4C4),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -435,7 +435,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   padding: EdgeInsets.all(12),
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: Color(0xFF00A884),
+                                    color: Color(0xFF0D7C66),
                                   ),
                                 ),
                               )
@@ -448,21 +448,21 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE6F7F3),
+                            color: const Color(0xFFE7F2F0),
                             borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: const Color(0xFF00A884)),
+                            border: Border.all(color: const Color(0xFF0D7C66)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Row(
                                 children: [
-                                  Icon(Icons.verified, color: Color(0xFF00A884), size: 18),
+                                  Icon(Icons.verified, color: Color(0xFF0D7C66), size: 18),
                                   SizedBox(width: 8),
                                   Text(
                                     "VÉRIFIÉ — Annuaire ONMS Officiel",
                                     style: TextStyle(
-                                      color: Color(0xFF00A884),
+                                      color: Color(0xFF0D7C66),
                                       fontWeight: FontWeight.bold,
                                       fontSize: 12,
                                     ),
@@ -553,7 +553,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _submitForm,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00A884),
+                          backgroundColor: const Color(0xFF0D7C66),
                           disabledBackgroundColor: const Color(0xFFC4C4C4),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -604,10 +604,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF00A884).withOpacity(0.06) : Colors.white,
+          color: isSelected ? const Color(0xFF0D7C66).withOpacity(0.06) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? const Color(0xFF00A884) : const Color(0xFFE2E8F0),
+            color: isSelected ? const Color(0xFF0D7C66) : const Color(0xFFE2E8F0),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -616,7 +616,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF00A884) : const Color(0xFFF1F5F9),
+                color: isSelected ? const Color(0xFF0D7C66) : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -635,7 +635,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      color: isSelected ? const Color(0xFF00A884) : const Color(0xFF2D3142),
+                      color: isSelected ? const Color(0xFF0D7C66) : const Color(0xFF2D3142),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -653,7 +653,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             if (isSelected)
               Container(
                 decoration: const BoxDecoration(
-                  color: Color(0xFF00A884),
+                  color: Color(0xFF0D7C66),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.check, size: 18, color: Colors.white),
@@ -706,7 +706,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF00A884), width: 1.8),
+              borderSide: const BorderSide(color: Color(0xFF0D7C66), width: 1.8),
             ),
           ),
         ),

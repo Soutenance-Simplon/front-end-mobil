@@ -447,7 +447,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                       const Text("Montant requis (1h) :", style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
                       Text(
                         "${_formaterPrix(montantRequis)} FCFA",
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                       ),
                     ],
                   ),
@@ -486,7 +486,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                   icon: const Icon(Icons.add_card_rounded, color: Colors.white, size: 18),
                   label: const Text("Recharger", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00A884),
+                    backgroundColor: const Color(0xFF0D7C66),
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -516,7 +516,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF00A884),
+              primary: Color(0xFF0D7C66),
               onPrimary: Colors.white,
               onSurface: Color(0xFF2D3142),
             ),
@@ -643,7 +643,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                 const SizedBox(height: 16),
                 const Row(
                   children: [
-                    Icon(Icons.payments_outlined, color: Color(0xFF00A884), size: 24),
+                    Icon(Icons.payments_outlined, color: Color(0xFF0D7C66), size: 24),
                     SizedBox(width: 8),
                     Text(
                       "Fixer mes tarifs & honoraires",
@@ -670,10 +670,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE6F7F3),
+                        color: const Color(0xFFE7F2F0),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Text("Tarif horaire (1h)", style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFF00A884))),
+                      child: const Text("Tarif horaire (1h)", style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66))),
                     ),
                   ],
                 ),
@@ -684,7 +684,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                   decoration: InputDecoration(
                     hintText: "Ex: 15000",
                     suffixText: "FCFA / h",
-                    prefixIcon: const Icon(Icons.local_hospital_outlined, color: Color(0xFF00A884)),
+                    prefixIcon: const Icon(Icons.local_hospital_outlined, color: Color(0xFF0D7C66)),
                     filled: true,
                     fillColor: const Color(0xFFF8FAFC),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
@@ -716,10 +716,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                     ),
                     Row(
                       children: [
-                        Text(tempTele ? "Activée" : "Désactivée", style: TextStyle(fontSize: 12, color: tempTele ? const Color(0xFF00A884) : Colors.grey)),
+                        Text(tempTele ? "Activée" : "Désactivée", style: TextStyle(fontSize: 12, color: tempTele ? const Color(0xFF0D7C66) : Colors.grey)),
                         Switch(
                           value: tempTele,
-                          activeThumbColor: const Color(0xFF00A884),
+                          activeThumbColor: const Color(0xFF0D7C66),
                           onChanged: (val) => setSheetState(() => tempTele = val),
                         ),
                       ],
@@ -734,7 +734,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                     decoration: InputDecoration(
                       hintText: "Ex: 10000",
                       suffixText: "FCFA / h",
-                      prefixIcon: const Icon(Icons.videocam_outlined, color: Color(0xFF00A884)),
+                      prefixIcon: const Icon(Icons.videocam_outlined, color: Color(0xFF0D7C66)),
                       filled: true,
                       fillColor: const Color(0xFFF8FAFC),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
@@ -766,10 +766,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                     ),
                     Row(
                       children: [
-                        Text(tempDom ? "Activée" : "Désactivée", style: TextStyle(fontSize: 12, color: tempDom ? const Color(0xFF00A884) : Colors.grey)),
+                        Text(tempDom ? "Activée" : "Désactivée", style: TextStyle(fontSize: 12, color: tempDom ? const Color(0xFF0D7C66) : Colors.grey)),
                         Switch(
                           value: tempDom,
-                          activeThumbColor: const Color(0xFF00A884),
+                          activeThumbColor: const Color(0xFF0D7C66),
                           onChanged: (val) => setSheetState(() => tempDom = val),
                         ),
                       ],
@@ -784,7 +784,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                     decoration: InputDecoration(
                       hintText: "Ex: 20000",
                       suffixText: "FCFA / h",
-                      prefixIcon: const Icon(Icons.home_work_outlined, color: Color(0xFF00A884)),
+                      prefixIcon: const Icon(Icons.home_work_outlined, color: Color(0xFF0D7C66)),
                       filled: true,
                       fillColor: const Color(0xFFF8FAFC),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
@@ -798,7 +798,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   value: tempAssur,
-                  activeThumbColor: const Color(0xFF00A884),
+                  activeThumbColor: const Color(0xFF0D7C66),
                   title: const Text("Conventionné IPM & Mutuelles de santé", style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: Color(0xFF2D3142))),
                   subtitle: const Text("Prise en charge et tiers-payant autorisés", style: TextStyle(fontSize: 12, color: Color(0xFF8E95A5))),
                   onChanged: (val) => setSheetState(() => tempAssur = val),
@@ -810,18 +810,18 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0FDF4),
+                    color: const Color(0xFFE7F2F0),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFF86EFAC)),
+                    border: Border.all(color: const Color(0xFFC3DED9)),
                   ),
                   child: const Row(
                     children: [
-                      Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF16A34A), size: 22),
+                      Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF0D7C66), size: 22),
                       SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           "Paiement automatique via Portefeuille Santé : Le tarif fixé sera directement et automatiquement débité du portefeuille du patient lors de la prise de rendez-vous.",
-                          style: TextStyle(fontSize: 12, color: Color(0xFF166534), height: 1.3),
+                          style: TextStyle(fontSize: 12, color: Color(0xFF0D7C66), height: 1.3),
                         ),
                       ),
                     ],
@@ -1032,12 +1032,12 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text("Tarifs horaires et honoraires de consultation enregistrés avec succès"),
-                          backgroundColor: Color(0xFF00A884),
+                          backgroundColor: Color(0xFF0D7C66),
                         ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00A884),
+                      backgroundColor: const Color(0xFF0D7C66),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                     child: const Text("Enregistrer mes honoraires", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
@@ -1113,7 +1113,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
               decoration: InputDecoration(
                 hintText: "Ex: 8",
                 suffixText: "ans",
-                prefixIcon: const Icon(Icons.workspace_premium_outlined, color: Color(0xFF00A884)),
+                prefixIcon: const Icon(Icons.workspace_premium_outlined, color: Color(0xFF0D7C66)),
                 filled: true,
                 fillColor: const Color(0xFFF8FAFC),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
@@ -1136,11 +1136,11 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.auto_awesome, size: 14, color: Color(0xFF00A884)),
+                        Icon(Icons.auto_awesome, size: 14, color: Color(0xFF0D7C66)),
                         SizedBox(width: 4),
                         Text(
                           "Modèle spécialité",
-                          style: TextStyle(fontSize: 11.5, color: Color(0xFF00A884), fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 11.5, color: Color(0xFF0D7C66), fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -1184,12 +1184,12 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Présentation personnalisée et enregistrée avec succès"),
-                      backgroundColor: Color(0xFF00A884),
+                      backgroundColor: Color(0xFF0D7C66),
                     ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00A884),
+                  backgroundColor: const Color(0xFF0D7C66),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
                 child: const Text("Enregistrer les modifications", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
@@ -1219,7 +1219,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
-            Icon(Icons.verified_user_outlined, color: Color(0xFF00A884), size: 26),
+            Icon(Icons.verified_user_outlined, color: Color(0xFF0D7C66), size: 26),
             SizedBox(width: 10),
             Expanded(
               child: Text("Avis certifié patient", style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
@@ -1243,7 +1243,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
               context.push('/book-appointment', extra: _doctorData);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00A884),
+              backgroundColor: const Color(0xFF0D7C66),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text("Prendre rendez-vous", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -1267,8 +1267,8 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: const Color(0xFFE6F7F3), borderRadius: BorderRadius.circular(10)),
-                child: const Icon(Icons.star_rounded, color: Color(0xFF00A884)),
+                decoration: BoxDecoration(color: const Color(0xFFE7F2F0), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.star_rounded, color: Color(0xFF0D7C66)),
               ),
               const SizedBox(width: 12),
               const Expanded(
@@ -1350,12 +1350,12 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text("Merci pour votre avis ! Il a été publié avec succès."),
-                    backgroundColor: Color(0xFF00A884),
+                    backgroundColor: Color(0xFF0D7C66),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00A884),
+                backgroundColor: const Color(0xFF0D7C66),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: const Text("Publier l'avis", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -1438,10 +1438,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                             if (isOwnDoctorProfile)
                               TextButton.icon(
                                 onPressed: _ouvrirDialogueModificationMedecin,
-                                icon: const Icon(Icons.edit_note_rounded, color: Color(0xFF00A884), size: 20),
+                                icon: const Icon(Icons.edit_note_rounded, color: Color(0xFF0D7C66), size: 20),
                                 label: const Text(
                                   "Éditer profil",
-                                  style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 13),
+                                  style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 13),
                                 ),
                               ),
                           ],
@@ -1480,17 +1480,17 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFE6F7F3),
+                                      color: const Color(0xFFE7F2F0),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: const Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(Icons.verified, color: Color(0xFF00A884), size: 12),
+                                        Icon(Icons.verified, color: Color(0xFF0D7C66), size: 12),
                                         SizedBox(width: 4),
                                         Text(
                                           "Médecin Vérifié",
-                                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                                         ),
                                       ],
                                     ),
@@ -1507,11 +1507,11 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF00A884),
+                            color: const Color(0xFF0D7C66),
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF00A884).withValues(alpha: 0.25),
+                                color: const Color(0xFF0D7C66).withValues(alpha: 0.25),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -1645,7 +1645,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                                   decoration: BoxDecoration(
-                                    color: _estDescriptionPersonnalisee ? const Color(0xFFE6F7F3) : const Color(0xFFF1F5F9),
+                                    color: _estDescriptionPersonnalisee ? const Color(0xFFE7F2F0) : const Color(0xFFF1F5F9),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
@@ -1653,7 +1653,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                     style: TextStyle(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
-                                      color: _estDescriptionPersonnalisee ? const Color(0xFF00A884) : const Color(0xFF64748B),
+                                      color: _estDescriptionPersonnalisee ? const Color(0xFF0D7C66) : const Color(0xFF64748B),
                                     ),
                                   ),
                                 ),
@@ -1662,10 +1662,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                             if (isOwnDoctorProfile)
                               TextButton.icon(
                                 onPressed: _ouvrirDialogueModificationMedecin,
-                                icon: const Icon(Icons.edit_outlined, size: 16, color: Color(0xFF00A884)),
+                                icon: const Icon(Icons.edit_outlined, size: 16, color: Color(0xFF0D7C66)),
                                 label: const Text(
                                   "Personnaliser",
-                                  style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 13),
+                                  style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 13),
                                 ),
                               ),
                           ],
@@ -1700,12 +1700,12 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFE6F7F3),
+                                    color: const Color(0xFFE7F2F0),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Text(
                                     "Tarif horaire (1h)",
-                                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                                   ),
                                 ),
                               ],
@@ -1713,10 +1713,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                             if (isOwnDoctorProfile)
                               TextButton.icon(
                                 onPressed: _ouvrirDialogueFixerTarifs,
-                                icon: const Icon(Icons.tune_rounded, size: 16, color: Color(0xFF00A884)),
+                                icon: const Icon(Icons.tune_rounded, size: 16, color: Color(0xFF0D7C66)),
                                 label: const Text(
                                   "Fixer mes tarifs",
-                                  style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 13),
+                                  style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 13),
                                 ),
                               ),
                           ],
@@ -1747,10 +1747,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                   Container(
                                     padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFE6F7F3),
+                                      color: const Color(0xFFE7F2F0),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: const Icon(Icons.local_hospital_rounded, color: Color(0xFF00A884), size: 22),
+                                    child: const Icon(Icons.local_hospital_rounded, color: Color(0xFF0D7C66), size: 22),
                                   ),
                                   const SizedBox(width: 14),
                                   const Expanded(
@@ -1770,7 +1770,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                   ),
                                   Text(
                                     "${_formaterPrix(_tarifCabinet)} FCFA / h",
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5, color: Color(0xFF00A884)),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5, color: Color(0xFF0D7C66)),
                                   ),
                                 ],
                               ),
@@ -1859,10 +1859,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: aSoldeSuffisant ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
+                                  color: aSoldeSuffisant ? const Color(0xFFE7F2F0) : const Color(0xFFFEF2F2),
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(
-                                    color: aSoldeSuffisant ? const Color(0xFF86EFAC) : const Color(0xFFFECACA),
+                                    color: aSoldeSuffisant ? const Color(0xFFC3DED9) : const Color(0xFFFECACA),
                                   ),
                                 ),
                                 child: Column(
@@ -1873,7 +1873,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                         Icon(
                                           Icons.account_balance_wallet_rounded,
                                           size: 18,
-                                          color: aSoldeSuffisant ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                                          color: aSoldeSuffisant ? const Color(0xFF0D7C66) : const Color(0xFFDC2626),
                                         ),
                                         const SizedBox(width: 8),
                                         Expanded(
@@ -1882,7 +1882,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                             style: TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.bold,
-                                              color: aSoldeSuffisant ? const Color(0xFF166534) : const Color(0xFF991B1B),
+                                              color: aSoldeSuffisant ? const Color(0xFF0D7C66) : const Color(0xFF991B1B),
                                             ),
                                           ),
                                         ),
@@ -1895,7 +1895,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                               color: Colors.white,
                                               borderRadius: BorderRadius.circular(8),
                                               border: Border.all(
-                                                color: aSoldeSuffisant ? const Color(0xFF86EFAC) : const Color(0xFFFECACA),
+                                                color: aSoldeSuffisant ? const Color(0xFFC3DED9) : const Color(0xFFFECACA),
                                               ),
                                             ),
                                             child: Text(
@@ -1903,7 +1903,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                               style: TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.bold,
-                                                color: aSoldeSuffisant ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                                                color: aSoldeSuffisant ? const Color(0xFF0D7C66) : const Color(0xFFDC2626),
                                               ),
                                             ),
                                           ),
@@ -1924,13 +1924,13 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                           style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
-                                            color: aSoldeSuffisant ? const Color(0xFF166534) : const Color(0xFFDC2626),
+                                            color: aSoldeSuffisant ? const Color(0xFF0D7C66) : const Color(0xFFDC2626),
                                           ),
                                         ),
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                           decoration: BoxDecoration(
-                                            color: aSoldeSuffisant ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
+                                            color: aSoldeSuffisant ? const Color(0xFFE7F2F0) : const Color(0xFFFEE2E2),
                                             borderRadius: BorderRadius.circular(6),
                                           ),
                                           child: Text(
@@ -1938,7 +1938,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                             style: TextStyle(
                                               fontSize: 10.5,
                                               fontWeight: FontWeight.bold,
-                                              color: aSoldeSuffisant ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
+                                              color: aSoldeSuffisant ? const Color(0xFF0D7C66) : const Color(0xFFB91C1C),
                                             ),
                                           ),
                                         ),
@@ -1968,10 +1968,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE6F7F3),
+                                color: const Color(0xFFE7F2F0),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: const Text("Ouvert Lun - Sam", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00A884))),
+                              child: const Text("Ouvert Lun - Sam", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66))),
                             ),
                           ],
                         ),
@@ -2001,12 +2001,12 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE6F7F3),
+                                color: const Color(0xFFE7F2F0),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
                                 _membreSelectionne == null ? "Moi-même" : _membreSelectionne!.prenom,
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                               ),
                             ),
                           ],
@@ -2044,7 +2044,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                   decoration: BoxDecoration(
                                     color: _selectedDate.weekday == DateTime.sunday
                                         ? const Color(0xFFFEE2E2)
-                                        : const Color(0xFFE6F7F3),
+                                        : const Color(0xFFE7F2F0),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
@@ -2056,7 +2056,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                       fontWeight: FontWeight.bold,
                                       color: _selectedDate.weekday == DateTime.sunday
                                           ? const Color(0xFFEF4444)
-                                          : const Color(0xFF00A884),
+                                          : const Color(0xFF0D7C66),
                                     ),
                                   ),
                                 ),
@@ -2076,7 +2076,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.calendar_month_outlined, size: 14, color: Color(0xFF00A884)),
+                                    const Icon(Icons.calendar_month_outlined, size: 14, color: Color(0xFF0D7C66)),
                                     const SizedBox(width: 5),
                                     Text(
                                       "${_moisAbreges[_selectedDate.month - 1]} ${_selectedDate.year}",
@@ -2125,19 +2125,19 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                     width: 64,
                                     decoration: BoxDecoration(
                                       color: isSelected
-                                          ? const Color(0xFF00A884)
+                                          ? const Color(0xFF0D7C66)
                                           : (isDimanche ? const Color(0xFFF8FAFC) : Colors.white),
                                       borderRadius: BorderRadius.circular(16),
                                       border: Border.all(
                                         color: isSelected
-                                            ? const Color(0xFF00A884)
-                                            : (isToday ? const Color(0xFF00A884).withValues(alpha: 0.5) : const Color(0xFFE5E9F2)),
+                                            ? const Color(0xFF0D7C66)
+                                            : (isToday ? const Color(0xFF0D7C66).withValues(alpha: 0.5) : const Color(0xFFE5E9F2)),
                                         width: isSelected || isToday ? 1.5 : 1.0,
                                       ),
                                       boxShadow: isSelected
                                           ? [
                                               BoxShadow(
-                                                color: const Color(0xFF00A884).withValues(alpha: 0.25),
+                                                color: const Color(0xFF0D7C66).withValues(alpha: 0.25),
                                                 blurRadius: 8,
                                                 offset: const Offset(0, 3),
                                               ),
@@ -2154,7 +2154,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                             fontWeight: FontWeight.bold,
                                             color: isSelected
                                                 ? Colors.white70
-                                                : (isDimanche ? const Color(0xFFCBD5E1) : (isToday ? const Color(0xFF00A884) : const Color(0xFF94A3B8))),
+                                                : (isDimanche ? const Color(0xFFCBD5E1) : (isToday ? const Color(0xFF0D7C66) : const Color(0xFF94A3B8))),
                                           ),
                                         ),
                                         const SizedBox(height: 3),
@@ -2232,7 +2232,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                   icon: const Icon(Icons.arrow_forward_rounded, size: 16, color: Colors.white),
                                   label: const Text("Voir les créneaux du Lundi", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.5)),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF00A884),
+                                    backgroundColor: const Color(0xFF0D7C66),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                   ),
                                 ),
@@ -2294,18 +2294,18 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE6F7F3),
+                                color: const Color(0xFFE7F2F0),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.35)),
+                                border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.35)),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.check_circle_rounded, color: Color(0xFF00A884), size: 20),
+                                  const Icon(Icons.check_circle_rounded, color: Color(0xFF0D7C66), size: 20),
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
                                       "Créneau sélectionné : ${_formaterDateLongue(_selectedDate)} à $_selectedSlot",
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF134E3F)),
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0D7C66)),
                                     ),
                                   ),
                                 ],
@@ -2356,12 +2356,12 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFE6F7F3),
+                                    color: const Color(0xFFE7F2F0),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
                                     "$_nombreAvis",
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                                   ),
                                 ),
                               ],
@@ -2369,10 +2369,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                             if (estPatientDeCeMedecin)
                               TextButton.icon(
                                 onPressed: _ouvrirDialogueDonnerAvis,
-                                icon: const Icon(Icons.rate_review_outlined, size: 16, color: Color(0xFF00A884)),
+                                icon: const Icon(Icons.rate_review_outlined, size: 16, color: Color(0xFF0D7C66)),
                                 label: const Text(
                                   "Donner un avis",
-                                  style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 13),
+                                  style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 13),
                                 ),
                               )
                             else
@@ -2427,10 +2427,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                       children: [
                                         CircleAvatar(
                                           radius: 16,
-                                          backgroundColor: const Color(0xFFE6F7F3),
+                                          backgroundColor: const Color(0xFFE7F2F0),
                                           child: Text(
                                             avis['auteur'].toString().substring(0, 1),
-                                            style: const TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold),
+                                            style: const TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold),
                                           ),
                                         ),
                                         const SizedBox(width: 10),
@@ -2499,12 +2499,12 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                           width: 52,
                           height: 52,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE6F7F3),
+                            color: const Color(0xFFE7F2F0),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Icon(
                             _isFavorite ? Icons.favorite : Icons.favorite_border,
-                            color: const Color(0xFF00A884),
+                            color: const Color(0xFF0D7C66),
                             size: 24,
                           ),
                         ),
@@ -2527,7 +2527,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                     ),
                                   ),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF00A884),
+                                    backgroundColor: const Color(0xFF0D7C66),
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -2582,7 +2582,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: (_selectedSlot != null && !_estCreneauInaccessibleTemps(_selectedDate, _selectedSlot!))
-                                        ? const Color(0xFF00A884)
+                                        ? const Color(0xFF0D7C66)
                                         : const Color(0xFF94A3B8),
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
@@ -2622,10 +2622,10 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF00A884) : const Color(0xFFF1F5F9),
+          color: isSelected ? const Color(0xFF0D7C66) : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? const Color(0xFF00A884) : const Color(0xFFE2E8F0),
+            color: isSelected ? const Color(0xFF0D7C66) : const Color(0xFFE2E8F0),
           ),
         ),
         child: Row(
@@ -2668,19 +2668,19 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF00A884)
+              ? const Color(0xFF0D7C66)
               : (estInaccessible ? const Color(0xFFF1F5F9) : Colors.white),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF00A884)
+                ? const Color(0xFF0D7C66)
                 : (estInaccessible ? const Color(0xFFE2E8F0) : const Color(0xFFD1D5DB)),
             width: isSelected ? 1.5 : 1.0,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF00A884).withValues(alpha: 0.2),
+                    color: const Color(0xFF0D7C66).withValues(alpha: 0.2),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -2756,7 +2756,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
         child: SizedBox(
           height: 24,
           width: 24,
-          child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00A884)),
+          child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D7C66)),
         ),
       );
     }
@@ -2805,7 +2805,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.35)),
+                    border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.35)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.03),
@@ -2816,14 +2816,14 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                   ),
                   child: const Row(
                     children: [
-                      Icon(Icons.add_circle_outline_rounded, color: Color(0xFF00A884), size: 22),
+                      Icon(Icons.add_circle_outline_rounded, color: Color(0xFF0D7C66), size: 22),
                       SizedBox(width: 8),
                       Text(
                         "Nouveau proche",
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF00A884),
+                          color: Color(0xFF0D7C66),
                         ),
                       ),
                     ],
@@ -2840,14 +2840,14 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
-            color: const Color(0xFFF0FDF4),
+            color: const Color(0xFFE7F2F0),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFF86EFAC).withValues(alpha: 0.6)),
+            border: Border.all(color: const Color(0xFFC3DED9).withValues(alpha: 0.6)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.folder_shared_rounded, color: Color(0xFF16A34A), size: 20),
+              const Icon(Icons.folder_shared_rounded, color: Color(0xFF0D7C66), size: 20),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -2857,14 +2857,14 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
                       _membreSelectionne == null
                           ? "Dossier médical personnel transmis"
                           : "Dossier médical de ${_membreSelectionne!.prenom} ${_membreSelectionne!.nom} transmis",
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: Color(0xFF166534)),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: Color(0xFF0D7C66)),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       _membreSelectionne == null
                           ? "Votre dossier médical personnel complet sera accessible au Dr. $_name pour cette consultation."
                           : "Le dossier médical de votre ${_membreSelectionne!.lienParente.toLowerCase()} (${_membreSelectionne!.prenom}) sera automatiquement transmis au Dr. $_name. Vos antécédents personnels restent confidentiels.",
-                      style: const TextStyle(fontSize: 11.5, color: Color(0xFF15803D), height: 1.35),
+                      style: const TextStyle(fontSize: 11.5, color: Color(0xFF0D7C66), height: 1.35),
                     ),
                   ],
                 ),
@@ -2891,16 +2891,16 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
         margin: const EdgeInsets.only(right: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: estSelectionne ? const Color(0xFF00A884) : Colors.white,
+          color: estSelectionne ? const Color(0xFF0D7C66) : Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFFE2E8F0),
+            color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFFE2E8F0),
             width: estSelectionne ? 1.5 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
               color: estSelectionne
-                  ? const Color(0xFF00A884).withValues(alpha: 0.25)
+                  ? const Color(0xFF0D7C66).withValues(alpha: 0.25)
                   : Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 2),
@@ -2914,12 +2914,12 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
               decoration: BoxDecoration(
                 color: estSelectionne
                     ? Colors.white.withValues(alpha: 0.2)
-                    : const Color(0xFFE6F7F3),
+                    : const Color(0xFFE7F2F0),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icone,
-                color: estSelectionne ? Colors.white : const Color(0xFF00A884),
+                color: estSelectionne ? Colors.white : const Color(0xFF0D7C66),
                 size: 20,
               ),
             ),
@@ -2974,18 +2974,18 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
       height: 88,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFFE6F7F3), Color(0xFFC7EFE6)],
+          colors: [Color(0xFFE7F2F0), Color(0xFFC7EFE6)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: const Color(0xFF00A884).withValues(alpha: 0.35),
+          color: const Color(0xFF0D7C66).withValues(alpha: 0.35),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00A884).withValues(alpha: 0.1),
+            color: const Color(0xFF0D7C66).withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -2999,7 +2999,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF00A884),
+              color: Color(0xFF0D7C66),
               letterSpacing: 1.2,
             ),
           ),
@@ -3009,7 +3009,7 @@ class _DoctorDetailScreenState extends ConsumerState<DoctorDetailScreen> {
             child: Container(
               padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
-                color: const Color(0xFF00A884),
+                color: const Color(0xFF0D7C66),
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 1.5),
               ),

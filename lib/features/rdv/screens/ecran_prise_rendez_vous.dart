@@ -126,7 +126,7 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("Position GPS actuelle ajoutée avec succès"),
-        backgroundColor: Color(0xFF00A884),
+        backgroundColor: Color(0xFF0D7C66),
         duration: Duration(seconds: 2),
       ),
     );
@@ -232,14 +232,14 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Portefeuille Santé rechargé (+50 000 FCFA Wave). Vous pouvez confirmer votre rendez-vous."),
-                      backgroundColor: Color(0xFF00A884),
+                      backgroundColor: Color(0xFF0D7C66),
                       duration: Duration(seconds: 4),
                     ),
                   );
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00A884),
+                backgroundColor: const Color(0xFF0D7C66),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: const Text("Recharger (+50 000 F)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -322,7 +322,7 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Row(
           children: [
-            Icon(Icons.check_circle, color: Color(0xFF00A884), size: 28),
+            Icon(Icons.check_circle, color: Color(0xFF0D7C66), size: 28),
             SizedBox(width: 10),
             Text("Confirmation de RDV", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ],
@@ -350,19 +350,19 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE6F7F3),
+                      color: const Color(0xFFE7F2F0),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
                       children: [
-                        Icon(estPourMembre ? Icons.family_restroom : Icons.person, color: const Color(0xFF00A884), size: 18),
+                        Icon(estPourMembre ? Icons.family_restroom : Icons.person, color: const Color(0xFF0D7C66), size: 18),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             estPourMembre
                                 ? "Patient : $patientCibleNom (${_membreSelectionne!.lienParente})"
                                 : "Patient : Moi-même (Dossier personnel)",
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF00A884)),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF0D7C66)),
                           ),
                         ),
                       ],
@@ -371,14 +371,14 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                   Row(
                     children: [
                       Icon(estDomicile ? Icons.home_work_rounded : Icons.videocam_rounded,
-                          color: const Color(0xFF00A884), size: 18),
+                          color: const Color(0xFF0D7C66), size: 18),
                       const SizedBox(width: 8),
                       Text(modeTexte, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Text("📅 Date : $dateTexte", style: const TextStyle(fontSize: 12, color: Color(0xFF5A607F))),
-                  Text("🕒 Créneau Réservé : $heureDebut - $heureFin", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF00A884))),
+                  Text("🕒 Créneau Réservé : $heureDebut - $heureFin", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66))),
                   Text("💰 Tarif Consultation : $tarif", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF2D3142))),
                   if (estDomicile) ...[
                     const SizedBox(height: 6),
@@ -388,18 +388,18 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                     margin: const EdgeInsets.only(top: 8),
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE6F7F3),
+                      color: const Color(0xFFE7F2F0),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.3)),
+                      border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.check_circle_outline, color: Color(0xFF00A884), size: 18),
+                        const Icon(Icons.check_circle_outline, color: Color(0xFF0D7C66), size: 18),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             "Paiement validé : $tarif débité de votre portefeuille et versé à $nomMedecin.",
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF00896C)),
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF0D7C66)),
                           ),
                         ),
                       ],
@@ -417,7 +417,7 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
               context.push('/mes-rendez-vous');
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00A884),
+              backgroundColor: const Color(0xFF0D7C66),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             ),
@@ -531,10 +531,10 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFE6F7F3),
+                                  color: const Color(0xFFE7F2F0),
                                   borderRadius: BorderRadius.circular(14),
                                 ),
-                                child: const Icon(Icons.person, color: Color(0xFF00A884), size: 26),
+                                child: const Icon(Icons.person, color: Color(0xFF0D7C66), size: 26),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -547,7 +547,7 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                                     ),
                                     Text(
                                       specialite,
-                                      style: const TextStyle(fontSize: 12, color: Color(0xFF00A884), fontWeight: FontWeight.w600),
+                                      style: const TextStyle(fontSize: 12, color: Color(0xFF0D7C66), fontWeight: FontWeight.w600),
                                     ),
                                   ],
                                 ),
@@ -555,14 +555,14 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFE6F7F3),
+                                  color: const Color(0xFFE7F2F0),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Row(
                                   children: [
-                                    Icon(Icons.verified, color: Color(0xFF00A884), size: 12),
+                                    Icon(Icons.verified, color: Color(0xFF0D7C66), size: 12),
                                     SizedBox(width: 4),
-                                    Text("Agréé ONMS", style: TextStyle(fontSize: 10, color: Color(0xFF00A884), fontWeight: FontWeight.bold)),
+                                    Text("Agréé ONMS", style: TextStyle(fontSize: 10, color: Color(0xFF0D7C66), fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                               ),
@@ -588,12 +588,12 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFE6F7F3),
+                                  color: const Color(0xFFE7F2F0),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   "Pour : ${_membreSelectionne!.prenom}",
-                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                                 ),
                               ),
                           ],
@@ -641,9 +641,9 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE6F7F3),
+                              color: const Color(0xFFE7F2F0),
                               borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: const Color(0xFF00A884).withValues(alpha: 0.3)),
+                              border: Border.all(color: const Color(0xFF0D7C66).withValues(alpha: 0.3)),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -653,11 +653,11 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                                   children: [
                                     const Row(
                                       children: [
-                                        Icon(Icons.location_on, color: Color(0xFF00A884), size: 18),
+                                        Icon(Icons.location_on, color: Color(0xFF0D7C66), size: 18),
                                         SizedBox(width: 6),
                                         Text(
                                           "Adresse de Consultation",
-                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF134E3F)),
+                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0D7C66)),
                                         ),
                                       ],
                                     ),
@@ -666,7 +666,7 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF00A884),
+                                          color: const Color(0xFF0D7C66),
                                           borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: const Row(
@@ -738,10 +738,10 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
                                     decoration: BoxDecoration(
-                                      color: estChoisi ? const Color(0xFF00A884) : Colors.white,
+                                      color: estChoisi ? const Color(0xFF0D7C66) : Colors.white,
                                       borderRadius: BorderRadius.circular(10),
                                       border: Border.all(
-                                        color: estChoisi ? const Color(0xFF00A884) : const Color(0xFFE2E8F0),
+                                        color: estChoisi ? const Color(0xFF0D7C66) : const Color(0xFFE2E8F0),
                                       ),
                                     ),
                                     child: Text(
@@ -779,7 +779,7 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
-                              borderSide: const BorderSide(color: Color(0xFF00A884), width: 1.5),
+                              borderSide: const BorderSide(color: Color(0xFF0D7C66), width: 1.5),
                             ),
                             contentPadding: const EdgeInsets.all(14),
                           ),
@@ -823,7 +823,7 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                                 ),
                                 child: const Row(
                                   children: [
-                                    Icon(Icons.calendar_month, size: 14, color: Color(0xFF00A884)),
+                                    Icon(Icons.calendar_month, size: 14, color: Color(0xFF0D7C66)),
                                     SizedBox(width: 4),
                                     Text("Calendrier", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF5A607F))),
                                   ],
@@ -862,10 +862,10 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                                     duration: const Duration(milliseconds: 180),
                                     width: 58,
                                     decoration: BoxDecoration(
-                                      color: estSelectionne ? const Color(0xFF00A884) : Colors.white,
+                                      color: estSelectionne ? const Color(0xFF0D7C66) : Colors.white,
                                       borderRadius: BorderRadius.circular(16),
                                       border: Border.all(
-                                        color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFFE5E9F2),
+                                        color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFFE5E9F2),
                                       ),
                                     ),
                                     child: Column(
@@ -914,12 +914,12 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE6F7F3),
+                                color: const Color(0xFFE7F2F0),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 "${tousCreneauxDuJour.length} disponible(s)",
-                                style: const TextStyle(color: Color(0xFF00A884), fontSize: 10, fontWeight: FontWeight.bold),
+                                style: const TextStyle(color: Color(0xFF0D7C66), fontSize: 10, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
@@ -988,7 +988,7 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                                       });
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF00A884),
+                                      backgroundColor: const Color(0xFF0D7C66),
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                                     ),
@@ -1024,16 +1024,16 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                                   width: 95,
                                   height: 46,
                                   decoration: BoxDecoration(
-                                    color: estSelectionne ? const Color(0xFF00A884) : Colors.white,
+                                    color: estSelectionne ? const Color(0xFF0D7C66) : Colors.white,
                                     borderRadius: BorderRadius.circular(14),
                                     border: Border.all(
-                                      color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFFE5E9F2),
+                                      color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFFE5E9F2),
                                       width: estSelectionne ? 2 : 1,
                                     ),
                                     boxShadow: [
                                       if (estSelectionne)
                                         BoxShadow(
-                                          color: const Color(0xFF00A884).withValues(alpha: 0.3),
+                                          color: const Color(0xFF0D7C66).withValues(alpha: 0.3),
                                           blurRadius: 8,
                                           offset: const Offset(0, 3),
                                         ),
@@ -1055,7 +1055,7 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                                         style: TextStyle(
                                           fontSize: 9,
                                           fontWeight: FontWeight.w600,
-                                          color: estSelectionne ? Colors.white70 : const Color(0xFF00A884),
+                                          color: estSelectionne ? Colors.white70 : const Color(0xFF0D7C66),
                                         ),
                                       ),
                                     ],
@@ -1078,7 +1078,7 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
                   child: ElevatedButton(
                     onPressed: _creneauSelectionne != null ? _confirmerPriseRendezVous : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00A884),
+                      backgroundColor: const Color(0xFF0D7C66),
                       disabledBackgroundColor: const Color(0xFFCBD5E1),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       elevation: 0,
@@ -1118,23 +1118,23 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
         decoration: BoxDecoration(
-          color: estSelectionne ? const Color(0xFFE6F7F3) : Colors.white,
+          color: estSelectionne ? const Color(0xFFE7F2F0) : Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFFE5E9F2),
+            color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFFE5E9F2),
             width: estSelectionne ? 2 : 1,
           ),
         ),
         child: Column(
           children: [
-            Icon(icone, color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFF8E95A5), size: 28),
+            Icon(icone, color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFF8E95A5), size: 28),
             const SizedBox(height: 8),
             Text(
               titre,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
-                color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFF2D3142),
+                color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFF2D3142),
               ),
             ),
             Text(
@@ -1166,10 +1166,10 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         decoration: BoxDecoration(
-          color: estSelectionne ? const Color(0xFF00A884) : Colors.white,
+          color: estSelectionne ? const Color(0xFF0D7C66) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFFE5E9F2),
+            color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFFE5E9F2),
           ),
         ),
         child: Row(
@@ -1236,11 +1236,11 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.add_circle_outline, color: Color(0xFF00A884), size: 20),
+                  Icon(Icons.add_circle_outline, color: Color(0xFF0D7C66), size: 20),
                   SizedBox(width: 8),
                   Text(
                     "Nouveau proche",
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF00A884)),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF0D7C66)),
                   ),
                 ],
               ),
@@ -1266,16 +1266,16 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
         margin: const EdgeInsets.only(right: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: estSelectionne ? const Color(0xFF00A884) : Colors.white,
+          color: estSelectionne ? const Color(0xFF0D7C66) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFFE2E8F0),
+            color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFFE2E8F0),
             width: estSelectionne ? 1.5 : 1,
           ),
           boxShadow: estSelectionne
               ? [
                   BoxShadow(
-                    color: const Color(0xFF00A884).withValues(alpha: 0.25),
+                    color: const Color(0xFF0D7C66).withValues(alpha: 0.25),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -1287,10 +1287,10 @@ class _EcranPriseRendezVousState extends ConsumerState<EcranPriseRendezVous> {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: estSelectionne ? Colors.white.withValues(alpha: 0.2) : const Color(0xFFE6F7F3),
+                color: estSelectionne ? Colors.white.withValues(alpha: 0.2) : const Color(0xFFE7F2F0),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icone, color: estSelectionne ? Colors.white : const Color(0xFF00A884), size: 18),
+              child: Icon(icone, color: estSelectionne ? Colors.white : const Color(0xFF0D7C66), size: 18),
             ),
             const SizedBox(width: 10),
             Column(

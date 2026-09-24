@@ -110,7 +110,7 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                 ),
                 Text(
                   "Date : ${DateFormat('EEEE d MMMM yyyy', 'fr_FR').format(_dateSelectionnee)}",
-                  style: const TextStyle(fontSize: 13, color: Color(0xFF00A884), fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontSize: 13, color: Color(0xFF0D7C66), fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 20),
 
@@ -142,7 +142,7 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.access_time_rounded, color: Color(0xFF00A884), size: 20),
+                            const Icon(Icons.access_time_rounded, color: Color(0xFF0D7C66), size: 20),
                             const SizedBox(width: 10),
                             Text(
                               heureDebutStr,
@@ -150,7 +150,7 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                             ),
                           ],
                         ),
-                        const Text("Modifier", style: TextStyle(color: Color(0xFF00A884), fontWeight: FontWeight.bold, fontSize: 13)),
+                        const Text("Modifier", style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 13)),
                       ],
                     ),
                   ),
@@ -176,9 +176,9 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: estChoisi ? const Color(0xFF00A884) : const Color(0xFFF8F9FA),
+                              color: estChoisi ? const Color(0xFF0D7C66) : const Color(0xFFF8F9FA),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: estChoisi ? const Color(0xFF00A884) : const Color(0xFFE2E8F0)),
+                              border: Border.all(color: estChoisi ? const Color(0xFF0D7C66) : const Color(0xFFE2E8F0)),
                             ),
                             child: Center(
                               child: Text(
@@ -213,21 +213,21 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: typeConsultation == "TÉLÉCONSULT." ? const Color(0xFFE6F7F3) : const Color(0xFFF8F9FA),
+                            color: typeConsultation == "TÉLÉCONSULT." ? const Color(0xFFE7F2F0) : const Color(0xFFF8F9FA),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: typeConsultation == "TÉLÉCONSULT." ? const Color(0xFF00A884) : const Color(0xFFE2E8F0),
+                              color: typeConsultation == "TÉLÉCONSULT." ? const Color(0xFF0D7C66) : const Color(0xFFE2E8F0),
                               width: typeConsultation == "TÉLÉCONSULT." ? 1.5 : 1,
                             ),
                           ),
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.videocam_rounded, color: Color(0xFF00A884), size: 18),
+                              Icon(Icons.videocam_rounded, color: Color(0xFF0D7C66), size: 18),
                               SizedBox(width: 8),
                               Text(
                                 "Téléconsultation",
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                               ),
                             ],
                           ),
@@ -241,21 +241,21 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: typeConsultation == "CABINET" ? const Color(0xFFE6F7F3) : const Color(0xFFF8F9FA),
+                            color: typeConsultation == "CABINET" ? const Color(0xFFE7F2F0) : const Color(0xFFF8F9FA),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: typeConsultation == "CABINET" ? const Color(0xFF00A884) : const Color(0xFFE2E8F0),
+                              color: typeConsultation == "CABINET" ? const Color(0xFF0D7C66) : const Color(0xFFE2E8F0),
                               width: typeConsultation == "CABINET" ? 1.5 : 1,
                             ),
                           ),
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.local_hospital_rounded, color: Color(0xFF00A884), size: 18),
+                              Icon(Icons.local_hospital_rounded, color: Color(0xFF0D7C66), size: 18),
                               SizedBox(width: 8),
                               Text(
                                 "En Cabinet",
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                               ),
                             ],
                           ),
@@ -320,7 +320,7 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                                 Expanded(child: Text("Créneau $heureDebutStr - $heureFinStr enregistré avec succès !")),
                               ],
                             ),
-                            backgroundColor: const Color(0xFF00A884),
+                            backgroundColor: const Color(0xFF0D7C66),
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
@@ -343,7 +343,7 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00A884),
+                      backgroundColor: const Color(0xFF0D7C66),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       elevation: 0,
@@ -401,7 +401,7 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                 ),
               ],
             ),
-            backgroundColor: const Color(0xFF00A884),
+            backgroundColor: const Color(0xFF0D7C66),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -459,7 +459,7 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
 
             if (creneau.statut == 'BLOQUE')
               ListTile(
-                leading: const Icon(Icons.check_circle, color: Color(0xFF10B981)),
+                leading: const Icon(Icons.check_circle, color: Color(0xFF0D7C66)),
                 title: const Text("Débloquer / Rendre disponible"),
                 onTap: () {
                   ref.read(planningProvider.notifier).debloquerCreneau(creneauId: creneau.id);
@@ -539,7 +539,7 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                         width: 42,
                         height: 42,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF00A884),
+                          color: const Color(0xFF0D7C66),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: const Icon(
@@ -591,7 +591,7 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                         ),
                         child: const Row(
                           children: [
-                            Icon(Icons.calendar_today, size: 13, color: Color(0xFF00A884)),
+                            Icon(Icons.calendar_today, size: 13, color: Color(0xFF0D7C66)),
                             SizedBox(width: 6),
                             Text("Calendrier", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF5A607F))),
                           ],
@@ -628,10 +628,10 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                             duration: const Duration(milliseconds: 180),
                             width: 58,
                             decoration: BoxDecoration(
-                              color: estSelectionne ? const Color(0xFF00A884) : Colors.white,
+                              color: estSelectionne ? const Color(0xFF0D7C66) : Colors.white,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFFE5E9F2),
+                                color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFFE5E9F2),
                               ),
                             ),
                             child: Column(
@@ -672,7 +672,7 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                       child: ElevatedButton.icon(
                         onPressed: _ajouterNouveauCreneau,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00A884),
+                          backgroundColor: const Color(0xFF0D7C66),
                           foregroundColor: Colors.white,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -687,8 +687,8 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                       child: OutlinedButton.icon(
                         onPressed: _ouvrirMatinneeRapide,
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFF00A884),
-                          side: const BorderSide(color: Color(0xFF00A884), width: 1.5),
+                          foregroundColor: const Color(0xFF0D7C66),
+                          side: const BorderSide(color: Color(0xFF0D7C66), width: 1.5),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         ),
@@ -717,12 +717,12 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE6F7F3),
+                                color: const Color(0xFFE7F2F0),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 "${creneauxDuJour.length} créneau(x)",
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00A884)),
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D7C66)),
                               ),
                             ),
                           ],
@@ -733,7 +733,7 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                           const Center(
                             child: Padding(
                               padding: EdgeInsets.all(30),
-                              child: CircularProgressIndicator(color: Color(0xFF00A884)),
+                              child: CircularProgressIndicator(color: Color(0xFF0D7C66)),
                             ),
                           )
                         else if (creneauxDuJour.isEmpty)
@@ -771,8 +771,8 @@ class _EcranAgendaMedecinState extends ConsumerState<EcranAgendaMedecin> {
                             final isVisio = creneau.typeConsultation == 'TELECONSULTATION';
 
                             final couleur = estDispo
-                                ? const Color(0xFF10B981)
-                                : (estReserve ? const Color(0xFF00A884) : const Color(0xFF94A3B8));
+                                ? const Color(0xFF0D7C66)
+                                : (estReserve ? const Color(0xFF0D7C66) : const Color(0xFF94A3B8));
 
                             return InkWell(
                               onTap: () => _changerStatutCreneau(creneau),

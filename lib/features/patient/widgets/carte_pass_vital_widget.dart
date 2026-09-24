@@ -84,7 +84,7 @@ class CartePassVitalWidget extends StatelessWidget {
         color: const Color(0xFF032B22),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: const Color(0xFF00D09C).withValues(alpha: 0.25),
+          color: const Color(0xFF0D7C66).withValues(alpha: 0.25),
           width: 1.2,
         ),
         boxShadow: [
@@ -128,7 +128,7 @@ class CartePassVitalWidget extends StatelessWidget {
                       Text(
                         "Carte Médicale d'Urgence",
                         style: TextStyle(
-                          color: const Color(0xFF00D09C),
+                          color: const Color(0xFF0D7C66),
                           fontSize: compact ? 9.5 : 11,
                           fontWeight: FontWeight.w600,
                         ),
@@ -156,7 +156,7 @@ class CartePassVitalWidget extends StatelessWidget {
                 child: Text(
                   displayBloodGroup,
                   style: TextStyle(
-                    color: const Color(0xFF007A60),
+                    color: const Color(0xFF0D7C66),
                     fontWeight: FontWeight.w900,
                     fontSize: compact ? 13 : 16,
                   ),
@@ -188,7 +188,7 @@ class CartePassVitalWidget extends StatelessWidget {
                     Text(
                       displayName,
                       style: TextStyle(
-                        color: const Color(0xFF00D09C),
+                        color: const Color(0xFF0D7C66),
                         fontSize: compact ? 17 : 20,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 0.3,
@@ -202,7 +202,7 @@ class CartePassVitalWidget extends StatelessWidget {
                     CustomPaint(
                       size: const Size(double.infinity, 20),
                       painter: EcgPulseLinePainter(
-                        color: const Color(0xFF00D09C).withValues(alpha: 0.65),
+                        color: const Color(0xFF0D7C66).withValues(alpha: 0.65),
                       ),
                     ),
 
@@ -265,7 +265,7 @@ class CartePassVitalWidget extends StatelessWidget {
                     size: compact ? 104.0 : 124.0,
                     eyeStyle: const QrEyeStyle(
                       eyeShape: QrEyeShape.square,
-                      color: Color(0xFF00A884),
+                      color: Color(0xFF0D7C66),
                     ),
                     dataModuleStyle: const QrDataModuleStyle(
                       dataModuleShape: QrDataModuleShape.square,
@@ -294,16 +294,16 @@ class CartePassVitalWidget extends StatelessWidget {
           width: compact ? 28 : 32,
           height: compact ? 28 : 32,
           decoration: BoxDecoration(
-            color: const Color(0xFF0E4337),
+            color: const Color(0xFF0D7C66),
             borderRadius: BorderRadius.circular(9),
             border: Border.all(
-              color: const Color(0xFF00D09C).withValues(alpha: 0.35),
+              color: const Color(0xFF0D7C66).withValues(alpha: 0.35),
               width: 1,
             ),
           ),
           child: Icon(
             icon,
-            color: const Color(0xFF00D09C),
+            color: const Color(0xFF0D7C66),
             size: compact ? 14 : 16,
           ),
         ),
@@ -325,7 +325,7 @@ class CartePassVitalWidget extends StatelessWidget {
               Text(
                 value,
                 style: TextStyle(
-                  color: const Color(0xFF00D09C),
+                  color: const Color(0xFF0D7C66),
                   fontSize: isToken ? (compact ? 8.5 : 9.5) : (compact ? 11.5 : 12.5),
                   fontWeight: FontWeight.bold,
                   letterSpacing: isToken ? 0.3 : 0.2,

@@ -77,7 +77,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
       final success = await _walletService.supprimerBeneficiaire(membreId);
       final scaffold = ScaffoldMessenger.of(context);
       if (success) {
-        scaffold.showSnackBar(const SnackBar(content: Text('Membre supprimé'), backgroundColor: Colors.green));
+        scaffold.showSnackBar(const SnackBar(content: Text('Membre supprimé'), backgroundColor: Color(0xFF0D7C66)));
         await _loadFamily();
       } else {
         scaffold.showSnackBar(const SnackBar(content: Text('Erreur lors de la suppression'), backgroundColor: Colors.red));
@@ -97,7 +97,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
         iconTheme: const IconThemeData(color: Color(0xFF2D3142)),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF00A884)))
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D7C66)))
           : Column(
               children: [
                 if (_invitations.isNotEmpty) _buildInvitationSection(),
@@ -111,7 +111,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
             _loadFamily();
           }
         },
-        backgroundColor: const Color(0xFF00A884),
+        backgroundColor: const Color(0xFF0D7C66),
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text("Ajouter un proche", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
       ),
@@ -170,9 +170,9 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   Row(
                     children: [
                       CircleAvatar(
-                        backgroundColor: const Color(0xFF00A884).withOpacity(0.1),
+                        backgroundColor: const Color(0xFF0D7C66).withOpacity(0.1),
                         radius: 20,
-                        child: const Icon(Icons.person_add, color: Color(0xFF00A884), size: 22),
+                        child: const Icon(Icons.person_add, color: Color(0xFF0D7C66), size: 22),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -220,7 +220,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                         icon: const Icon(Icons.check, size: 18, color: Colors.white),
                         label: const Text('Accepter', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00A884),
+                          backgroundColor: const Color(0xFF0D7C66),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           elevation: 0,
                         ),
@@ -244,10 +244,10 @@ class _FamilyScreenState extends State<FamilyScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFF00A884).withOpacity(0.1),
+              color: const Color(0xFF0D7C66).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.family_restroom, size: 60, color: Color(0xFF00A884)),
+            child: const Icon(Icons.family_restroom, size: 60, color: Color(0xFF0D7C66)),
           ),
           const SizedBox(height: 24),
           const Text(
@@ -282,11 +282,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             leading: CircleAvatar(
-              backgroundColor: const Color(0xFF00A884).withOpacity(0.1),
+              backgroundColor: const Color(0xFF0D7C66).withOpacity(0.1),
               radius: 24,
               child: Icon(
                 membre.genre == 'Femme' ? Icons.face_3 : Icons.face,
-                color: const Color(0xFF00A884),
+                color: const Color(0xFF0D7C66),
                 size: 28,
               ),
             ),
@@ -306,11 +306,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE6F7F3),
+                    color: const Color(0xFFE7F2F0),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.calendar_month_rounded, color: Color(0xFF00A884), size: 20),
+                    icon: const Icon(Icons.calendar_month_rounded, color: Color(0xFF0D7C66), size: 20),
                     tooltip: "Prendre RDV pour ${membre.prenom}",
                     onPressed: () => _ouvrirPriseRendezVousPourMembre(membre),
                   ),
@@ -390,11 +390,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
                 Row(
                   children: [
                     CircleAvatar(
-                      backgroundColor: const Color(0xFFE6F7F3),
+                      backgroundColor: const Color(0xFFE7F2F0),
                       radius: 26,
                       child: Icon(
                         membre.genre == 'Femme' ? Icons.face_3 : Icons.face,
-                        color: const Color(0xFF00A884),
+                        color: const Color(0xFF0D7C66),
                         size: 30,
                       ),
                     ),
@@ -424,10 +424,10 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   leading: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE6F7F3),
+                      color: const Color(0xFFE7F2F0),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.calendar_month_rounded, color: Color(0xFF00A884)),
+                    child: const Icon(Icons.calendar_month_rounded, color: Color(0xFF0D7C66)),
                   ),
                   title: Text(
                     "Prendre un rendez-vous pour ${membre.prenom}",

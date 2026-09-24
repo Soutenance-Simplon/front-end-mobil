@@ -63,12 +63,12 @@ class _EcranConnexionState extends State<EcranConnexion> {
                           width: 64,
                           height: 64,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE6F7F3),
+                            color: const Color(0xFFE7F2F0),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Icon(
                             Icons.local_hospital_rounded,
-                            color: Color(0xFF00A884),
+                            color: Color(0xFF0D7C66),
                             size: 36,
                           ),
                         ),
@@ -78,7 +78,7 @@ class _EcranConnexionState extends State<EcranConnexion> {
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF00A884),
+                            color: Color(0xFF0D7C66),
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -122,7 +122,7 @@ class _EcranConnexionState extends State<EcranConnexion> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF00A884), width: 1.8),
+                        borderSide: const BorderSide(color: Color(0xFF0D7C66), width: 1.8),
                       ),
                     ),
                   ),
@@ -163,7 +163,7 @@ class _EcranConnexionState extends State<EcranConnexion> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF00A884), width: 1.8),
+                        borderSide: const BorderSide(color: Color(0xFF0D7C66), width: 1.8),
                       ),
                     ),
                   ),
@@ -177,7 +177,7 @@ class _EcranConnexionState extends State<EcranConnexion> {
                     child: ElevatedButton(
                       onPressed: _seConnecter,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00A884),
+                        backgroundColor: const Color(0xFF0D7C66),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -212,7 +212,7 @@ class _EcranConnexionState extends State<EcranConnexion> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF00A884),
+                              color: Color(0xFF0D7C66),
                             ),
                           ),
                         ),

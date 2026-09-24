@@ -51,7 +51,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF00A884),
+              primary: Color(0xFF0D7C66),
               onPrimary: Colors.white,
               onSurface: Color(0xFF2D3142),
             ),
@@ -178,7 +178,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                               width: 36,
                               height: 36,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00A884),
+                                color: const Color(0xFF0D7C66),
                                 shape: BoxShape.circle,
                                 border: Border.all(color: Colors.white, width: 2.5),
                               ),
@@ -249,7 +249,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                     child: ElevatedButton(
                       onPressed: _onComplete,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00A884),
+                        backgroundColor: const Color(0xFF0D7C66),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -301,7 +301,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
         borderSide: BorderSide(color: Color(0xFFE5E9F2)),
       ),
       focusedBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFF00A884), width: 2),
+        borderSide: BorderSide(color: Color(0xFF0D7C66), width: 2),
       ),
     );
   }

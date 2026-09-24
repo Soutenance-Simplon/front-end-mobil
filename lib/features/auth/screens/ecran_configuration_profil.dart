@@ -95,8 +95,8 @@ class _EcranConfigurationProfilState extends ConsumerState<EcranConfigurationPro
             ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: const Color(0xFFE6F7F3), borderRadius: BorderRadius.circular(10)),
-                child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF00A884)),
+                decoration: BoxDecoration(color: const Color(0xFFE7F2F0), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF0D7C66)),
               ),
               title: const Text("Prendre une photo avec l'appareil", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
               onTap: () {
@@ -107,8 +107,8 @@ class _EcranConfigurationProfilState extends ConsumerState<EcranConfigurationPro
             ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: const Color(0xFFE6F7F3), borderRadius: BorderRadius.circular(10)),
-                child: const Icon(Icons.photo_library_rounded, color: Color(0xFF00A884)),
+                decoration: BoxDecoration(color: const Color(0xFFE7F2F0), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.photo_library_rounded, color: Color(0xFF0D7C66)),
               ),
               title: const Text("Choisir depuis la galerie", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
               onTap: () {
@@ -169,7 +169,7 @@ class _EcranConfigurationProfilState extends ConsumerState<EcranConfigurationPro
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF00A884),
+              primary: Color(0xFF0D7C66),
               onPrimary: Colors.white,
               onSurface: Color(0xFF2D3142),
             ),
@@ -224,7 +224,7 @@ class _EcranConfigurationProfilState extends ConsumerState<EcranConfigurationPro
               Text("Profil & Données vitales enregistrés avec succès !"),
             ],
           ),
-          backgroundColor: Color(0xFF00A884),
+          backgroundColor: Color(0xFF0D7C66),
           duration: Duration(seconds: 2),
         ),
       );
@@ -271,17 +271,17 @@ class _EcranConfigurationProfilState extends ConsumerState<EcranConfigurationPro
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE6F7F3),
+                            color: const Color(0xFFE7F2F0),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Row(
                             children: [
-                              Icon(Icons.verified_user_rounded, color: Color(0xFF00A884), size: 16),
+                              Icon(Icons.verified_user_rounded, color: Color(0xFF0D7C66), size: 16),
                               SizedBox(width: 6),
                               Text(
                                 "Première Connexion",
                                 style: TextStyle(
-                                  color: Color(0xFF00A884),
+                                  color: Color(0xFF0D7C66),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
                                 ),
@@ -342,12 +342,12 @@ class _EcranConfigurationProfilState extends ConsumerState<EcranConfigurationPro
                                     color: Colors.white,
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: const Color(0xFF00A884),
+                                      color: const Color(0xFF0D7C66),
                                       width: 2.5,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: const Color(0xFF00A884).withValues(alpha: 0.18),
+                                        color: const Color(0xFF0D7C66).withValues(alpha: 0.18),
                                         blurRadius: 14,
                                         offset: const Offset(0, 4),
                                       ),
@@ -379,7 +379,7 @@ class _EcranConfigurationProfilState extends ConsumerState<EcranConfigurationPro
                                     width: 34,
                                     height: 34,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF00A884),
+                                      color: const Color(0xFF0D7C66),
                                       shape: BoxShape.circle,
                                       border: Border.all(color: Colors.white, width: 2.5),
                                       boxShadow: [
@@ -407,12 +407,12 @@ class _EcranConfigurationProfilState extends ConsumerState<EcranConfigurationPro
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                               decoration: BoxDecoration(
                                 color: _octetsAvatar != null
-                                    ? const Color(0xFFE6F7F3)
+                                    ? const Color(0xFFE7F2F0)
                                     : const Color(0xFFF1F5F9),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
                                   color: _octetsAvatar != null
-                                      ? const Color(0xFF00A884).withValues(alpha: 0.4)
+                                      ? const Color(0xFF0D7C66).withValues(alpha: 0.4)
                                       : const Color(0xFFCBD5E1),
                                 ),
                               ),
@@ -425,7 +425,7 @@ class _EcranConfigurationProfilState extends ConsumerState<EcranConfigurationPro
                                         : Icons.add_a_photo_outlined,
                                     size: 14,
                                     color: _octetsAvatar != null
-                                        ? const Color(0xFF00A884)
+                                        ? const Color(0xFF0D7C66)
                                         : const Color(0xFF64748B),
                                   ),
                                   const SizedBox(width: 6),
@@ -437,7 +437,7 @@ class _EcranConfigurationProfilState extends ConsumerState<EcranConfigurationPro
                                       fontSize: 11.5,
                                       fontWeight: FontWeight.w600,
                                       color: _octetsAvatar != null
-                                          ? const Color(0xFF00A884)
+                                          ? const Color(0xFF0D7C66)
                                           : const Color(0xFF475569),
                                     ),
                                   ),
@@ -651,7 +651,7 @@ class _EcranConfigurationProfilState extends ConsumerState<EcranConfigurationPro
                       child: ElevatedButton.icon(
                         onPressed: _isSaving ? null : _terminerProfil,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00A884),
+                          backgroundColor: const Color(0xFF0D7C66),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -686,10 +686,10 @@ class _EcranConfigurationProfilState extends ConsumerState<EcranConfigurationPro
         Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: const Color(0xFFE6F7F3),
+            color: const Color(0xFFE7F2F0),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icone, size: 16, color: const Color(0xFF00A884)),
+          child: Icon(icone, size: 16, color: const Color(0xFF0D7C66)),
         ),
         const SizedBox(width: 8),
         Text(
@@ -733,7 +733,7 @@ class _EcranConfigurationProfilState extends ConsumerState<EcranConfigurationPro
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF00A884), width: 1.8),
+        borderSide: const BorderSide(color: Color(0xFF0D7C66), width: 1.8),
       ),
     );
   }

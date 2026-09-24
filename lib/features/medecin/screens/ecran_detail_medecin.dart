@@ -108,8 +108,8 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                               child: Container(
                                 width: 90,
                                 height: 90,
-                                color: const Color(0xFFE6F7F3),
-                                child: const Icon(Icons.person, size: 45, color: Color(0xFF00A884)),
+                                color: const Color(0xFFE7F2F0),
+                                child: const Icon(Icons.person, size: 45, color: Color(0xFF0D7C66)),
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -138,20 +138,20 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFE6F7F3),
+                                      color: const Color(0xFFE7F2F0),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: const Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(Icons.verified, color: Color(0xFF00A884), size: 12),
+                                        Icon(Icons.verified, color: Color(0xFF0D7C66), size: 12),
                                         SizedBox(width: 4),
                                         Text(
                                           "Agréé ONMS Sénégal",
                                           style: TextStyle(
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
-                                            color: Color(0xFF00A884),
+                                            color: Color(0xFF0D7C66),
                                           ),
                                         ),
                                       ],
@@ -168,7 +168,7 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF00A884),
+                            color: const Color(0xFF0D7C66),
                             borderRadius: BorderRadius.circular(24),
                           ),
                           child: Row(
@@ -260,7 +260,7 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE6F7F3),
+                                color: const Color(0xFFE7F2F0),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -268,7 +268,7 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                                 style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF00A884),
+                                  color: Color(0xFF0D7C66),
                                 ),
                               ),
                             ),
@@ -308,10 +308,10 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                                     duration: const Duration(milliseconds: 180),
                                     width: 60,
                                     decoration: BoxDecoration(
-                                      color: estSelectionnee ? const Color(0xFF00A884) : Colors.white,
+                                      color: estSelectionnee ? const Color(0xFF0D7C66) : Colors.white,
                                       borderRadius: BorderRadius.circular(16),
                                       border: Border.all(
-                                        color: estSelectionnee ? const Color(0xFF00A884) : const Color(0xFFE5E9F2),
+                                        color: estSelectionnee ? const Color(0xFF0D7C66) : const Color(0xFFE5E9F2),
                                       ),
                                     ),
                                     child: Column(
@@ -387,10 +387,10 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                                   duration: const Duration(milliseconds: 160),
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                   decoration: BoxDecoration(
-                                    color: estSelectionne ? const Color(0xFF00A884) : Colors.white,
+                                    color: estSelectionne ? const Color(0xFF0D7C66) : Colors.white,
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: estSelectionne ? const Color(0xFF00A884) : const Color(0xFFE5E9F2),
+                                      color: estSelectionne ? const Color(0xFF0D7C66) : const Color(0xFFE5E9F2),
                                       width: estSelectionne ? 2 : 1,
                                     ),
                                   ),
@@ -400,7 +400,7 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                                       Icon(
                                         isVisio ? Icons.videocam_rounded : Icons.local_hospital_rounded,
                                         size: 16,
-                                        color: estSelectionne ? Colors.white : const Color(0xFF00A884),
+                                        color: estSelectionne ? Colors.white : const Color(0xFF0D7C66),
                                       ),
                                       const SizedBox(width: 6),
                                       Text(
@@ -415,7 +415,7 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                                         decoration: BoxDecoration(
-                                          color: estSelectionne ? Colors.white.withOpacity(0.2) : const Color(0xFFE6F7F3),
+                                          color: estSelectionne ? Colors.white.withOpacity(0.2) : const Color(0xFFE7F2F0),
                                           borderRadius: BorderRadius.circular(4),
                                         ),
                                         child: Text(
@@ -423,7 +423,7 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                                           style: TextStyle(
                                             fontSize: 9,
                                             fontWeight: FontWeight.bold,
-                                            color: estSelectionne ? Colors.white : const Color(0xFF00A884),
+                                            color: estSelectionne ? Colors.white : const Color(0xFF0D7C66),
                                           ),
                                         ),
                                       ),
@@ -456,12 +456,12 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                           width: 52,
                           height: 52,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE6F7F3),
+                            color: const Color(0xFFE7F2F0),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Icon(
                             _estFavoris ? Icons.favorite : Icons.favorite_border,
-                            color: const Color(0xFF00A884),
+                            color: const Color(0xFF0D7C66),
                             size: 24,
                           ),
                         ),
@@ -483,7 +483,7 @@ class _EcranDetailMedecinState extends ConsumerState<EcranDetailMedecin> {
                               });
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF00A884),
+                              backgroundColor: const Color(0xFF0D7C66),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),

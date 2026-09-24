@@ -45,7 +45,7 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(accept ? "Rendez-vous accepté !" : "Rendez-vous refusé"),
-        backgroundColor: accept ? const Color(0xFF00A884) : const Color(0xFFE53935),
+        backgroundColor: accept ? const Color(0xFF0D7C66) : const Color(0xFFE53935),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -72,10 +72,10 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
             icon: Container(
               padding: const EdgeInsets.all(6),
               decoration: const BoxDecoration(
-                color: Color(0xFFE6F7F3),
+                color: Color(0xFFE7F2F0),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.add, color: Color(0xFF00A884), size: 20),
+              child: const Icon(Icons.add, color: Color(0xFF0D7C66), size: 20),
             ),
             onPressed: () {},
           ),
@@ -134,7 +134,7 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                           width: 44,
                           height: 60,
                           decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFF146C38) : Colors.transparent,
+                            color: isSelected ? const Color(0xFF0D7C66) : Colors.transparent,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Column(
@@ -169,9 +169,9 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _LegendItem(color: Color(0xFF146C38), label: "DISPONIBLE"),
+                      _LegendItem(color: Color(0xFF0D7C66), label: "DISPONIBLE"),
                       _LegendItem(color: Color(0xFFE53935), label: "OCCUPÉ"),
-                      _LegendItem(color: Color(0xFF00A884), label: "TÉLÉCONSULT."),
+                      _LegendItem(color: Color(0xFF0D7C66), label: "TÉLÉCONSULT."),
                     ],
                   ),
 
@@ -182,7 +182,7 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                     time: "08:00",
                     title: "Disponible",
                     subtitle: "Plage horaire libre",
-                    color: const Color(0xFF146C38),
+                    color: const Color(0xFF0D7C66),
                     bgColor: Colors.white,
                   ),
                   const SizedBox(height: 12),
@@ -190,7 +190,7 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                     time: "09:30",
                     title: "Mme Diallo",
                     subtitle: "📹 Téléconsultation",
-                    color: const Color(0xFF00A884),
+                    color: const Color(0xFF0D7C66),
                     bgColor: const Color(0xFFF0F8FF),
                     hasMore: true,
                   ),
@@ -208,7 +208,7 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                     time: "14:00",
                     title: "Disponible",
                     subtitle: "Plage horaire libre",
-                    color: const Color(0xFF146C38),
+                    color: const Color(0xFF0D7C66),
                     bgColor: Colors.white,
                   ),
 
@@ -231,7 +231,7 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF146C38),
+                          color: Color(0xFF0D7C66),
                         ),
                       ),
                     ],
@@ -311,7 +311,7 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                                 child: ElevatedButton(
                                   onPressed: () => _handleRequest(index, true),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF146C38),
+                                    backgroundColor: const Color(0xFF0D7C66),
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                   ),
@@ -333,13 +333,13 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                     height: 50,
                     child: OutlinedButton.icon(
                       onPressed: () {},
-                      icon: const Icon(Icons.history, color: Color(0xFF146C38)),
+                      icon: const Icon(Icons.history, color: Color(0xFF0D7C66)),
                       label: const Text(
                         "Gérer mes disponibilités",
-                        style: TextStyle(color: Color(0xFF146C38), fontWeight: FontWeight.bold),
+                        style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold),
                       ),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFF146C38), width: 1.5),
+                        side: const BorderSide(color: Color(0xFF0D7C66), width: 1.5),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
                     ),
