@@ -556,53 +556,109 @@ class _EcranMesRendezVousState extends ConsumerState<EcranMesRendezVous> {
 
           // Boutons d'action Patient
           const SizedBox(height: 14),
-          Row(
-            children: [
-              if (estTeleconsultation && estConfirme)
-                Expanded(
-                  flex: 3,
-                  child: SizedBox(
-                    height: 46,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        context.push('/teleconsultation-room', extra: rdv.toJson());
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0D7C66),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      icon: const Icon(Icons.videocam_rounded, color: Colors.white, size: 20),
-                      label: const Text(
-                        "Rejoindre Visio",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                      ),
-                    ),
-                  ),
-                ),
-              if (estTeleconsultation && estConfirme) const SizedBox(width: 8),
-              Expanded(
-                flex: 2,
-                child: SizedBox(
-                  height: 46,
-                  child: OutlinedButton.icon(
-                    onPressed: () => _ouvrirDialogueAvisPostRdv(context, rdv),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF0D7C66)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    icon: const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
-                    label: const Text(
-                      "Donner avis",
-                      style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 12),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _buildActionsPatient(context, rdv),
         ],
       ),
+    );
+  }
+
+  Widget _buildActionsPatient(BuildContext context, RendezVousModel rdv) {
+    final now = DateTime.now();
+    final minutesAvant = rdv.dateHeure.difference(now).inMinutes;
+    final estTeleconsultation = rdv.estTeleconsultation;
+    final estDomicile = rdv.typeConsultation == 'DOMICILE';
+    final estConfirme = rdv.statut == 'CONFIRME' || rdv.statut == 'EN_COURS';
+    final estTermine  = rdv.statut == 'TERMINE';
+
+    // Fenêtre : bouton visio visible seulement 5 min avant jusqu'à 60 min après
+    final peutRejoindreVisio = estTeleconsultation
+        && estConfirme
+        && minutesAvant <= 5
+        && now.isBefore(rdv.dateHeure.add(const Duration(minutes: 60)));
+
+    final afficherCompteBefore = estTeleconsultation
+        && estConfirme
+        && minutesAvant > 5
+        && minutesAvant <= 60;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // RDV TERMINÉ → inviter à donner un avis (téléconsultation OU domicile)
+        if (estTermine && (estTeleconsultation || estDomicile))
+          ElevatedButton.icon(
+            onPressed: () => _ouvrirDialogueAvisPostRdv(context, rdv),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.amber.shade700,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+            icon: const Icon(Icons.star_rounded, color: Colors.white, size: 20),
+            label: const Text(
+              'Donner mon avis sur cette consultation',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+            ),
+          ),
+
+        // Compte à rebours si pas encore dans la fenêtre 5 min
+        if (afficherCompteBefore)
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFCBD5E1)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.timer_outlined, size: 18, color: Color(0xFF64748B)),
+                const SizedBox(width: 8),
+                Text(
+                  'Salon ouvert dans ${minutesAvant - 5} minutes',
+                  style: const TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+
+        // Bouton rejoindre la visio (uniquement dans la fenêtre de 5 min)
+        if (peutRejoindreVisio) ...[
+          SizedBox(
+            height: 46,
+            child: ElevatedButton.icon(
+              onPressed: () => context.push('/teleconsultation-room', extra: rdv.toJson()),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0D7C66),
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              icon: const Icon(Icons.videocam_rounded, color: Colors.white, size: 20),
+              label: const Text('Rejoindre Visio',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+            ),
+          ),
+        ],
+
+        // Bouton avis pour les RDV non terminés (facultatif, visible si confirmé)
+        if (estConfirme && !estTeleconsultation && !estDomicile) ...[
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 46,
+            child: OutlinedButton.icon(
+              onPressed: () => _ouvrirDialogueAvisPostRdv(context, rdv),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFF0D7C66)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              icon: const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
+              label: const Text('Donner avis',
+                  style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 12)),
+            ),
+          ),
+        ],
+      ],
     );
   }
 

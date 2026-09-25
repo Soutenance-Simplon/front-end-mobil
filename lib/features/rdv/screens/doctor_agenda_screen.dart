@@ -7,6 +7,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../models/rendez_vous_model.dart';
 import '../providers/planning_provider.dart';
 import '../providers/rdv_provider.dart';
+import '../services/rdv_api_service.dart';
 import '../../medecin/models/creneau_model.dart';
 
 /// Écran d'Agenda et Planning du Médecin
@@ -1257,80 +1258,244 @@ class _DoctorAgendaScreenState extends ConsumerState<DoctorAgendaScreen> with Si
             ),
             const SizedBox(height: 14),
 
-            // BOUTONS D'ACTION RAPIDE (EXPERIENCE UTILISATEUR OPTIMALE)
-            Row(
-              children: [
-                // BOUTON 1 : LANCER LA TÉLÉCONSULTATION
-                Expanded(
-                  flex: 3,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      context.push('/teleconsultation-room', extra: rdv);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0D7C66),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 11),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    icon: const Icon(Icons.videocam_rounded, size: 18),
-                    label: const Text(
-                      "Rejoindre Visio",
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
+            const SizedBox(height: 14),
 
-                // BOUTON 2 : DOSSIER MÉDICAL
-                Expanded(
-                  flex: 2,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      context.push('/dossier-medical', extra: {
-                        'id': rdv.patientId,
-                        'nom': nomAffiche,
-                        'isSelf': false,
-                      });
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF1E293B),
-                      side: const BorderSide(color: Color(0xFFCBD5E1)),
-                      padding: const EdgeInsets.symmetric(vertical: 11),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    icon: const Icon(Icons.folder_shared_outlined, size: 16),
-                    label: const Text("Dossier", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                  ),
-                ),
-                const SizedBox(width: 8),
-
-                // BOUTON 3 : ORDONNANCE
-                InkWell(
-                  onTap: () {
-                    context.push('/smart-prescription', extra: {
-                      'patientId': rdv.patientId,
-                      'patientNom': nomAffiche,
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    padding: const EdgeInsets.all(11),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE7F2F0),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFC3DED9)),
-                    ),
-                    child: const Icon(Icons.note_alt_outlined, size: 18, color: Color(0xFF0D7C66)),
-                  ),
-                ),
-              ],
-            ),
+            // BOUTONS D'ACTION RAPIDE
+            _buildActionsMedecin(context, rdv, nomAffiche),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildActionsMedecin(BuildContext context, RendezVousModel rdv, String nomAffiche) {
+    final now = DateTime.now();
+    final minutesAvant = rdv.dateHeure.difference(now).inMinutes;
+    final estConfirme  = rdv.statut == 'CONFIRME' || rdv.statut == 'EN_COURS';
+    final estTermine   = rdv.statut == 'TERMINE';
+    final estAnnule    = rdv.statut == 'ANNULE';
+
+    // Téléconsultation : bouton visible uniquement dans la fenêtre [-5 min, +60 min]
+    final peutRejoindreVisio = rdv.typeConsultation == 'TELECONSULTATION'
+        && estConfirme
+        && minutesAvant <= 5
+        && now.isBefore(rdv.dateHeure.add(const Duration(minutes: 60)));
+
+    // Compte à rebours affiché si entre 5 et 60 minutes
+    final afficherCompteBefore = rdv.typeConsultation == 'TELECONSULTATION'
+        && estConfirme
+        && minutesAvant > 5
+        && minutesAvant <= 60;
+
+    if (estTermine) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE7F2F0),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.check_circle_rounded, color: Color(0xFF0D7C66), size: 18),
+            SizedBox(width: 8),
+            Text('Consultation terminée', style: TextStyle(color: Color(0xFF0D7C66), fontWeight: FontWeight.bold, fontSize: 13)),
+          ],
+        ),
+      );
+    }
+
+    if (estAnnule) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(color: const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(12)),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.cancel_rounded, color: Colors.redAccent, size: 18),
+            SizedBox(width: 8),
+            Text('Rendez-vous annulé', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 13)),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            // Bouton Visio (uniquement si dans la fenêtre de 5 min)
+            if (peutRejoindreVisio) ...[
+              Expanded(
+                flex: 3,
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push('/teleconsultation-room', extra: rdv),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0D7C66),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  icon: const Icon(Icons.videocam_rounded, size: 18),
+                  label: const Text('Rejoindre Visio', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+
+            // Compte à rebours "disponible dans X min"
+            if (afficherCompteBefore) ...[
+              Expanded(
+                flex: 3,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.timer_outlined, size: 16, color: Color(0xFF64748B)),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Visio dans ${minutesAvant - 5} min',
+                        style: const TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+
+            // Dossier médical
+            Expanded(
+              flex: 2,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  context.push('/dossier-medical', extra: {
+                    'id': rdv.patientId,
+                    'nom': nomAffiche,
+                    'isSelf': false,
+                  });
+                },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF1E293B),
+                  side: const BorderSide(color: Color(0xFFCBD5E1)),
+                  padding: const EdgeInsets.symmetric(vertical: 11),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                icon: const Icon(Icons.folder_shared_outlined, size: 16),
+                label: const Text('Dossier', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              ),
+            ),
+            const SizedBox(width: 8),
+
+            // Ordonnance
+            InkWell(
+              onTap: () {
+                context.push('/smart-prescription', extra: {
+                  'patientId': rdv.patientId,
+                  'patientNom': nomAffiche,
+                });
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(11),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE7F2F0),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFC3DED9)),
+                ),
+                child: const Icon(Icons.note_alt_outlined, size: 18, color: Color(0xFF0D7C66)),
+              ),
+            ),
+          ],
+        ),
+
+        // Bouton "Terminer la consultation"
+        if (estConfirme) ...[
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => _confirmerTerminer(context, rdv),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF7C3AED),
+                side: const BorderSide(color: Color(0xFF7C3AED)),
+                padding: const EdgeInsets.symmetric(vertical: 11),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
+              label: const Text('Marquer comme terminée', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _confirmerTerminer(BuildContext context, RendezVousModel rdv) async {
+    final confirme = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.check_circle_outline_rounded, color: Color(0xFF7C3AED), size: 26),
+            SizedBox(width: 10),
+            Text('Terminer la consultation ?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Text(
+          'Confirmez-vous la fin de la consultation avec ${rdv.patientNom ?? "ce patient"} ?\n\nCette action marquera le rendez-vous comme TERMINÉ et informera le patient.',
+          style: const TextStyle(fontSize: 13.5, color: Color(0xFF475569), height: 1.5),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Annuler', style: TextStyle(color: Color(0xFF64748B))),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF7C3AED),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Oui, terminer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirme == true && mounted) {
+      final success = await ref.read(rdvProvider.notifier).annulerRdv(rdv.id); // réutilise l'API statut
+      // On appelle directement le service pour TERMINE
+      final rdvNotifier = ref.read(rdvProvider.notifier);
+      // Appel direct via service
+      try {
+        final apiService = ref.read(rdvApiServiceProvider);
+        final ok = await apiService.updateStatutRdv(rdv.id, 'TERMINE');
+        if (ok && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Row(children: [
+                Icon(Icons.check_circle_rounded, color: Colors.white),
+                SizedBox(width: 10),
+                Text('Consultation marquée comme terminée. Le patient a été notifié.'),
+              ]),
+              backgroundColor: Color(0xFF7C3AED),
+              duration: Duration(seconds: 3),
+            ),
+          );
+          await _rafraichirDonnees();
+        }
+      } catch (_) {}
+    }
   }
 
   // =========================================================================

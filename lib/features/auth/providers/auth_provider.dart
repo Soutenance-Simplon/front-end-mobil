@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../models/role_model.dart';
 import '../models/user_model.dart';
 import '../services/auth_api_service.dart';
+import '../../../core/services/websocket_service.dart';
 
 /// État global d'authentification
 class AuthState {
@@ -42,6 +43,7 @@ class AuthState {
 /// Contrôleur d'état Auth
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthApiService _apiService;
+  final WebSocketService _wsService = WebSocketService();
 
   AuthNotifier(this._apiService) : super(const AuthState()) {
     init();
@@ -79,6 +81,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isAuthenticated: true,
         user: res.user,
       );
+      // Connexion WebSocket pour recevoir notifications et mises à jour en temps réel
+      if (res.user != null && res.user!.id.isNotEmpty) {
+        _wsService.connect(userId: res.user!.id);
+      }
       return true;
     } else {
       state = state.copyWith(
@@ -170,6 +176,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> logout() async {
     await _apiService.logout();
+    // Déconnexion WebSocket propre
+    _wsService.disconnect();
     state = const AuthState();
   }
 }

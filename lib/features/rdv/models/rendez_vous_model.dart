@@ -32,21 +32,47 @@ class RendezVousModel {
   });
 
   factory RendezVousModel.fromJson(Map<String, dynamic> json) {
+    // Le backend Java (Jackson) sérialise en camelCase :
+    // patientId, medecinId, dateHeureSouhaitee, dateHeureConfirmee, typeConsultation, statut, paiementValide, tarifApplique
+    final dateStr = json['dateHeureConfirmee']?.toString() ??
+        json['dateHeureSouhaitee']?.toString() ??
+        json['date_heure']?.toString() ??
+        json['dateHeure']?.toString() ??
+        json['date']?.toString();
+
+    final double montantParsed = (() {
+      final raw = json['tarifApplique'] ?? json['montant'] ?? json['price'];
+      if (raw == null) return 15000.0;
+      if (raw is num) return raw.toDouble();
+      return double.tryParse(raw.toString()) ?? 15000.0;
+    })();
+
+    final bool paye = json['paiementValide'] == true || json['paiementValide'] == 'true';
+    final String statutPaiement = json['statut_paiement']?.toString() ??
+        json['statutPaiement']?.toString() ??
+        (paye ? 'PAYE' : 'NON_PAYE');
+
     return RendezVousModel(
       id: json['id']?.toString() ?? '',
-      patientId: json['patient_id']?.toString() ?? json['patientId']?.toString() ?? '',
-      medecinId: json['medecin_id']?.toString() ?? json['medecinId']?.toString() ?? '',
-      medecinNom: json['medecin_nom'] ?? json['medecinNom'] ?? json['doctor_name'] ?? 'Dr. Médecin',
-      medecinSpecialite: json['medecin_specialite'] ?? json['medecinSpecialite'] ?? json['specialite'] ?? 'Généraliste',
-      patientNom: json['patient_nom'] ?? json['patientNom'] ?? json['patient_name'],
-      dateHeure: DateTime.tryParse(json['date_heure'] ?? json['dateHeure'] ?? json['date'] ?? '') ?? DateTime.now(),
-      motif: json['motif'] ?? json['reason'] ?? 'Consultation médicale',
-      typeConsultation: json['type_consultation'] ?? json['typeConsultation'] ?? json['type'] ?? 'PRESENTIELLE',
-      statut: json['statut'] ?? json['status'] ?? 'CONFIRME',
-      montant: (json['montant'] ?? json['price'] ?? 15000).toDouble(),
-      statutPaiement: json['statut_paiement'] ?? json['statutPaiement'] ?? 'PAYE',
-      lienTeleconsultation: json['lien_teleconsultation'] ?? json['lienTeleconsultation'],
-      notes: json['notes'],
+      patientId: json['patientId']?.toString() ?? json['patient_id']?.toString() ?? '',
+      medecinId: json['medecinId']?.toString() ?? json['medecin_id']?.toString() ?? '',
+      medecinNom: json['medecinNom'] ?? json['medecin_nom'] ?? json['doctor_name'],
+      medecinSpecialite: json['medecinSpecialite'] ?? json['medecin_specialite'] ?? json['specialite'],
+      patientNom: json['patientNom'] ?? json['patient_nom'] ?? json['patient_name'],
+      dateHeure: (dateStr != null && dateStr.isNotEmpty)
+          ? (DateTime.tryParse(dateStr) ?? DateTime.now())
+          : DateTime.now(),
+      motif: json['motif']?.toString() ?? json['reason']?.toString() ?? 'Consultation médicale',
+      typeConsultation: json['typeConsultation']?.toString() ??
+          json['type_consultation']?.toString() ??
+          json['type']?.toString() ??
+          'TELECONSULTATION',
+      statut: json['statut']?.toString() ?? json['status']?.toString() ?? 'EN_ATTENTE',
+      montant: montantParsed,
+      statutPaiement: statutPaiement,
+      lienTeleconsultation: json['lienTeleconsultation']?.toString() ??
+          json['lien_teleconsultation']?.toString(),
+      notes: json['notes']?.toString(),
     );
   }
 

@@ -26,10 +26,10 @@ class DossierApiService {
   }
 
   /// Ajouter une nouvelle consultation
-  Future<bool> ajouterConsultation(String dossierId, ConsultationModel consultation) async {
+  Future<bool> ajouterConsultation(String patientId, ConsultationModel consultation) async {
     try {
       final response = await dio.post(
-        '/dossiers/$dossierId/consultations',
+        '/dossiers/patient/$patientId/consultations',
         data: consultation.toJson(),
       );
       return response.statusCode == 200 || response.statusCode == 201;
@@ -39,10 +39,10 @@ class DossierApiService {
   }
 
   /// Ajouter une prescription / Ordonnance intelligente (IA)
-  Future<bool> ajouterPrescription(String dossierId, PrescriptionModel prescription) async {
+  Future<bool> ajouterPrescription(String patientId, PrescriptionModel prescription) async {
     try {
       final response = await dio.post(
-        '/dossiers/$dossierId/prescriptions',
+        '/dossiers/patient/$patientId/prescriptions',
         data: prescription.toJson(),
       );
       return response.statusCode == 200 || response.statusCode == 201;
@@ -52,10 +52,10 @@ class DossierApiService {
   }
 
   /// Ajouter une allergie
-  Future<bool> ajouterAllergie(String dossierId, AllergieModel allergie) async {
+  Future<bool> ajouterAllergie(String patientId, AllergieModel allergie) async {
     try {
       final response = await dio.post(
-        '/dossiers/$dossierId/allergies',
+        '/dossiers/patient/$patientId/allergies',
         data: allergie.toJson(),
       );
       return response.statusCode == 200 || response.statusCode == 201;
@@ -65,10 +65,10 @@ class DossierApiService {
   }
 
   /// Ajouter un antécédent
-  Future<bool> ajouterAntecedent(String dossierId, AntecedentModel antecedent) async {
+  Future<bool> ajouterAntecedent(String patientId, AntecedentModel antecedent) async {
     try {
       final response = await dio.post(
-        '/dossiers/$dossierId/antecedents',
+        '/dossiers/patient/$patientId/antecedents',
         data: antecedent.toJson(),
       );
       return response.statusCode == 200 || response.statusCode == 201;
@@ -78,10 +78,10 @@ class DossierApiService {
   }
 
   /// Ajouter un vaccin
-  Future<bool> ajouterVaccin(String dossierId, VaccinationModel vaccin) async {
+  Future<bool> ajouterVaccin(String patientId, VaccinationModel vaccin) async {
     try {
       final response = await dio.post(
-        '/dossiers/$dossierId/vaccinations',
+        '/dossiers/patient/$patientId/vaccinations',
         data: vaccin.toJson(),
       );
       return response.statusCode == 200 || response.statusCode == 201;

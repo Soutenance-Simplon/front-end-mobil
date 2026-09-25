@@ -29,7 +29,7 @@ class IaApiService {
       final response = await dio.post(
         '/ia/triage',
         data: {'description': description},
-        options: Options(receiveTimeout: const Duration(seconds: 4), sendTimeout: const Duration(seconds: 3)),
+        options: Options(receiveTimeout: const Duration(seconds: 15), sendTimeout: const Duration(seconds: 5)),
       );
       if (response.statusCode == 200 && response.data != null) {
         final data = response.data['data'] ?? response.data;
@@ -96,7 +96,7 @@ class IaApiService {
           'message': message,
           'history': (historique ?? []).map((m) => m.toJson()).toList(),
         },
-        options: Options(receiveTimeout: const Duration(seconds: 6), sendTimeout: const Duration(seconds: 4)),
+        options: Options(receiveTimeout: const Duration(seconds: 20), sendTimeout: const Duration(seconds: 5)),
       );
       if (response.statusCode == 200 && response.data != null) {
         final data = response.data['data'] ?? response.data;
@@ -105,8 +105,8 @@ class IaApiService {
     } catch (_) {
       try {
         final directDio = Dio(BaseOptions(
-          connectTimeout: const Duration(seconds: 6),
-          receiveTimeout: const Duration(seconds: 6),
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 20),
         ));
         final directResponse = await directDio.post(
           'http://127.0.0.1:8089/ia/chat',

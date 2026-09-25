@@ -1,7 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/api_client.dart';
 import '../models/rendez_vous_model.dart';
 import '../models/salle_teleconsultation_model.dart';
+
+/// Provider Riverpod pour accéder à RdvApiService depuis les widgets
+
 
 class RdvApiService {
   final ApiClient _client = ApiClient();
@@ -94,8 +98,8 @@ class RdvApiService {
           if (displayName != null && displayName.isNotEmpty) 'displayName': displayName,
         },
         options: Options(
-          sendTimeout: const Duration(seconds: 4),
-          receiveTimeout: const Duration(seconds: 4),
+          sendTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 12),
         ),
       );
       if (response.statusCode == 200 && response.data != null) {
@@ -125,3 +129,4 @@ class TeleconsultationException implements Exception {
   @override
   String toString() => message;
 }
+

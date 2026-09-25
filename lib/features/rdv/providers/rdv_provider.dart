@@ -25,10 +25,11 @@ class RdvState {
     List<RendezVousModel>? mesRendezVous,
     List<RendezVousModel>? agendaMedecin,
     SalleTeleconsultationModel? salonActif,
+    bool clearError = false,
   }) {
     return RdvState(
       isLoading: isLoading ?? this.isLoading,
-      error: error,
+      error: clearError ? null : (error ?? this.error),
       mesRendezVous: mesRendezVous ?? this.mesRendezVous,
       agendaMedecin: agendaMedecin ?? this.agendaMedecin,
       salonActif: salonActif ?? this.salonActif,
@@ -41,82 +42,40 @@ class RdvNotifier extends StateNotifier<RdvState> {
 
   RdvNotifier(this._apiService) : super(const RdvState());
 
-  List<RendezVousModel> _getInitialDefaultAppointments({String? patientId, String? medecinId, bool isMedecin = false}) {
-    final now = DateTime.now();
-    return [
-      RendezVousModel(
-        id: '8f4a92c1-b7e9-420a-8c2f-109b34726481',
-        patientId: patientId ?? 'a4020b38-a282-4372-847c-4765a4c18c1f',
-        medecinId: medecinId ?? 'c7921a48-f302-491b-9e22-82410a517028',
-        medecinNom: 'Dr. Aïssatou Diop',
-        medecinSpecialite: 'Cardiologue (Téléconsultation)',
-        patientNom: 'Mamadou Diallo',
-        dateHeure: now,
-        motif: 'Suivi tensionnel et téléconsultation médicale',
-        typeConsultation: 'TELECONSULTATION',
-        statut: 'CONFIRME',
-        statutPaiement: 'PAYE',
-        montant: 15000,
-      ),
-      RendezVousModel(
-        id: 'b8192a40-128f-4d02-9912-48201a4891b2',
-        patientId: patientId ?? 'a4020b38-a282-4372-847c-4765a4c18c1f',
-        medecinId: medecinId ?? 'e9204b12-5819-4c02-9102-817264910291',
-        medecinNom: 'Dr. Cheikh Ndiaye',
-        medecinSpecialite: 'Médecin Généraliste',
-        patientNom: 'Aminata Sow',
-        dateHeure: now.add(const Duration(days: 1, hours: 2)),
-        motif: 'Renouvellement d\'ordonnance et avis médical',
-        typeConsultation: 'TELECONSULTATION',
-        statut: 'CONFIRME',
-        statutPaiement: 'PAYE',
-        montant: 10000,
-      ),
-      RendezVousModel(
-        id: 'c9120b41-9281-4e12-8102-918274910281',
-        patientId: patientId ?? 'a4020b38-a282-4372-847c-4765a4c18c1f',
-        medecinId: medecinId ?? 'd8129a01-1289-4b12-9102-918273910282',
-        medecinNom: 'Dr. Bintou Sarr',
-        medecinSpecialite: 'Pédiatre',
-        patientNom: 'Ousmane Ba',
-        dateHeure: now.subtract(const Duration(days: 3)),
-        motif: 'Consultation de routine',
-        typeConsultation: 'PRESENTIELLE',
-        statut: 'TERMINE',
-        statutPaiement: 'PAYE',
-        montant: 12000,
-      ),
-    ];
-  }
-
+  /// Charge les rendez-vous d'un patient depuis le backend réel.
+  /// Affiche une liste vide si aucun RDV n'existe (pas de fallback fictif).
   Future<void> loadMesRendezVous({required String patientId}) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, clearError: true);
     try {
       final list = await _apiService.getRendezVousPatient(patientId);
-      final finalResult = list.isNotEmpty ? list : _getInitialDefaultAppointments(patientId: patientId, isMedecin: false);
-      state = state.copyWith(isLoading: false, mesRendezVous: finalResult);
+      state = state.copyWith(isLoading: false, mesRendezVous: list);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        mesRendezVous: _getInitialDefaultAppointments(patientId: patientId, isMedecin: false),
+        error: 'Impossible de charger vos rendez-vous : ${e.toString()}',
+        mesRendezVous: [],
       );
     }
   }
 
+  /// Charge l'agenda d'un médecin depuis le backend réel.
   Future<void> loadAgendaMedecin({required String medecinId}) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, clearError: true);
     try {
       final list = await _apiService.getAgendaMedecin(medecinId);
-      final finalResult = list.isNotEmpty ? list : _getInitialDefaultAppointments(medecinId: medecinId, isMedecin: true);
-      state = state.copyWith(isLoading: false, agendaMedecin: finalResult);
+      state = state.copyWith(isLoading: false, agendaMedecin: list);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        agendaMedecin: _getInitialDefaultAppointments(medecinId: medecinId, isMedecin: true),
+        error: 'Impossible de charger l\'agenda : ${e.toString()}',
+        agendaMedecin: [],
       );
     }
   }
 
+  /// Réserve un rendez-vous via le backend.
+  /// IMPORTANT : Ne crée PLUS de RDV fictif en local si le backend échoue.
+  /// Un retour `false` signifie que le backend n'a pas persisté le RDV.
   Future<bool> reserverRendezVous({
     required String patientId,
     required String medecinId,
@@ -127,13 +86,15 @@ class RdvNotifier extends StateNotifier<RdvState> {
     String? medecinNom,
     String? medecinSpecialite,
   }) async {
-    // CONTRÔLE STRICT : UN RENDEZ-VOUS DOIT ÊTRE PRIS AU MOINS 30 MINUTES À L'AVANCE
+    // Validation : au moins 30 min à l'avance
     if (dateHeure.isBefore(DateTime.now().add(const Duration(minutes: 30)))) {
-      state = state.copyWith(isLoading: false, error: "Un rendez-vous doit être pris au moins 30 minutes à l'avance.");
+      state = state.copyWith(
+        error: "Un rendez-vous doit être pris au moins 30 minutes à l'avance.",
+      );
       return false;
     }
 
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, clearError: true);
     try {
       final rdv = await _apiService.creerRendezVous(
         patientId: patientId,
@@ -143,84 +104,107 @@ class RdvNotifier extends StateNotifier<RdvState> {
         typeConsultation: typeConsultation,
         montant: montant,
       );
+
       if (rdv != null) {
+        // Succès : le RDV existe vraiment en base de données
         state = state.copyWith(
           isLoading: false,
           mesRendezVous: [rdv, ...state.mesRendezVous],
         );
         return true;
       }
-      // Fallback local pour synchronisation immédiate de l'interface
-      final fallbackRdv = RendezVousModel(
-        id: 'rdv_${DateTime.now().millisecondsSinceEpoch}',
-        patientId: patientId,
-        medecinId: medecinId,
-        medecinNom: medecinNom ?? 'Dr. Praticien',
-        medecinSpecialite: medecinSpecialite ?? 'Spécialiste',
-        dateHeure: dateHeure,
-        motif: motif,
-        typeConsultation: typeConsultation,
-        montant: montant,
-        statut: 'CONFIRME',
-        statutPaiement: 'PAYE',
-      );
+
+      // Le backend a répondu mais sans données valides
       state = state.copyWith(
         isLoading: false,
-        mesRendezVous: [fallbackRdv, ...state.mesRendezVous],
+        error: 'Le rendez-vous n\'a pas pu être créé. Vérifiez votre connexion et réessayez.',
       );
-      return true;
+      return false;
     } catch (e) {
-      final fallbackRdv = RendezVousModel(
-        id: 'rdv_${DateTime.now().millisecondsSinceEpoch}',
-        patientId: patientId,
-        medecinId: medecinId,
-        medecinNom: medecinNom ?? 'Dr. Praticien',
-        medecinSpecialite: medecinSpecialite ?? 'Spécialiste',
-        dateHeure: dateHeure,
-        motif: motif,
-        typeConsultation: typeConsultation,
-        montant: montant,
-        statut: 'CONFIRME',
-        statutPaiement: 'PAYE',
-      );
       state = state.copyWith(
         isLoading: false,
-        mesRendezVous: [fallbackRdv, ...state.mesRendezVous],
+        error: 'Erreur lors de la création du rendez-vous : ${e.toString()}',
       );
-      return true;
+      return false;
     }
   }
 
+  /// Annule un rendez-vous via le backend et met à jour l'état local si succès.
   Future<bool> annulerRdv(String rdvId) async {
-    final success = await _apiService.updateStatutRdv(rdvId, 'ANNULE');
-    if (success) {
-      final updated = state.mesRendezVous.map((r) {
-        if (r.id == rdvId) {
-          return RendezVousModel(
-            id: r.id,
-            patientId: r.patientId,
-            medecinId: r.medecinId,
-            medecinNom: r.medecinNom,
-            medecinSpecialite: r.medecinSpecialite,
-            dateHeure: r.dateHeure,
-            motif: r.motif,
-            typeConsultation: r.typeConsultation,
-            statut: 'ANNULE',
-            montant: r.montant,
-            statutPaiement: 'REMBOURSE',
-          );
-        }
-        return r;
-      }).toList();
-      state = state.copyWith(mesRendezVous: updated);
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final success = await _apiService.updateStatutRdv(rdvId, 'ANNULE');
+      if (success) {
+        final updated = state.mesRendezVous.map((r) {
+          if (r.id == rdvId) {
+            return RendezVousModel(
+              id: r.id,
+              patientId: r.patientId,
+              medecinId: r.medecinId,
+              medecinNom: r.medecinNom,
+              medecinSpecialite: r.medecinSpecialite,
+              dateHeure: r.dateHeure,
+              motif: r.motif,
+              typeConsultation: r.typeConsultation,
+              statut: 'ANNULE',
+              montant: r.montant,
+              statutPaiement: 'REMBOURSE',
+            );
+          }
+          return r;
+        }).toList();
+        state = state.copyWith(isLoading: false, mesRendezVous: updated);
+        return true;
+      }
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Impossible d\'annuler le rendez-vous.',
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Erreur lors de l\'annulation : ${e.toString()}',
+      );
+      return false;
     }
-    return success;
   }
 
   Future<SalleTeleconsultationModel?> rejoindreSalon(String rdvId) async {
     final salon = await _apiService.rejoindreTeleconsultation(rdvId);
     state = state.copyWith(salonActif: salon);
     return salon;
+  }
+
+  /// Met à jour un RDV reçu via WebSocket en temps réel
+  void mettreAJourRdvTempsReel(RendezVousModel rdvMisAJour) {
+    // Mettre à jour dans mesRendezVous
+    final updatedPatient = state.mesRendezVous.map((r) {
+      return r.id == rdvMisAJour.id ? rdvMisAJour : r;
+    }).toList();
+    // Si non trouvé dans la liste patient, c'est peut-être un nouveau RDV
+    final existePatient = state.mesRendezVous.any((r) => r.id == rdvMisAJour.id);
+    final nouvelleListePatient = existePatient
+        ? updatedPatient
+        : [rdvMisAJour, ...state.mesRendezVous];
+
+    // Mettre à jour dans agendaMedecin
+    final updatedMedecin = state.agendaMedecin.map((r) {
+      return r.id == rdvMisAJour.id ? rdvMisAJour : r;
+    }).toList();
+    final existeMedecin = state.agendaMedecin.any((r) => r.id == rdvMisAJour.id);
+    final nouvelleListeMedecin = existeMedecin
+        ? updatedMedecin
+        : [rdvMisAJour, ...state.agendaMedecin];
+
+    state = state.copyWith(
+      mesRendezVous: nouvelleListePatient,
+      agendaMedecin: nouvelleListeMedecin,
+    );
+  }
+
+  void clearError() {
+    state = state.copyWith(clearError: true);
   }
 }
 

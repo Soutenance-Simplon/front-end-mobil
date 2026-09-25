@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../services/wallet_api_service.dart';
@@ -236,6 +237,215 @@ class _EcranPortefeuilleState extends ConsumerState<EcranPortefeuille> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCarteUrgencesSection() {
+    // TODO: A lier avec votre state provider pour savoir si l'utilisateur a lié une carte.
+    // Exemple: final aUneCarte = ref.watch(walletProvider).hasCarteActive;
+    final bool aUneCarte = false; // Mettez "true" pour tester le design de la carte virtuelle
+
+    if (!aUneCarte) {
+      // Design: Lier une carte (Inspiré par le minimalisme et la couleur Cyan)
+      return Container(
+        margin: const EdgeInsets.only(top: 24, bottom: 8),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: const Color(0xFF16c1f3).withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFF16c1f3).withValues(alpha: 0.3), width: 1.5),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF16c1f3),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(color: const Color(0xFF16c1f3).withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4)),
+                ],
+              ),
+              child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 32),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Carte Médicale d'Urgence",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF2D3142)),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    "Protégez-vous ! Liez votre carte physique anonyme à votre profil.",
+                    style: TextStyle(fontSize: 12, color: Color(0xFF8E95A5)),
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      // TODO: Ouvrir l'appareil photo pour scanner la carte vierge
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Ouverture du scanner QR..."), backgroundColor: Color(0xFF16c1f3)),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF16c1f3),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    ),
+                    child: const Text("Lier ma carte", style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Design: Carte Virtuelle (Design Premium et Sombre comme sur votre capture)
+    return Container(
+      margin: const EdgeInsets.only(top: 24, bottom: 8),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0A2B22), // Vert très foncé élégant
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0A2B22).withValues(alpha: 0.4),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Ligne de vie décorative (Pulse/Wave background)
+          Positioned(
+            right: -20,
+            bottom: 20,
+            child: Icon(Icons.monitor_heart_outlined, size: 100, color: Colors.white.withValues(alpha: 0.05)),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF16c1f3).withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.favorite, color: Color(0xFF16c1f3), size: 18),
+                      ),
+                      const SizedBox(width: 10),
+                      const Text(
+                        "DIAM-YARAAM",
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1.2),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      "O+", // TODO: A lier dynamiquement
+                      style: TextStyle(color: Color(0xFF0A2B22), fontWeight: FontWeight.w900, fontSize: 14),
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(height: 32),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Prénom & Nom", style: TextStyle(color: Colors.white54, fontSize: 11)),
+                        const SizedBox(height: 4),
+                        const Text(
+                          "Fatou Sow", // TODO: A lier dynamiquement
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),
+                        ),
+                        const SizedBox(height: 20),
+                        _buildInfoCardRow(Icons.phone_rounded, "Numéro téléphone", "+221 77 123 45 67"),
+                        const SizedBox(height: 12),
+                        _buildInfoCardRow(Icons.security_rounded, "Jeton QR Sécurisé", "DY-123-456"),
+                        const SizedBox(height: 12),
+                        _buildInfoCardRow(Icons.emergency_rounded, "Contact D'urgence (ICE)", "Moussa Diallo (+221 77 354 67 28)"),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        QrImageView(
+                          data: "DY-DYNAMIC-TOKEN-PLACEHOLDER", // TODO: Remplacer par le vrai jetonDynamique de l'API
+                          version: QrVersions.auto,
+                          size: 90.0,
+                          backgroundColor: Colors.white,
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          "SCAN ME",
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF0A2B22)),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoCardRow(IconData icon, String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: const Color(0xFF16c1f3), size: 14),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: const TextStyle(color: Colors.white54, fontSize: 10)),
+              Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12)),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -557,6 +767,10 @@ class _EcranPortefeuilleState extends ConsumerState<EcranPortefeuille> {
                       ],
                     ),
                   ),
+                  
+                  // NOUVELLE SECTION: Carte d'Urgence (Late Binding)
+                  _buildCarteUrgencesSection(),
+                  
                   if (walletState.mesInvitations.isNotEmpty) ...[
                     const SizedBox(height: 28),
                     Row(
