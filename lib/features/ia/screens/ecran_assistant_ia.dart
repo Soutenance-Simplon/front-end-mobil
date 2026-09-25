@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../providers/ia_provider.dart';
 import '../../dossier/providers/dossier_provider.dart';
 import '../../patient/services/patient_api_service.dart';
@@ -296,12 +297,14 @@ class _EcranAssistantIaState extends ConsumerState<EcranAssistantIa> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                msg.contenu,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  height: 1.4,
-                                  color: estUser ? Colors.white : const Color(0xFF2D3142),
+                              MarkdownBody(
+                                data: msg.contenu,
+                                styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                                  p: TextStyle(
+                                    fontSize: 14,
+                                    height: 1.4,
+                                    color: estUser ? Colors.white : const Color(0xFF2D3142),
+                                  ),
                                 ),
                               ),
                               if (msg.recommandations != null && msg.recommandations!.isNotEmpty) ...[

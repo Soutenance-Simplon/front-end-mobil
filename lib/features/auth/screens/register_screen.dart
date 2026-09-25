@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 import '../../../core/network/api_client.dart';
 import '../services/auth_api_service.dart';
 
@@ -20,13 +21,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   // Controllers Patient
   final _patientNameController = TextEditingController();
-  final _patientPhoneController = TextEditingController(text: '+221 ');
+  final _patientPhoneController = TextEditingController();
   final _patientPasswordController = TextEditingController();
+  String _patientCountryCode = '+221';
 
   // Controllers Médecin
   final _onmsController = TextEditingController();
-  final _doctorPhoneController = TextEditingController(text: '+221 ');
+  final _doctorPhoneController = TextEditingController();
   final _doctorPasswordController = TextEditingController();
+  String _doctorCountryCode = '+221';
 
   bool _obscurePassword = true;
   bool _isVerifyingOnms = false;
@@ -144,11 +147,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
       setState(() => _isLoading = true);
       try {
+        final fullPhone = '$_patientCountryCode$phone'.replaceAll(' ', '');
         final res = await AuthApiService().register(
           firstName: nom.split(' ').first,
           lastName: nom.split(' ').length > 1 ? nom.split(' ').sublist(1).join(' ') : nom,
-          telephone: phone,
-          email: '${phone.replaceAll(RegExp(r'[^0-9]'), '')}@diam.sn',
+          telephone: fullPhone,
+          email: '${fullPhone.replaceAll(RegExp(r'[^0-9]'), '')}@diam.sn',
           password: password,
           roleId: 'PATIENT',
           genre: 'M',
@@ -168,7 +172,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         // Succès → aller à l'écran OTP
         context.push('/verify-phone-otp', extra: {
           'role': 'PATIENT',
-          'phone': phone,
+          'phone': fullPhone,
           'name': nom,
           'password': password,
         });
@@ -201,12 +205,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
       setState(() => _isLoading = true);
       try {
+        final fullPhone = '$_doctorCountryCode$phone'.replaceAll(' ', '');
         final nom = _onmsMatch!['nom'] ?? '';
         final res = await AuthApiService().register(
           firstName: nom.split(' ').first,
           lastName: nom.split(' ').length > 1 ? nom.split(' ').sublist(1).join(' ') : nom,
-          telephone: phone,
-          email: '${phone.replaceAll(RegExp(r'[^0-9]'), '')}@diam.sn',
+          telephone: fullPhone,
+          email: '${fullPhone.replaceAll(RegExp(r'[^0-9]'), '')}@diam.sn',
           password: password,
           roleId: 'MEDECIN',
           genre: 'M',
@@ -225,7 +230,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
         context.push('/verify-phone-otp', extra: {
           'role': 'MEDECIN',
-          'phone': phone,
+          'phone': fullPhone,
           'name': nom,
           'onms': _onmsController.text.trim(),
           'password': password,
@@ -400,8 +405,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       _buildTextField(
                         controller: _patientPhoneController,
                         label: "Numéro de téléphone",
-                        hint: "+221 77 123 45 67",
-                        icon: Icons.phone_outlined,
+                        hint: "77 123 45 67",
+                        prefixIcon: CountryCodePicker(
+                          onChanged: (code) {
+                            _patientCountryCode = code.dialCode ?? '+221';
+                          },
+                          initialSelection: 'SN',
+                          favorite: const ['+221', 'SN'],
+                          showCountryOnly: false,
+                          showOnlyCountryWhenClosed: false,
+                          alignLeft: false,
+                          padding: EdgeInsets.zero,
+                          textStyle: const TextStyle(fontSize: 14, color: Color(0xFF2D3142)),
+                        ),
                         keyboardType: TextInputType.phone,
                       ),
                       const SizedBox(height: 18),
@@ -523,8 +539,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       _buildTextField(
                         controller: _doctorPhoneController,
                         label: "Numéro de téléphone",
-                        hint: "+221 77 123 45 67",
-                        icon: Icons.phone_outlined,
+                        hint: "77 123 45 67",
+                        prefixIcon: CountryCodePicker(
+                          onChanged: (code) {
+                            _doctorCountryCode = code.dialCode ?? '+221';
+                          },
+                          initialSelection: 'SN',
+                          favorite: const ['+221', 'SN'],
+                          showCountryOnly: false,
+                          showOnlyCountryWhenClosed: false,
+                          alignLeft: false,
+                          padding: EdgeInsets.zero,
+                          textStyle: const TextStyle(fontSize: 14, color: Color(0xFF2D3142)),
+                        ),
                         keyboardType: TextInputType.phone,
                       ),
                       const SizedBox(height: 18),
@@ -668,7 +695,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     required TextEditingController controller,
     required String label,
     required String hint,
-    required IconData icon,
+    IconData? icon,
+    Widget? prefixIcon,
     TextInputType keyboardType = TextInputType.text,
     bool obscureText = false,
     Widget? suffixIcon,
@@ -695,7 +723,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: const TextStyle(color: Color(0xFFA0AEC0), fontSize: 14),
-            prefixIcon: Icon(icon, color: const Color(0xFF94A3B8), size: 20),
+            prefixIcon: prefixIcon ?? (icon != null ? Icon(icon, color: const Color(0xFF94A3B8), size: 20) : null),
             suffixIcon: suffixIcon,
             filled: true,
             fillColor: const Color(0xFFF8FAFC),

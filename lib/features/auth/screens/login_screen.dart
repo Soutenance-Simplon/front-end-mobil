@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -27,11 +28,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  bool _obscurePassword = true;
+  bool _isPhone = true;
+  String _countryCode = '+221';
+
   String? _error;
 
   @override
   void initState() {
     super.initState();
+
+    _emailController.addListener(_onInputChanged);
 
     /// Page animation
     _pageController = AnimationController(
@@ -74,6 +81,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     _logoController.forward();
   }
 
+  void _onInputChanged() {
+    final text = _emailController.text;
+    final hasLetters = text.contains(RegExp(r'[a-zA-Z@]'));
+    if (hasLetters && _isPhone) {
+      setState(() => _isPhone = false);
+    } else if (!hasLetters && !_isPhone) {
+      setState(() => _isPhone = true);
+    }
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -85,10 +102,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }
 
   Future<void> _login() async {
+    final input = _emailController.text.trim();
+    final isEmail = input.contains('@');
+    final finalInput = isEmail ? input : '$_countryCode$input'.replaceAll(' ', '');
+
     final success = await ref
         .read(authProvider.notifier)
         .login(
-          email: _emailController.text.trim(),
+          email: finalInput,
           password: _passwordController.text.trim(),
         );
 
@@ -156,11 +177,40 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         /// IDENTIFIANT (TELEPHONE OU EMAIL)
                         TextField(
                           controller: _emailController,
-                          keyboardType: TextInputType.text,
-                          decoration: const InputDecoration(
-                            labelText: "Numéro de téléphone ou Email",
-                            hintText: "Ex: +221 77 123 45 67",
-                            prefixIcon: Icon(Icons.phone_android_rounded),
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: InputDecoration(
+                            hintText: _isPhone ? "Numéro de téléphone ou Email (Ex: 77 123 45 67)" : "Email (Ex: jean@mail.com)",
+                            prefixIcon: _isPhone
+                                ? Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      CountryCodePicker(
+                                        onChanged: (code) {
+                                          _countryCode = code.dialCode ?? '+221';
+                                        },
+                                        initialSelection: 'SN',
+                                        favorite: const ['+221', 'SN'],
+                                        showCountryOnly: false,
+                                        showOnlyCountryWhenClosed: false,
+                                        alignLeft: false,
+                                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                                        flagWidth: 24,
+                                        showFlagMain: true,
+                                        showFlag: true,
+                                        textStyle: const TextStyle(fontSize: 15, color: Color(0xFF2D3142), fontWeight: FontWeight.w500),
+                                      ),
+                                      Container(
+                                        height: 24,
+                                        width: 1,
+                                        color: const Color(0xFFE2E8F0),
+                                        margin: const EdgeInsets.only(right: 12),
+                                      ),
+                                    ],
+                                  )
+                                : const Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    child: Icon(Icons.email_outlined),
+                                  ),
                           ),
                         ),
 
@@ -169,10 +219,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         /// PASSWORD
                         TextField(
                           controller: _passwordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: "Mot de passe",
-                            prefixIcon: Icon(Icons.lock_outline),
+                          obscureText: _obscurePassword,
+                          decoration: InputDecoration(
+                            hintText: "Mot de passe",
+                            prefixIcon: const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: Icon(Icons.lock_outline),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                color: const Color(0xFF8D99AE),
+                              ),
+                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                            ),
                           ),
                         ),
 
